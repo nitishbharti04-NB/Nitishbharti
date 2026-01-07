@@ -1,0 +1,966 @@
+import os
+from datetime import date, timedelta, datetime
+from app import logger
+from app import logger
+import numpy as np
+import smtplib
+import pytz
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
+import pandas as pd
+from pretty_html_table import build_table
+
+uae_mail_list = [
+'auh2_hub@noon.com', 'auh3_hub@noon.com', 'shj-hub@noon.com', 'rkt-hub@noon.com', 'fjr-hub@noon.com', 'auh-hub@noon.com', 'aan-hub@noon.com', 'dxb03_hub@noon.com', 'dxba1-rto@noon.com', 'uae-trojans@noon.com', 'nesingh@noon.com', 'grahman@noon.com', 'dxbg1-lpc@noon.com', 'dxba8-hub@noon.com', 'ajainudeen@noon.com', 'aayash@noon.com', 'fkunnumbrath@noon.com', 'ieltahhan@noon.com', 'syehussain@noon.com', 'tmotwani@noon.com', 'srizvi@noon.com', 'asethi@noon.com', 'dxb-d1@noon.com', 'myarafat@noon.com', 'shj-a2-hub@noon.com', 'sortcenter@noon.com', 'auh4_hub@noon.com', 'moddem@noon.com', 'dxba9-hub@noon.com', 'bfrancis@noon.com', 'achandorkar@noon.com', 'dxb_hub@noon.com', 'audayan@noon.com', 'mnemacha@noon.com', 'bmadhavaram@noon.com', 'dailyoutbound@noon.com', 'joantony@noon.com', 'dxb-g2@noon.com', 'kssingh@noon.com'
+]
+
+
+SMTP_SERVER = os.environ.get('SMTP_SERVER')
+SMTP_USER = os.environ.get('SMTP_USER')
+SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')
+subject = ''
+
+
+def send_mail(from_email, to_email, parsed_content):
+    logger.info('4. Mailer ran')
+    conn = smtplib.SMTP(SMTP_SERVER)
+    conn.set_debuglevel(False)
+    conn.login(SMTP_USER, SENDGRID_API_KEY)
+    logger.info('trying to send email')
+    conn.sendmail(
+        from_email, to_email, parsed_content.as_string()
+    )
+    logger.info('mailer sent')
+    logger.info('mailer quitting')
+    conn.quit()
+
+
+def get_html(data_tables):
+    html = f'<html><head></head><body><h1>{subject}</h1>'
+
+    for title, dataframe in data_tables:
+        html += f'<h2>{title}</h2>' if title else '<br>'
+        # html += f'{dataframe.to_html()}'
+        html += f"{build_table(dataframe, 'blue_light')}"
+    html += '</body></html>'
+
+    return html
+
+
+def get_parsed_content(subject, data_tables=[], attachments_list=[], from_email='', to_email=''):
+    parsed_content = MIMEMultipart('alternative')
+    parsed_content['Subject'] = subject
+    parsed_content["From"] = from_email
+    parsed_content["To"] = ", ".join(to_email)
+
+    # Include body
+    email_body = MIMEText(get_html(data_tables), 'html')
+    parsed_content.attach(email_body)
+
+    # Include Attachments
+    for index, attachment in enumerate(attachments_list):
+        attachment = MIMEApplication(attachment.to_csv())
+        attachment["Content-Disposition"] = f'attachment; filename= "attachment_{index}.csv"'
+        parsed_content.attach(attachment)
+    logger.info('3. subject, attachment done')
+    return parsed_content
+
+
+def send_python_email(subject, from_email, to_email, data_tables, attachments_list):
+    parsed_content = get_parsed_content(subject, data_tables, attachments_list, from_email, to_email)
+    send_mail(from_email, to_email, parsed_content)
+
+#Mailer functions ^^ above this
+###############################################
+
+def staff_attendance(**params): 
+    logger.info('1. Start')
+        
+
+    query = '''
+    with system as
+    (select distinct
+    case when id_country = 1 then "AE" 
+    when id_country = 2 then "SA" 
+    when id_country = 3 then "EG" 
+    end as country,
+    facility_code as Hub,
+    username,
+    idp_manager_email,
+    lms_apps,
+    lms_roles,
+    login_type,
+    facility_type,
+    attendance_date date
+    from (SELECT DISTINCT
+    SUBSTR(SPLIT(jsonPayload.message, ",")[SAFE_ORDINAL(1)],19,100) auth_user_login,
+    SUBSTR(SPLIT(jsonPayload.message, ",")[SAFE_ORDINAL(2)],8,100) email,
+    user.username,
+    user.idp_manager_email,
+    lms_apps,
+    lms_roles,
+    SUBSTR(SPLIT(jsonPayload.message, ",")[SAFE_ORDINAL(3)],6,100) sid,
+    jsonPayload.ops_idp.login_type,
+    coalesce(jsonPayload.ops_idp.facility,SUBSTR(hub_codes,1,6)) facility_code,
+    if(id_country is null, 1, id_country) as id_country,
+    if(jsonPayload.ops_idp.facility_type is null , "FIELD" , jsonPayload.ops_idp.facility_type) AS facility_type,
+    DATE(CASE WHEN id_country = 3 THEN if( extract ( hour from timestamp_add(receiveTimestamp, interval 2 hour) ) <= 02 , date_sub(date(timestamp_add(receiveTimestamp, interval 2 hour)), interval 1 day), date(timestamp_add(receiveTimestamp, interval 2 hour)))
+    WHEN id_country = 2 THEN if( extract ( hour from timestamp_add(receiveTimestamp, interval 3 hour) ) <= 02 , date_sub(date(timestamp_add(receiveTimestamp, interval 3 hour)), interval 1 day), date(timestamp_add(receiveTimestamp, interval 3 hour))) 
+    WHEN id_country = 1 THEN if( extract ( hour from timestamp_add(receiveTimestamp, interval 4 hour) ) <= 02 , date_sub(date(timestamp_add(receiveTimestamp, interval 4 hour)), interval 1 day), date(timestamp_add(receiveTimestamp, interval 4 hour))) 
+    WHEN id_country is null THEN if( extract ( hour from timestamp_add(receiveTimestamp, interval 4 hour) ) <= 02 , date_sub(date(timestamp_add(receiveTimestamp, interval 4 hour)), interval 1 day), date(timestamp_add(receiveTimestamp, interval 4 hour))) 
+    End) attendance_date
+    FROM `noondwh.otp.stdout_*` stdout
+    LEFT JOIN `noonltddwh.lms.user` user on user.email = SUBSTR(SPLIT(jsonPayload.message, ",")[SAFE_ORDINAL(2)],8,100)
+    LEFT JOIN `noonltddwh.lms.user_misc` using(id_user)
+    LEFT JOIN `noonltddwh.lms.hub` h on h.code = coalesce(jsonPayload.ops_idp.facility,SUBSTR(hub_codes,1,6))
+    left join `noonltddwh.lms.hub_airport` using (id_hub_airport)
+    ) 
+    where facility_type in ("FIELD", "HUB")
+    and id_country = 1
+    and idp_manager_email not in ('nawasthi@noon.com',
+    'ksingh@noon.com',
+    'ardas@noon.com',
+    'mmalik@noon.com',
+    'asahu@noon.com',
+    'z@noon.com',
+    'sd@noon.com',
+    'asantoyo@noon.com',
+    'ugera@noon.com',
+    'mwarish@noon.com',
+    'pbhat@noon.com',
+    'mshawky@noon.com')
+    and date_diff(current_date(),attendance_date, day) <= 60
+    union all
+    select distinct upper(substr(hub.address_code,21,2)) as country , 
+    hub.code as Hub,
+    user.username,
+    "" idp_manager_email,
+    "field" lms_apps,
+    "" lms_roles,
+    "Phone_OTP" as login_type,
+    "HUb" facility_type,
+    date(task.created_at)  date
+    from `noondwh.sclmslastmile_lms_lastmile.task` task 
+    left join `noondwh.sclmslastmile_lms_lastmile.user_session` user_session using (id_user_session)
+    left join `noondwh.sclmslastmile_lms_lastmile.user` user  using (id_user)
+    left join `noondwh.sclmslastmile_lms_lastmile.hub` hub using (id_hub)
+    where date_diff(current_date(),date(task.created_at), day) <= 60)
+
+
+    select a.* except(date), date(a.date) date, 
+    if(value in ('P', 'NJ'), date(a.date), null) manual_attendance
+    , s.date system_attendance 
+
+    from 
+    `noonbilogmis.kd.staff_attendance` a
+    left join 
+        (select username, date from
+        system group by 1,2) s 
+        on (s.username, s.date) = (a.username, date(a.date)) 
+    -- where date(a.date) between current_date-1 and current_date-8
+    '''
+    df = pd.read_gbq(query, 'noonbilogmis')
+
+    df['manual_attendance'] = pd.to_datetime(df['manual_attendance'])
+    df['manual_attendance'] = df['manual_attendance'].dt.date
+
+    today = date.today()
+    yesterday = today - timedelta(days = 3) 
+    yest = date.strftime(yesterday, '%Y-%m-%d')
+
+    df[['date','manual_attendance', 'system_attendance']] = df[['date','manual_attendance', 'system_attendance']].astype('datetime64')
+    yest_df = df.loc[df['date'] == yest] 
+    yest_df.reset_index(inplace = True)
+    #1 Hub wise view for attendance
+    yest_hub= yest_df[['hub', 'role', 'manual_attendance', 'system_attendance']].groupby(['hub', 'role']).count()
+    yest_hub['delta'] = yest_hub.manual_attendance - yest_hub.system_attendance
+    yest_hub.reset_index(inplace = True)
+
+    #2 Value wise data
+    yest_value= pd.pivot_table(yest_df,index = ['hub'], columns = 'value', aggfunc ={'manual_attendance' : len})
+    yest_value.fillna('-', inplace = True)
+    yest_value.reset_index(inplace = True)
+
+
+    subject = 'This is a test email using python'
+    from_email  = 'kssingh@noon.com'
+    to_email = ['kssingh@noon.com']
+    data_tables = [
+        ('Hub-wise Attendance Report:', yest_hub),
+        ('Value-wise Attendance Report:', yest_value),
+        ('', yest_df.describe() )
+    ]
+    attachments = [yest_df, yest_hub, yest_value]
+    logger.info('2. data read')
+    send_python_email(subject, from_email, to_email, data_tables, attachments)
+
+
+def uae_da_incentives(**params):
+    logger.info('Start Query')
+    query = '''
+        create temp function local_ts(x timestamp, y string)
+    returns timestamp
+    as (case when y = 'ae' then date_add(x, interval 4 hour)
+        when y = 'sa' then date_add(x, interval 3 hour)
+        when y = 'eg' then date_add(x, interval 2 hour) end);
+
+    with hub_geopoint as
+    (select hub, cast(lat as float64) lat, cast(lng as float64) lng from
+    (select 'AAN-A1' hub,24.1455246 lat,55.84166562 lng union all
+    select'AUH-A1',    24.34221576,    54.50083159 union all 
+    select 'AUH-A2',    24.72007746,   54.72961354 union all
+    select 'AUH-A3',    23.6575751,    53.73713877 union all
+    select 'DXB-A1',    25.14471979,    55.23031127 union all
+    select 'DXB-A8',    25.18023379,    55.36121147 union all
+    select 'FJR-A1',    25.10256921,    56.27486818 union all
+    select 'RKT-A1',    25.76029715,    55.96502176 union all
+    select 'SHJ-A1',    25.38321625,    55.48898314 union all
+    select 'SHJ-A2',    25.33633516,    55.40203728 
+    )),
+    -- AUH-A3, AAN-A1, FJR-A1, RKT-A1
+    --if((closest_distance_km > 30 and hub not in ('AUH-A3', 'AAN-A1', 'FJR-A1', 'RKT-A1') or (closest_distance_km > 25 and hub in ('AUH-A3', 'AAN-A1', 'FJR-A1', 'RKT-A1')) , 'far', 'not_far')
+    distance as
+    (select *,-- if((closest_distance_km <= 30) or null, 'not_far', 'far') 
+    if((closest_distance_km > 30 and hub not in ('AUH-A3', 'AAN-A1', 'FJR-A1', 'RKT-A1')) or (closest_distance_km > 25 and hub in ('AUH-A3', 'AAN-A1', 'FJR-A1', 'RKT-A1')) , 'far', 'not_far') location   
+    from
+    (select hub, lat_long, cz, round(ST_DISTANCE(lat_long,st_centroid(st_geogfromtext(coordinates)))/1000,2) closest_distance_km,  
+    from
+    (select hub,st_geogpoint(longitude,latitude) lat_long, cz, depth, coordinates,area,row_number() over (partition by hub order by area) rw, 
+    row_number() over (partition by hub order by area desc) matching_czs from
+    (select hub,  
+    lat latitude,
+    lng longitude
+    from
+    hub_geopoint
+    where lat <> 0 or lng <> 0
+    )
+    left join 
+    (select
+    distinct(a.code) as cz,
+    c.code as hub_sector, left(c.code, 6) hub,
+    d.geom as coordinates, depth, 
+    cast(ST_AREA(ST_GEOGFROM(geom)) as float64) area
+    from
+    `noondwh.lms.country_zone` a
+    left join
+    `noondwh.lms.map_layer_cell` b
+    on
+    a.id_country_zone = b.id_country_zone
+    inner join `noondwh.lms.map_layer_active_version` mlav using (id_map_layer_version)
+    left join
+    `noondwh.lms.hub_sector` c
+    on
+    cast(json_extract(a.labels_node,
+    '$.hs_lm') as int64) = c.id_hub_sector
+    left join
+    `noondwh.lms.map_layer_polygon` d
+    on
+    b.id_map_layer_cell = d.id_map_layer_cell
+    ) using(hub)
+
+    ))),
+    -- where rw =1
+
+    pickup as
+    (select if((u.username in (select IDP from `noonbilogoi.UAE_data.special_proj_bikers`) or u.username like "nf%"), 'biker_cir','cir')type,client_ref, hs.code hub, cz.code cz,null wh_code,
+    date(local_ts(clj.updated_at,coun.code)) ofp_date
+    ,local_ts(clj.created_at,coun.code) ofp_created_at, local_ts(clj.updated_at,coun.code) ofp_updated_at,
+    s.code ofp_status,u.username ofp_da
+
+    from 
+    `noonltddwh.lms.creq` c
+    left join `noonltddwh.lms.creq_leg` cl using (id_creq)
+    left join `noonltddwh.lms.creq_leg_job` clj using (id_creq_leg)
+    left join  noonltddwh.lms.status s on s.id_status = clj.id_status
+    left join noonltddwh.lms.hub_sector sec using (id_hub_sector)
+    left join noonltddwh.lms.hub hs using (id_hub)
+    left join `noonltddwh.lms.user` u using (id_user)
+    left join `noonltddwh.lms.country_zone` cz using(id_country_zone)  
+    left join noonltddwh.lms.hub_airport air on air.id_hub_airport = hs.id_hub_airport
+    left join noonltddwh.lms.country coun on coun.id_country = air.id_country
+    where id_creq_type =2 and id_creq_leg_type =1 and coun.code = 'ae' 
+
+    union all
+
+    select  
+    'ds'type,task_nr client_ref, hs.code hub, cz.code cz, ware.code wh_code,
+    date(local_ts(bpj.updated_at,coun.code)) ofp_date
+    ,local_ts(bpj.created_at,coun.code) ofp_created_at, local_ts(bpj.updated_at,coun.code) ofp_updated_at,
+    s.code ofp_status,u.username ofp_da
+    from 
+    `noonltddwh.lms.business_pickup_task` bp
+    left join `noonltddwh.lms.business_pickup_task_job` bpj using (id_business_pickup_task)
+    left join `noonltddwh.lms.status` s using (id_status)
+    left join `noonltddwh.lms.user` u using (id_user)
+    left join `noonltddwh.lms.reason` r using (id_reason)
+    left join noonltddwh.lms.hub_sector sec using (id_hub_sector)
+    left join noonltddwh.lms.hub hs using (id_hub)
+    left join `noonltddwh.lms.country_zone` cz using(id_country_zone)  
+    left join noonltddwh.lms.hub_airport air on air.id_hub_airport = hs.id_hub_airport
+    left join noonltddwh.lms.country coun on coun.id_country = air.id_country
+    left join noonltddwh.lms.address ad on ad.id_address = bp.id_address
+    left join `noonltddwh.partner.partner_warehouse` ware on ware.code = ad.address_uid
+    left join
+    (select substr(code, 0, 10) wh_code, id_warehouse_lane_type, 
+            if(wc.service_point_code_forward like 'sp%',"dropoff", "pickup") as mode,
+    from `noonltddwh.xms_sourcing.warehouse_lane` wl
+    left join `noonltddwh.xms_sourcing.warehouse_config` wc  on wc.warehouse_code = substr(wl.code, 0, 10)
+    ) whl on whl.wh_code = ware.code
+    where left(ad.address_uid, 1) = 'W'
+    and sec.code not like '%dropoff%'
+    and mode = 'pickup'
+    and id_address_type <> 4
+    and coun.code = 'ae'
+    ),
+
+    del as 
+        (select  
+    case 
+            -- when ifs.creq = 'CIR' and ifs.creq_leg_type = 'Dropoff' and substr(ifs.client_ref,6,1) <> "D"  
+                -- and (ofd.username in (select IDP from `noonbilogoi.UAE_data.special_proj_bikers`) or ofd.username like "nf%") and MP = '"noon"' then 'biker_cir'
+        --  when ifs.creq = 'CIR' and ifs.creq_leg_type = 'Dropoff' and MP = '"noon"' then 'cir'
+        when ifs.creq = 'RTV' and ifs.creq_leg_type = 'Delivery' and client_ref  not like '%IPKS%' 
+                and origin_warehouse in (select address_uid from `noondwh.lms.address` where id_address_type <> 4) then 'rtv'
+        when ifs.creq = 'LM' and ifs.creq_leg_type = 'RTO'  and MP = '"noon"' and ifs.hub_sector not like '%DROPOFF%'  
+                and origin_warehouse in (select address_uid from `noondwh.lms.address` where id_address_type <> 4) then 'rto'
+        when substr(ifs.client_ref,6,1) <> "D"  and (ofd.username in (select IDP from `noonbilogoi.UAE_data.special_proj_bikers`) or ofd.username like "nf%") and MP = '"noon"' then 'biker'
+        when (date(ifs.promised_at) = date(shipment_creation_TS)) and (date(ifs.promised_at) = date(ofd_date)) and (ifs.creq = 'LM' and ifs.creq_leg_type = 'Delivery')  and MP = '"noon"' then 'sdd'
+        when pwh.id_warehouse_type = 5 and MP = '"noon"' then 'bulky'
+        when json_extract(ipkg.misc, "$.item_size") = '"L"' and (ifs.creq = 'LM' and ifs.creq_leg_type = 'Delivery') and MP = '"noon"' then 'delivery_large'
+        when ifs.creq = 'LM' and  ifs.creq_leg_type = 'Delivery' and MP = '"noon"' then 'delivery'
+        else null
+    end type, ofd_date, username,origin_warehouse, if(location is null, 'not_far', location) location,
+    count(distinct(ofd.awb_nr)) shipments,
+    count(distinct(case when ofd_status = 'Delivered' 
+                    or(date(ifs.updated_at)= ofd_date and loc_type = 'manifested') then awb_nr end)) delivered
+
+
+    from 
+    `noonbilogmis.kd.item_final_state` ifs
+
+    left join distance dis on (dis.hub, dis.cz) = (ifs.forward_hub, ifs.country_zone)
+
+    left join
+    (select * except(username), if(username = 'lms@noon.team', locker_da, username) username from
+        `noonbilogoi.MJ.OFD` 
+
+    left join 
+    (select id_item,username locker_da
+    from `noonltddwh.lms.item_state_history` ifs
+    left join `noonltddwh.lms.user` i on ifs.id_user_updater = id_user    
+    where id_loc_type= 17
+    qualify row_number() over (partition by id_item order by ifs.created_at desc) =1
+    ) using (id_item)  
+        )ofd using (awb_nr)
+
+    left join
+    `noonltddwh.lms.item_pkg` ipkg on ifs.id_item = ipkg.id_item
+
+    left join 
+    `noondwh.partner.partner_warehouse` pwh on ifs.origin_warehouse = pwh.code 
+    where country = 'ae'
+    group by 1,2,3,4,5
+    order by 5 desc
+    ),
+
+    base as
+    (select *, 
+    if(type in ('rtv', 'rto'), tp_del/tp, total_delivered/total_shipment) adherence,
+    from
+    (select type, ofd_date, username, location,sum(shipments) total_shipment, sum(delivered) total_delivered,
+        count(distinct(case when type in ('rtv', 'rto') then origin_warehouse end)) tp,
+        count(distinct(case when type in ('rtv', 'rto') and delivered >0 then origin_warehouse end)) tp_del 
+        
+    from del
+
+    where type is not null and type not in ('delivery', 'delivery_large') and ofd_date is not null
+    group by 1,2,3,4)),
+
+
+    final as
+    (select a.* from
+    ((select type, ofd_date, username, if(type = 'sdd',location, null) location, total_shipment, total_delivered,tp, tp_del,round(adherence,2) adherence,
+    --case when adherence >.85 and type in ('bulky', 'delivery', 'delivery_large', 'sdd') then 1 end above_85,
+    round(case 
+        when type = 'sdd'  and (adherence between .75 and .85) then (total_delivered)*.5
+        when type = 'sdd'  and (adherence between .85 and .92) then (total_delivered)*.6
+        when type = 'sdd'  and adherence > .92 then (total_delivered)*.8
+        when type = 'bulky' and total_delivered > 5 and (adherence between .75 and .85) then (total_delivered-5)*1
+        when type = 'bulky' and total_delivered > 5 and (adherence between .85 and .92) then (total_delivered-5)*2
+        when type = 'bulky' and total_delivered > 5 and adherence > .92 then (total_delivered-5)*3
+        when type = 'biker' and (adherence between .75 and .85) then (total_delivered)*.4
+        when type = 'biker' and (adherence between .85 and .92) then (total_delivered)*.5
+        when type = 'biker' and adherence > .92 then (total_delivered)*.7
+        when type = 'rtv' and tp_del > 1 and (adherence between .65 and .70) then (tp_del-1)*.5
+        when type = 'rtv' and tp_del > 1 and adherence > .7 then (tp_del-1)*.6     
+        when type = 'rto' and tp_del > 2 and (adherence between .65 and .70) then (tp_del-2)*.5
+        when type = 'rto' and tp_del > 2 and adherence > .7 then (tp_del-2)*.6
+        else  0
+    end,1) total_amount
+
+    from
+    base
+    where type not in ('delivery', 'delivery_large') 
+    order by 1,2,3 desc)
+
+    union all
+    -- ( select type, ofd_datem username, location , sum(shi)
+    (select 'delivery' type,ofd_date, username,null location, shipments total_shipment, delivered total_dekivered, null tp, null tp_del, adherence,
+    round(case
+    when del_D>= 30 and (adherence between .75 and .85) then (del_D-30) * .4 + (del_DF * .5 + del_DL * .5 + del_DLF * .6)
+    when del_DF>= (30- del_D) and (adherence between .75 and .85) then (del_DF-(30- del_D)) * .5 + (del_DL * .5 + del_DLF * .6)
+    when del_DL>= (30- del_D-del_DF) and (adherence between .75 and .85) then (del_DL-(30- del_D-del_DF)) * .5 + (del_DLF * .6)
+    when del_DLF>= (30- del_D-del_DF-del_DL) and (adherence between .75 and .85) then (del_DLF-(30- del_D-del_DF-del_DL))*.6 
+
+    when del_D>= 30 and (adherence between .85 and .92) then (del_D-30) * .5 + (del_DF * .6 + del_DL * .6 + del_DLF * .7)
+    when del_DF>= (30- del_D) and (adherence between .85 and .92) then (del_DF-(30- del_D)) * .6 + (del_DL * .6 + del_DLF * .7)
+    when del_DL>= (30- del_D-del_DF) and (adherence between .85 and .92) then (del_DL-(30- del_D-del_DF)) * .6 + (del_DLF * .7)
+    when del_DLF>= (30- del_D-del_DF-del_DL) and (adherence between .85 and .92) then (del_DLF-(30- del_D-del_DF-del_DL))*.7 
+
+    when del_D>= 30 and adherence > .92 then (del_D-30) * .7 + (del_DF * .8 + del_DL * .8 + del_DLF * .9)
+    when del_DF>= (30- del_D) and adherence > .92 then (del_DF-(30- del_D)) * .8 + (del_DL * .8 + del_DLF * .9)
+    when del_DL>= (30- del_D-del_DF) and adherence > .92 then (del_DL-(30- del_D-del_DF)) * .8 + (del_DLF * .9)
+    when del_DLF>= (30- del_D-del_DF-del_DL) and adherence > .92 then (del_DLF-(30- del_D-del_DF-del_DL))*.9 
+end, 2) total_amount
+
+    from
+    (select *,
+    (ship_D + ship_DF + ship_DL + ship_DLF) shipments,
+    (del_D + del_DF + del_DL + del_DLF) delivered,
+    (del_D + del_DF + del_DL + del_DLF) / (ship_D + ship_DF + ship_DL + ship_DLF) adherence
+    
+     from 
+    (select ofd_date, username, 
+    sum(case when type = 'delivery' and location = 'not_far' and shipments is not null then shipments else 0 end) ship_D,
+    sum(case when type = 'delivery' and location = 'far' and shipments is not null then shipments else 0 end) ship_DF, 
+    sum(case when type = 'delivery_large' and location = 'not_far' and shipments is not null then shipments else 0 end) ship_DL,
+    sum(case when type = 'delivery_large' and location = 'far' and shipments is not null then shipments else 0 end) ship_DLF,
+
+    sum(case when type = 'delivery' and location = 'not_far' and delivered is not null then delivered else 0 end) del_D,
+    sum(case when type = 'delivery' and location = 'far' and delivered is not null then delivered else 0 end) del_DF, 
+    sum(case when type = 'delivery_large' and location = 'not_far' and delivered is not null then delivered else 0 end) del_DL,
+    sum(case when type = 'delivery_large' and location = 'far' and delivered is not null then delivered else 0 end) del_DLF, 
+    
+    from (
+    select type, ofd_date, username, location, sum(shipments) shipments, sum(delivered) delivered
+    from
+    del
+    where type in ('delivery', 'delivery_large')
+    group by 1,2,3,4
+    )
+    group by 1,2
+    )))
+
+
+
+    union all
+
+    (select *,--null above_85,
+    round(case when location = 'not_far' and type = 'cir' and (adherence between .6 and .7) then (total_delivered)*.5
+        when location = 'not_far' and type = 'cir' and (adherence between .7 and .75) then (total_delivered)*.6
+        when (location = 'not_far' or null) and type = 'cir' and  adherence > .75 then (total_delivered)*.7
+        when location = 'far' and type = 'cir' and (adherence between .6 and .7) then (total_delivered)*.6
+        when location = 'far' and type = 'cir' and (adherence between .7 and .75) then (total_delivered)*.7
+        when (location = 'far' or null) and type = 'cir' and  adherence > .75 then (total_delivered)*.8
+        when type = 'biker_cir' and (adherence between .6 and .7) then (total_delivered)*.5
+        when type = 'biker_cir' and (adherence between .7 and .75) then (total_delivered)*.6
+        when type = 'biker_cir' and  adherence > .75 then (total_delivered-5)*.7
+        when type = 'ds' and tp_del > 5 and (adherence between .70 and .9) then (tp_del-5)*.5
+        when type = 'ds' and tp_del > 5 and adherence > .9 then (tp_del-5)*.6
+        end,2) total_amount
+    from
+    (select *, 
+    round(case when type = 'cir' then total_delivered/ total_shipment
+        when type = 'ds' then tp_del/ tp  end, 2) adherence
+    from
+    (select type, ofp_date ofd_date, ofp_da username, if(location is null, 'not_far', location) location,
+    count(distinct(case when type = "cir" then client_ref end)) total_shipment,
+    count(distinct(case when type = "cir" and ofp_status = 'closed' then client_ref end)) total_delivered,
+    count(distinct(case when type = "ds" then wh_code end)) tp,
+    count(distinct(case when type = "ds" and ofp_status = 'closed' then wh_code end)) tp_del, 
+
+    from pickup
+    left join distance dis on (dis.hub, dis.cz) = (pickup.hub, pickup.cz)
+    -- where ofp_date = current_date
+    group by 1,2,3,4)))) a
+    left join `noondwh.lms.user` using (username)
+    left join `noondwh.lms.user_misc` um using(id_user)
+    left join `noondwh.lms.pay_model` pm using(id_pay_model)
+    where 
+    -- (substr(username,1,2) not in ('bk', 'lh', 'pp', 'xx', 'pt') and substr(username,1,3) <> 'rtv')and
+    -- (username in  (select IDP from `noonbilogoi.UAE_data.special_proj_bikers`) 
+    -- or (pm.code = 'SLD')) and
+    -- and (ofd_date between '2022-10-01' and '2022-10-31')
+     left(cast(ofd_date as string),7) = left(cast(current_date as string),7) and ofd_date < current_date
+    )
+
+
+    -- select * from final
+    -- where ofd_date between '2022-10-01' and '2022-10-31'
+    -------------------------------
+    select b.username, a.* except(username), b.total_amount,day_with_85
+    from
+    (select type, username,location,'-->' yesterday ,total_shipment, total_delivered, tp, tp_del, adherence, total_amount amount_yest,'-->' overall, 
+    from 
+    final 
+    where ofd_date = current_date-1) a
+    right join 
+    (select username, sum(total_amount) total_amount, 
+    from final
+    group by 1
+    ) b using(username)
+    left join
+    (select username, count(distinct(ofd_date)) day_with_85
+    from
+        (select ofd_date, username, avg(adherence) adherence
+        from final
+        where type in ('bulky', 'delivery', 'delivery_large', 'sdd')
+        group by 1,2
+        )
+        where adherence > .85
+        group by 1)
+        using (username)
+    '''    
+    query2 = '''
+    create temp function local_ts(x timestamp, y string)
+    returns timestamp
+    as (case when y = 'ae' then date_add(x, interval 4 hour)
+        when y = 'sa' then date_add(x, interval 3 hour)
+        when y = 'eg' then date_add(x, interval 2 hour) end);
+
+    with hub_geopoint as
+    (select hub, cast(lat as float64) lat, cast(lng as float64) lng from
+    (select 'AAN-A1' hub,24.1455246 lat,55.84166562 lng union all
+    select'AUH-A1',    24.34221576,    54.50083159 union all 
+    select 'AUH-A2',    24.72007746,   54.72961354 union all
+    select 'AUH-A3',    23.6575751,    53.73713877 union all
+    select 'DXB-A1',    25.14471979,    55.23031127 union all
+    select 'DXB-A8',    25.18023379,    55.36121147 union all
+    select 'FJR-A1',    25.10256921,    56.27486818 union all
+    select 'RKT-A1',    25.76029715,    55.96502176 union all
+    select 'SHJ-A1',    25.38321625,    55.48898314 union all
+    select 'SHJ-A2',    25.33633516,    55.40203728 
+    )),
+    -- AUH-A3, AAN-A1, FJR-A1, RKT-A1
+    --if((closest_distance_km > 30 and hub not in ('AUH-A3', 'AAN-A1', 'FJR-A1', 'RKT-A1') or (closest_distance_km > 25 and hub in ('AUH-A3', 'AAN-A1', 'FJR-A1', 'RKT-A1')) , 'far', 'not_far')
+    distance as
+    (select *,-- if((closest_distance_km <= 30) or null, 'not_far', 'far') 
+    if((closest_distance_km > 30 and hub not in ('AUH-A3', 'AAN-A1', 'FJR-A1', 'RKT-A1')) or (closest_distance_km > 25 and hub in ('AUH-A3', 'AAN-A1', 'FJR-A1', 'RKT-A1')) , 'far', 'not_far') location   
+    from
+    (select hub, lat_long, cz, round(ST_DISTANCE(lat_long,st_centroid(st_geogfromtext(coordinates)))/1000,2) closest_distance_km,  
+    from
+    (select hub,st_geogpoint(longitude,latitude) lat_long, cz, depth, coordinates,area,row_number() over (partition by hub order by area) rw, 
+    row_number() over (partition by hub order by area desc) matching_czs from
+    (select hub,  
+    lat latitude,
+    lng longitude
+    from
+    hub_geopoint
+    where lat <> 0 or lng <> 0
+    )
+    left join 
+    (select
+    distinct(a.code) as cz,
+    c.code as hub_sector, left(c.code, 6) hub,
+    d.geom as coordinates, depth, 
+    cast(ST_AREA(ST_GEOGFROM(geom)) as float64) area
+    from
+    `noondwh.lms.country_zone` a
+    left join
+    `noondwh.lms.map_layer_cell` b
+    on
+    a.id_country_zone = b.id_country_zone
+    inner join `noondwh.lms.map_layer_active_version` mlav using (id_map_layer_version)
+    left join
+    `noondwh.lms.hub_sector` c
+    on
+    cast(json_extract(a.labels_node,
+    '$.hs_lm') as int64) = c.id_hub_sector
+    left join
+    `noondwh.lms.map_layer_polygon` d
+    on
+    b.id_map_layer_cell = d.id_map_layer_cell
+    ) using(hub)
+
+    ))),
+    -- where rw =1
+
+    pickup as
+    (select if((u.username in (select IDP from `noonbilogoi.UAE_data.special_proj_bikers`) or u.username like "nf%"), 'biker_cir','cir')type,client_ref, hs.code hub, cz.code cz,null wh_code,
+    date(local_ts(clj.updated_at,coun.code)) ofp_date
+    ,local_ts(clj.created_at,coun.code) ofp_created_at, local_ts(clj.updated_at,coun.code) ofp_updated_at,
+    s.code ofp_status,u.username ofp_da
+
+    from 
+    `noonltddwh.lms.creq` c
+    left join `noonltddwh.lms.creq_leg` cl using (id_creq)
+    left join `noonltddwh.lms.creq_leg_job` clj using (id_creq_leg)
+    left join  noonltddwh.lms.status s on s.id_status = clj.id_status
+    left join noonltddwh.lms.hub_sector sec using (id_hub_sector)
+    left join noonltddwh.lms.hub hs using (id_hub)
+    left join `noonltddwh.lms.user` u using (id_user)
+    left join `noonltddwh.lms.country_zone` cz using(id_country_zone)  
+    left join noonltddwh.lms.hub_airport air on air.id_hub_airport = hs.id_hub_airport
+    left join noonltddwh.lms.country coun on coun.id_country = air.id_country
+    where id_creq_type =2 and id_creq_leg_type =1 and coun.code = 'ae' 
+
+    union all
+
+    select  
+    'ds'type,task_nr client_ref, hs.code hub, cz.code cz, ware.code wh_code,
+    date(local_ts(bpj.updated_at,coun.code)) ofp_date
+    ,local_ts(bpj.created_at,coun.code) ofp_created_at, local_ts(bpj.updated_at,coun.code) ofp_updated_at,
+    s.code ofp_status,u.username ofp_da
+    from 
+    `noonltddwh.lms.business_pickup_task` bp
+    left join `noonltddwh.lms.business_pickup_task_job` bpj using (id_business_pickup_task)
+    left join `noonltddwh.lms.status` s using (id_status)
+    left join `noonltddwh.lms.user` u using (id_user)
+    left join `noonltddwh.lms.reason` r using (id_reason)
+    left join noonltddwh.lms.hub_sector sec using (id_hub_sector)
+    left join noonltddwh.lms.hub hs using (id_hub)
+    left join `noonltddwh.lms.country_zone` cz using(id_country_zone)  
+    left join noonltddwh.lms.hub_airport air on air.id_hub_airport = hs.id_hub_airport
+    left join noonltddwh.lms.country coun on coun.id_country = air.id_country
+    left join noonltddwh.lms.address ad on ad.id_address = bp.id_address
+    left join `noonltddwh.partner.partner_warehouse` ware on ware.code = ad.address_uid
+    left join
+    (select substr(code, 0, 10) wh_code, id_warehouse_lane_type, 
+            if(wc.service_point_code_forward like 'sp%',"dropoff", "pickup") as mode,
+    from `noonltddwh.xms_sourcing.warehouse_lane` wl
+    left join `noonltddwh.xms_sourcing.warehouse_config` wc  on wc.warehouse_code = substr(wl.code, 0, 10)
+    ) whl on whl.wh_code = ware.code
+    where left(ad.address_uid, 1) = 'W'
+    and sec.code not like '%dropoff%'
+    and mode = 'pickup'
+    and id_address_type <> 4
+    and coun.code = 'ae'
+    ),
+
+    base as
+    (select *, 
+    if(type in ('rtv', 'rto'), tp_del/tp, total_delivered/total_shipment) adherence,
+    from
+    (select type, ofd_date, username, location,sum(shipments) total_shipment, sum(delivered) total_delivered,
+        count(distinct(case when type in ('rtv', 'rto') then origin_warehouse end)) tp,
+        count(distinct(case when type in ('rtv', 'rto') and delivered >0 then origin_warehouse end)) tp_del 
+        
+    from
+    (select  
+    case 
+            -- when ifs.creq = 'CIR' and ifs.creq_leg_type = 'Dropoff' and substr(ifs.client_ref,6,1) <> "D"  
+                -- and (ofd.username in (select IDP from `noonbilogoi.UAE_data.special_proj_bikers`) or ofd.username like "nf%") and MP = '"noon"' then 'biker_cir'
+        --  when ifs.creq = 'CIR' and ifs.creq_leg_type = 'Dropoff' and MP = '"noon"' then 'cir'
+        when ifs.creq = 'RTV' and ifs.creq_leg_type = 'Delivery' and client_ref  not like '%IPKS%' 
+                and origin_warehouse in (select address_uid from `noondwh.lms.address` where id_address_type <> 4) then 'rtv'
+        when ifs.creq = 'LM' and ifs.creq_leg_type = 'RTO'  and MP = '"noon"' and ifs.hub_sector not like '%DROPOFF%'  
+                and origin_warehouse in (select address_uid from `noondwh.lms.address` where id_address_type <> 4) then 'rto'
+        when substr(ifs.client_ref,6,1) <> "D"  and (ofd.username in (select IDP from `noonbilogoi.UAE_data.special_proj_bikers`) or ofd.username like "nf%") and MP = '"noon"' then 'biker'
+        when (date(ifs.promised_at) = date(shipment_creation_TS)) and (date(ifs.promised_at) = date(ofd_date)) and (ifs.creq = 'LM' and ifs.creq_leg_type = 'Delivery')  and MP = '"noon"' then 'sdd'
+        when pwh.id_warehouse_type = 5 and MP = '"noon"' then 'bulky'
+        when json_extract(ipkg.misc, "$.item_size") = '"L"' and (ifs.creq = 'LM' and ifs.creq_leg_type = 'Delivery') and MP = '"noon"' then 'delivery_large'
+        when ifs.creq = 'LM' and  ifs.creq_leg_type = 'Delivery' and MP = '"noon"' then 'delivery'
+        else null
+    end type, ofd_date, username,origin_warehouse, if(location is null, 'not_far', location) location,
+    count(distinct(ofd.awb_nr)) shipments,
+    count(distinct(case when ofd_status = 'Delivered' 
+                    or(date(ifs.updated_at)= ofd_date and loc_type = 'manifested') then awb_nr end)) delivered
+
+
+    from 
+    `noonbilogmis.kd.item_final_state` ifs
+
+    left join distance dis on (dis.hub, dis.cz) = (ifs.forward_hub, ifs.country_zone)
+
+    left join
+    (select * except(username), if(username = 'lms@noon.team', locker_da, username) username from
+        `noonbilogoi.MJ.OFD` 
+
+    left join 
+    (select id_item,username locker_da
+    from `noonltddwh.lms.item_state_history` ifs
+    left join `noonltddwh.lms.user` i on ifs.id_user_updater = id_user    
+    where id_loc_type= 17
+    qualify row_number() over (partition by id_item order by ifs.created_at desc) =1
+    ) using (id_item)  
+        )ofd using (awb_nr)
+
+    left join
+    `noonltddwh.lms.item_pkg` ipkg on ifs.id_item = ipkg.id_item
+
+    left join 
+    `noondwh.partner.partner_warehouse` pwh on ifs.origin_warehouse = pwh.code 
+    where country = 'ae'
+    group by 1,2,3,4,5
+    order by 5 desc
+    )
+    where type is not null and ofd_date is not null
+    group by 1,2,3,4)),
+
+
+    final as
+    (select a.* from
+    ((select type, ofd_date, username, if(type in ('delivery_large', 'delivery', 'sdd'),location, null) location, total_shipment, total_delivered,tp, tp_del,round(adherence,2) adherence,
+    --case when adherence >.85 and type in ('bulky', 'delivery', 'delivery_large', 'sdd') then 1 end above_85,
+    round(case when location = 'not_far' and type = 'delivery' and total_delivered > 30 and (adherence between .75 and .85) then (total_delivered-30)*.4
+        when location = 'not_far' and type = 'delivery' and total_delivered > 30 and (adherence between .85 and .92) then (total_delivered-30)*.5
+        when (location = 'not_far' or null) and type = 'delivery' and total_delivered > 30 and adherence > .92 then (total_delivered-30)*.7
+        when location = 'far' and type = 'delivery' and total_delivered > 30 and (adherence between .75 and .85) then (total_delivered-30)*.5
+        when location = 'far' and type = 'delivery' and total_delivered > 30 and (adherence between .85 and .92) then (total_delivered-30)*.6
+        when (location = 'far' ) and type = 'delivery' and total_delivered > 30 and adherence > .92 then (total_delivered-30)*.8
+        when (location = 'not_far' or null) and type = 'delivery_large' and total_delivered > 10 and (adherence between .75 and .85) then (total_delivered-10)*.5
+        when (location = 'not_far' or null) and type = 'delivery_large' and total_delivered > 10 and (adherence between .85 and .92) then (total_delivered-10)*.6
+        when (location = 'not_far' or null) and type = 'delivery_large' and total_delivered > 10 and adherence > .92 then (total_delivered-10)*.8
+        when location = 'far' and type = 'delivery_large' and total_delivered > 10 and (adherence between .75 and .85) then (total_delivered-10)*.6
+        when location = 'far' and type = 'delivery_large' and total_delivered > 10 and (adherence between .85 and .92) then (total_delivered-10)*.7
+        when location = 'far' and type = 'delivery_large' and total_delivered > 10 and adherence > .92 then (total_delivered-10)*.9
+        when type = 'sdd'  and (adherence between .75 and .85) then (total_delivered)*.5
+        when type = 'sdd'  and (adherence between .85 and .92) then (total_delivered)*.6
+        when type = 'sdd'  and adherence > .92 then (total_delivered)*.8
+        when type = 'bulky' and total_delivered > 5 and (adherence between .75 and .85) then (total_delivered-5)*1
+        when type = 'bulky' and total_delivered > 5 and (adherence between .85 and .92) then (total_delivered-5)*2
+        when type = 'bulky' and total_delivered > 5 and adherence > .92 then (total_delivered-5)*3
+        when type = 'biker' and (adherence between .75 and .85) then (total_delivered)*.4
+        when type = 'biker' and (adherence between .85 and .92) then (total_delivered)*.5
+        when type = 'biker' and adherence > .92 then (total_delivered)*.7
+        when type = 'rtv' and tp_del > 1 and (adherence between .65 and .70) then (tp_del-1)*.5
+        when type = 'rtv' and tp_del > 1 and adherence > .7 then (tp_del-1)*.6     
+        when type = 'rto' and tp_del > 2 and (adherence between .65 and .70) then (tp_del-2)*.5
+        when type = 'rto' and tp_del > 2 and adherence > .7 then (tp_del-2)*.6
+        else  0
+    end,1) total_amount
+
+    from
+    base
+    -- where ofd_date = current_date-2 
+    order by 1,2,3 desc)
+
+    union all
+
+    (select *,--null above_85,
+    round(case when location = 'not_far' and type = 'cir' and (adherence between .6 and .7) then (total_delivered)*.5
+        when location = 'not_far' and type = 'cir' and (adherence between .7 and .75) then (total_delivered)*.6
+        when (location = 'not_far' or null) and type = 'cir' and  adherence > .75 then (total_delivered)*.7
+        when location = 'far' and type = 'cir' and (adherence between .6 and .7) then (total_delivered)*.6
+        when location = 'far' and type = 'cir' and (adherence between .7 and .75) then (total_delivered)*.7
+        when (location = 'far' or null) and type = 'cir' and  adherence > .75 then (total_delivered)*.8
+        when type = 'biker_cir' and (adherence between .6 and .7) then (total_delivered)*.5
+        when type = 'biker_cir' and (adherence between .7 and .75) then (total_delivered)*.6
+        when type = 'biker_cir' and  adherence > .75 then (total_delivered-5)*.7
+        when type = 'ds' and tp_del > 5 and (adherence between .70 and .9) then (tp_del-5)*.5
+        when type = 'ds' and tp_del > 5 and adherence > .9 then (tp_del-5)*.6
+        end,2) total_amount
+    from
+    (select *, 
+    round(case when type = 'cir' then total_delivered/ total_shipment
+        when type = 'ds' then tp_del/ tp  end, 2) adherence
+    from
+    (select type, ofp_date ofd_date, ofp_da username, if(location is null, 'not_far', location) location,
+    count(distinct(case when type = "cir" then client_ref end)) total_shipment,
+    count(distinct(case when type = "cir" and ofp_status = 'closed' then client_ref end)) total_delivered,
+    count(distinct(case when type = "ds" then wh_code end)) tp,
+    count(distinct(case when type = "ds" and ofp_status = 'closed' then wh_code end)) tp_del, 
+
+    from pickup
+    left join distance dis on (dis.hub, dis.cz) = (pickup.hub, pickup.cz)
+    -- where ofp_date = current_date
+    group by 1,2,3,4)))) a
+    left join `noondwh.lms.user` using (username)
+    left join `noondwh.lms.user_misc` um using(id_user)
+    left join `noondwh.lms.pay_model` pm using(id_pay_model)
+    where (substr(username,1,2) not in ('bk', 'lh', 'pp', 'xx', 'pt') and substr(username,1,3) <> 'rtv')
+    --and (username in  (select IDP from `noonbilogoi.UAE_data.special_proj_bikers`) or (pm.code = 'SLD')) 
+    and left(cast(ofd_date as string),7) = left(cast(current_date as string),7) and ofd_date < current_date)
+    -------------------------------
+    select b.username, a.* except(username), b.total_amount,day_with_85
+    from
+    (select type, username,location,'-->' yesterday ,total_shipment, total_delivered, tp, tp_del, adherence, total_amount amount_yest,'-->' overall, 
+    from 
+    final 
+    where ofd_date = current_date-1) a
+    right join 
+    (select username, sum(total_amount) total_amount, 
+    from final
+    group by 1
+    ) b using(username)
+    left join
+    (select username, count(distinct(ofd_date)) day_with_85
+    from
+        (select ofd_date, username, avg(adherence) adherence
+        from final
+        where type in ('bulky', 'delivery', 'delivery_large', 'sdd')
+        group by 1,2
+        )
+        where adherence > .85
+        group by 1)
+        using (username)
+    '''
+
+    df = pd.read_gbq(query, 'noonbilogmis')
+
+    summary_yest = df.pivot_table(index = 'type', aggfunc = {'amount_yest': np.sum}).sort_values('amount_yest', ascending = False).reset_index()
+    summary_yest.loc['Total'] = summary_yest.sum(numeric_only=True)
+    performer_yest = df.pivot_table(index = 'username', aggfunc = {'amount_yest': np.sum}).sort_values('amount_yest', ascending = False).head(10).reset_index()
+    performer_month = df.pivot_table(index = 'username', aggfunc = {'total_amount': np.max}).sort_values('total_amount', ascending = False).head(10).reset_index()
+    today = date.strftime(date.today(), '%Y-%m-%d')
+
+    subject = 'UAE DA Incentives ' + today 
+    from_email  = 'logistics-reporting@noon.com'
+    to_email = ['kssingh@noon.com','achandorkar@noon.com','kjadala@noon.com','cjoshi@noon.com','smadiye@noon.com','mohamir@noon.com']
+    data_tables = [
+        ('Yesterday Summary:', summary_yest),
+        ('Yesterday Top DAs:', performer_yest),
+        ('Month Top DAs:', performer_month )
+    ]
+    attachments = [df]
+    logger.info('data read')
+    send_python_email(subject, from_email, to_email, data_tables, attachments)
+
+
+def fa_pending(**params):
+    logger.info('Start Query')
+    query = '''
+    select * from 
+    `noonbilogoi.Share_Point.FA_pending_2`
+    where country = 'ae' and edd <= current_date-1 and ofd_flag <> 3
+    '''
+    query2 = '''
+    select * from
+    (select *,
+    sum(total_units) over (partition by country) total_log_units
+    from 
+    `noonbilogmis.kd_uae.L0_breach`)
+    where log_breach_shipments <>0 and promise_date = current_date-1
+    '''
+
+    fa = pd.read_gbq(query, 'noonbilogmis')
+    l0 = pd.read_gbq(query2, 'noonbilogmis') 
+    fa['edd'] =pd.to_datetime(fa["edd"]).dt.strftime('%b %d')
+    fa_hub=fa[['loc_type','LM_Hub','awb_nr']].pivot_table(index = 'LM_Hub', columns = 'loc_type', values = 'awb_nr',aggfunc= 'count', margins=True).fillna('-').reset_index().rename_axis(None, axis=1)
+    fa_loc=fa[['edd','loc_type','awb_nr']].pivot_table(index = 'loc_type', values = 'awb_nr',columns = 'edd', aggfunc= 'count', margins=True).fillna('-').reset_index().rename_axis(None, axis=1)
+    from datetime import date, timedelta
+    today = date.today()
+    # today_ = today.strftime('%b %d, %Y') 
+    today_ = date.strftime(datetime.now(pytz.timezone('Asia/Dubai')), '%Y-%m-%d %H %p')
+    yesterday = today - timedelta(days = 1) 
+    yesterday = yesterday.strftime('%b %d')
+    fa_hub_yest= fa[['edd','LM_Hub','awb_nr']]
+    fa_hub_yest= fa_hub_yest.loc[fa_hub_yest['edd'] == yesterday]
+    fa_hub_yest= fa_hub_yest.pivot_table(index = 'LM_Hub', columns = 'edd', values = 'awb_nr',aggfunc= 'count', margins=True).fillna('-').reset_index().rename_axis(None, axis=1)
+    
+    l0_= l0[['order_type', 'customer_type', 'total_log_units', 'log_breach']].rename(columns = {'total_log_units': 'total_units'})
+    l0_.loc['Total']  = l0_.sum(numeric_only= True)
+    l0_['total_units'] = l0_['total_units'].astype('object')
+    l0_['total_units']['Total'] = str(round((l0_.log_breach.max() / l0_.total_units.max()) * 100, 2)) + '%'
+    l0_['order_type']['Total'] = 'Total'
+    logger.info('pandas operations made')
+    
+    subject = 'Pending FA Breach ' + today_
+    logger.info('subject_passed')
+    from_email  = 'logistics-reporting@noon.com'
+    to_email = uae_mail_list 
+    # ['kssingh@noon.com','achandorkar@noon.com','prpasupuleti@noon.com']
+    data_tables = [
+        ('Hub Summary:', fa_hub),
+        ('Loc_type Summary:', fa_loc)
+        ,('Yesterday Hub:', fa_hub_yest )
+        ,('Yesterday Breach (L0):', l0_)
+    ]
+    attachments = [fa, l0]
+    logger.info('data read')
+    send_python_email(subject, from_email, to_email, data_tables, attachments)
+
+
+def high_ageing_lmd_shipments(**params):
+    query = '''
+    select *,
+    case when loc_type = 'hub_location' then hub
+        when loc_type = 'pgroup' then 'out for delivery'
+        when loc_type = 'hub_transfer' then 'in transit'
+        when loc_type like 'service_point%' then 'at service point'
+        else loc_type end remarks
+    from `noonbilogoi.SG.high_ageing_lmd_shipments` 
+    where country = 'ae'
+    '''
+    today = date.strftime(datetime.now(pytz.timezone('Asia/Dubai')), '%Y-%m-%d %H %p')
+    # today = date.strftime(date.today(), '%Y-%m-%d')
+    df = pd.read_gbq(query, 'noonbilogmis')
+    summary = df.pivot_table(index = 'remarks', columns = 'Ageing_at_LMD', values = 'awb_nr',aggfunc= 'count', margins=True).fillna('').reset_index().rename_axis(None, axis=1)
+
+    subject = 'High Ageing LMD Shipments ' + today
+    logger.info('subject_passed')
+    from_email  = 'logistics-reporting@noon.com'
+    to_email = uae_mail_list 
+    # ['kssingh@noon.com','achandorkar@noon.com','prpasupuleti@noon.com']
+    data_tables = [
+        ('Summary:', summary)
+    ]
+    attachments = [df]
+    logger.info('data read')
+    send_python_email(subject, from_email, to_email, data_tables, attachments)
+
+
+def ofd_mailer(**params):
+    query = '''
+    select * from 
+    (select
+    ofd_hub
+    ,count(distinct awb_nr) as ofd
+    ,count(distinct touchpoint) as touchpoint
+    -- ,count(distinct case when ofd_status ="Delivered" then awb_nr end) as delivered
+    ,count(distinct case when ofd_status ="Delivered" OR locker_putaway=1 then awb_nr end) as delivered
+    ,round((count(distinct case when ofd_status ="Delivered" OR locker_putaway=1 then awb_nr end)*100)/count(distinct awb_nr),2) as percentage_delivered
+    ,(count(distinct awb_nr) -count(distinct case when ofd_status ="Delivered" OR locker_putaway=1 then awb_nr end)) as undelivered
+    ,count(distinct case when ofd_status like "%unreachable%" then awb_nr end) as unreachable
+    ,count(distinct case when ofd_status in ("customer_canceled","RTO","attempts_exhausted") and  is_customer_cancelled =0 then awb_nr end) as cust_cancelled
+    ,count(distinct case when ofd_status ="rescheduled" then awb_nr end) as rescheduled
+    ,count(distinct case when ofd_status ="address_changed" then awb_nr end) as addr_changed
+    ,count(distinct case when ofd_status ="address_misrouted" then awb_nr end) as addr_misrouted
+    ,count(distinct case when ofd_status ="held_consolidation" then awb_nr end) as held_consolidation
+    ,(count(distinct case when ofd_status in ("customer_canceled","RTO","attempts_exhausted") and  is_customer_cancelled =1  then awb_nr end)+
+    count(distinct case when ofd_status ="address_changed_warning" then awb_nr end)) as cust_initiated_UD
+    ,count(distinct case when ofd_status ="Not_Attempted" then awb_nr end) as not_attempted
+    from
+    `noonbilogmis.kd_uae.uae_ofd`
+    where 
+    --if((extract(hour from current_timestamp) in (23,22,21,20) ), ofd_date = current_date-1, ofd_date = current_date)
+    ofd_date = current_date
+    group by 1
+    )
+    order by 1
+    '''
+    base_query = ''' 
+    select * 
+    from
+    `noonbilogmis.kd_uae.uae_ofd`
+    --where
+    --if((extract(hour from current_timestamp) in (23,22,21,20) ), ofd_date = current_date-1, ofd_date = current_date)
+    where ofd_date = current_date
+    '''
+
+    overall = pd.read_gbq(query, 'noonbilogmis')
+    base_data = pd.read_gbq(base_query, 'noonbilogmis')
+    today = date.strftime(datetime.now(pytz.timezone('Asia/Dubai')), '%Y-%m-%d %H %p')
+    overall.loc[:, ~overall.columns.isin(['ofd_hub','percentage_delivered'])] =overall.loc[
+        :, ~overall.columns.isin(['ofd_hub','percentage_delivered'])
+        ].astype('int64', copy = False)
+    x= overall['percentage_delivered'].mean()
+    overall.loc['Total'] = overall.sum(numeric_only=True)
+    overall['percentage_delivered']['Total']  = x
+    overall['percentage_delivered'] = overall['percentage_delivered'].round(2)
+
+    subject = 'OFD Mailer ' + today
+    logger.info('subject_passed')
+    from_email  = 'logistics-reporting@noon.com'
+    to_email = uae_mail_list 
+    # ['kssingh@noon.com','achandorkar@noon.com','prpasupuleti@noon.com']
+    data_tables = [
+        ('OFD Summary:', overall)
+    ]
+    attachments = [base_data]
+    logger.info('data read')
+    send_python_email(subject, from_email, to_email, data_tables, attachments)
+   
+
+   
