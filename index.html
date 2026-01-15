@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Skill Test</title>
+  <style>
+    body { font-family: Arial; text-align: center; }
+    button { padding: 10px 20px; margin: 5px; }
+    .question { margin: 20px; }
+  </style>
+</head>
+<body>
+
+<h1>Skill Assessment Test</h1>
+
+<div id="mode">
+  <h2>Select Skill</h2>
+  <button onclick="startTest('Excel')">Excel</button>
+  <button onclick="startTest('SQL')">SQL</button>
+  <button onclick="startTest('Power BI')">Power BI</button>
+  <button onclick="startTest('Python')">Python</button>
+</div>
+
+<div id="quiz" style="display:none;"></div>
+<div id="result"></div>
+
+<script>
+const data = {
+  Excel: [
+    {q:"VLOOKUP ka use kya hai?", a:["Search value","Delete data","Format","Chart"], c:0},
+    {q:"Excel file extension?", a:[".docx",".xlsx",".ppt",".txt"], c:1}
+  ],
+  SQL: [
+    {q:"SQL ka full form?", a:["Structured Query Language","Simple Query","None","Data"], c:0},
+    {q:"JOIN ka use?", a:["Tables connect","Delete","Insert","Format"], c:0}
+  ],
+  "Power BI": [
+    {q:"Power BI kis company ka hai?", a:["Google","Microsoft","Amazon","Apple"], c:1}
+  ],
+  Python: [
+    {q:"Python kis type ki language?", a:["Low","High","Machine","None"], c:1}
+  ]
+};
+
+let score = 0;
+
+function startTest(mode){
+  document.getElementById("mode").style.display="none";
+  let quizDiv = document.getElementById("quiz");
+  quizDiv.style.display="block";
+  quizDiv.innerHTML = `<h2>${mode} Test</h2>`;
+  
+  data[mode].forEach((item,i)=>{
+    quizDiv.innerHTML += `
+      <div class="question">
+        <p>${item.q}</p>
+        ${item.a.map((op,j)=>`
+          <input type="radio" name="q${i}" value="${j}">${op}<br>
+        `).join("")}
+      </div>`;
+  });
+
+  quizDiv.innerHTML += `<button onclick="submitTest('${mode}')">Submit</button>`;
+}
+
+function submitTest(mode){
+  score = 0;
+  data[mode].forEach((item,i)=>{
+    let ans = document.querySelector(`input[name="q${i}"]:checked`);
+    if(ans && Number(ans.value) === item.c) score++;
+  });
+
+  let level = score >=2 ? "Intermediate" : "Beginner";
+  document.getElementById("quiz").style.display="none";
+  document.getElementById("result").innerHTML =
+    `<h2>Result</h2>
+     <p>Score: ${score}</p>
+     <p>Level: ${level}</p>`;
+}
+</script>
+
+</body>
+</html>
