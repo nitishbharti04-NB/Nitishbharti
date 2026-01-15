@@ -5,411 +5,246 @@
 <title>Skill Test Portal</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-  body { margin:0; font-family:Segoe UI, system-ui, -apple-system, "Segoe UI Emoji"; background:linear-gradient(135deg,#141e30,#243b55); color:white;}
-  .container {max-width:900px;margin:auto;padding:20px;}
-  .card {background:white;color:#333;padding:25px;border-radius:15px;margin-top:20px;box-shadow:0 15px 30px rgba(0,0,0,.3);}
-  button {background:linear-gradient(135deg,#ff512f,#dd2476); color:white; border:none; padding:10px 20px; border-radius:25px; cursor:pointer; margin:5px; font-size:15px;}
-  button:hover {transform:scale(1.05);}
-  input[type="text"] {padding:8px;border-radius:8px;border:1px solid #ccc; width: 260px;}
-  .correct {color:green;font-weight:bold;}
-  .wrong {color:red;font-weight:bold;}
-  #timer {font-weight:bold;color:#ff512f;margin-top:10px;}
-  label.option { cursor: pointer; display:block; margin:6px 0; }
-  .muted { color: #666; font-size:14px; }
-  .center { text-align:center; }
+body { margin:0; font-family:Segoe UI; background:linear-gradient(135deg,#141e30,#243b55); color:white;}
+.container {max-width:900px;margin:auto;padding:20px;}
+.card {background:white;color:#333;padding:25px;border-radius:15px;margin-top:20px;box-shadow:0 15px 30px rgba(0,0,0,.3);}
+button {background:linear-gradient(135deg,#ff512f,#dd2476); color:white; border:none; padding:10px 20px; border-radius:25px; cursor:pointer; margin:5px; font-size:15px;}
+button:hover {transform:scale(1.05);}
+input {padding:8px;border-radius:8px;border:1px solid #ccc;}
+.correct {color:green;font-weight:bold;}
+.wrong {color:red;font-weight:bold;}
+#timer {font-weight:bold;color:#ff512f;margin-top:10px;}
 </style>
 </head>
 <body>
 <div class="container">
-  <h1>🎯 Skill Assessment Portal</h1>
+<h1>🎯 Skill Assessment Portal</h1>
 
-  <!-- LOGIN -->
-  <div id="login" class="card" aria-live="polite">
-    <h2>Enter Your Name</h2>
-    <label for="username" class="muted">Your name will appear on the certificate.</label><br>
-    <input id="username" type="text" placeholder="Your Name" autofocus>
-    <br><br>
-    <button type="button" onclick="login()">Next</button>
-  </div>
-
-  <!-- SELECT STREAM -->
-  <div id="stream" class="card" style="display:none">
-    <h2>Select Your Stream/Skill</h2>
-    <div>
-      <button type="button" onclick="startTest('Excel')">Excel</button>
-      <button type="button" onclick="startTest('Advanced Excel')">Advanced Excel</button>
-      <button type="button" onclick="startTest('SQL')">SQL</button>
-      <button type="button" onclick="startTest('Power BI')">Power BI</button>
-      <button type="button" onclick="startTest('Python')">Python</button>
-    </div>
-  </div>
-
-  <div id="timer" role="timer" aria-atomic="true"></div>
-  <div id="quiz" class="card" style="display:none" aria-live="polite"></div>
-  <div id="result" class="card" style="display:none" aria-live="polite"></div>
+<!-- LOGIN -->
+<div id="login" class="card">
+<h2>Enter Your Name</h2>
+<input id="username" placeholder="Your Name">
+<br><br>
+<button onclick="login()">Next</button>
 </div>
 
+<!-- SELECT STREAM -->
+<div id="stream" class="card" style="display:none">
+<h2>Select Your Stream/Skill</h2>
+<button onclick="startTest('Excel')">Excel</button>
+<button onclick="startTest('Advanced Excel')">Advanced Excel</button>
+<button onclick="startTest('SQL')">SQL</button>
+<button onclick="startTest('Power BI')">Power BI</button>
+<button onclick="startTest('Python')">Python</button>
+</div>
+
+<div id="timer"></div>
+<div id="quiz" class="card" style="display:none"></div>
+<div id="result" class="card" style="display:none"></div>
+
 <script>
-/* ====== QUESTIONS FOR EACH STREAM ====== 
-   NOTE: By convention the first option in each 'o' array is the correct answer.
-*/
+// ====== QUESTIONS FOR EACH STREAM ======
 const QUESTIONS = {
-  "Excel":[
-    {q:"VLOOKUP use?",o:["Search value","Delete data","Format","Chart"]},
-    {q:"Excel file extension?",o:[".xlsx",".docx",".ppt",".txt"]},
-    {q:"SUM function purpose?",o:["Add numbers","Subtract","Multiply","Divide"]},
-    {q:"IF function use?",o:["Conditional logic","Formatting","Chart","Filter"]},
-    {q:"COUNT function counts?",o:["Numbers","Text","Images","Charts"]},
-    {q:"Pivot table is for?",o:["Summarizing data","Deleting data","Formatting","Printing"]},
-    {q:"Freeze pane purpose?",o:["Lock rows/columns","Hide data","Sort","Filter"]},
-    {q:"MAX function finds?",o:["Maximum value","Minimum","Average","Sum"]},
-    {q:"MIN function finds?",o:["Minimum value","Maximum","Average","Sum"]},
-    {q:"Excel company?",o:["Microsoft","Google","Amazon","Apple"]},
-    {q:"Conditional formatting?",o:["Color cells based on rule","Delete","Insert","Chart"]},
-    {q:"Formula starts with?",o:["=","+","-","#"]},
-    {q:"Workbook is?",o:["File containing sheets","Single cell","Chart","Formula"]},
-    {q:"Maximum rows in Excel?",o:["1048576","65536","10000","5000"]},
-    {q:"Shortcut to save?",o:["Ctrl+S","Ctrl+C","Ctrl+V","Ctrl+Z"]},
-    {q:"AVERAGE function?",o:["Average value","Sum","Count","Max"]},
-    {q:"Chart creation?",o:["Visualize data","Format text","Delete","Insert formula"]},
-    {q:"Text function purpose?",o:["Manipulate text","Math","Chart","Format"]},
-    {q:"Cell address example?",o:["A1","1A","AA","1B"]},
-    {q:"Sheet is?",o:["Single tab in workbook","Cell","Column","Row"]}
-  ],
-  "Advanced Excel":[
-    {q:"INDEX function use?",o:["Return cell value","Delete data","Chart","Format"]},
-    {q:"MATCH function?",o:["Find position","Sum","Average","Count"]},
-    {q:"VLOOKUP vs HLOOKUP?",o:["Vertical vs Horizontal lookup","Sum","Count","Average"]},
-    {q:"ARRAY formula?",o:["Multiple cells calculation","Single cell","Chart","Delete"]},
-    {q:"Data validation purpose?",o:["Restrict input","Sum","Count","Average"]},
-    {q:"Goal Seek?",o:["Find input for desired output","Chart","Format","Sort"]},
-    {q:"Advanced filter?",o:["Extract data","Delete","Insert","Chart"]},
-    {q:"Conditional formula?",o:["IF combined with logic","Sum","Average","Count"]},
-    {q:"Dynamic chart?",o:["Chart updates with data","Static chart","Filter","Delete"]},
-    {q:"Power Query?",o:["Transform data","Chart","Delete","Format"]},
-    {q:"Sparklines?",o:["Mini charts in cell","Macro","Delete","Format"]},
-    {q:"Macro use?",o:["Automate tasks","Chart","Format","Filter"]},
-    {q:"Protect sheet?",o:["Restrict editing","Delete","Format","Chart"]},
-    {q:"Named range?",o:["Assign name to range","Delete","Chart","Format"]},
-    {q:"Advanced Pivot table?",o:["Custom summarization","Simple table","Format","Chart"]}
-  ],
-  "SQL":[
-    {q:"SQL full form?",o:["Structured Query Language","Simple Query","None","Data"]},
-    {q:"SELECT use?",o:["Retrieve data","Delete","Insert","Update"]},
-    {q:"WHERE clause?",o:["Filter records","Insert","Delete","Update"]},
-    {q:"JOIN use?",o:["Combine tables","Delete","Insert","Format"]},
-    {q:"Primary key?",o:["Unique identifier","Duplicate","Optional","Format"]},
-    {q:"GROUP BY?",o:["Aggregate data","Delete","Insert","Update"]},
-    {q:"ORDER BY?",o:["Sort records","Delete","Insert","Update"]},
-    {q:"COUNT function?",o:["Count rows","Sum","Average","Max"]},
-    {q:"DELETE command?",o:["Remove rows","Add","Update","Select"]},
-    {q:"UPDATE command?",o:["Modify data","Delete","Insert","Select"]},
-    {q:"NULL meaning?",o:["No value","Zero","Empty string","Invalid"]},
-    {q:"DROP command?",o:["Delete table","Delete row","Update data","Insert data"]},
-    {q:"UNION?",o:["Combine results","Delete","Update","Insert"]},
-    {q:"FOREIGN KEY?",o:["Link tables","Delete","Update","Insert"]},
-    {q:"HAVING?",o:["Filter groups","Filter rows","Update","Insert"]}
-  ],
-  "Power BI":[
-    {q:"Power BI company?",o:["Microsoft","Google","Amazon","Apple"]},
-    {q:"Use of Power BI?",o:["Data Visualization","Coding","Writing","Email"]},
-    {q:"DAX use?",o:["Formulas","Chart","Delete","Filter"]},
-    {q:"File extension?",o:[".pbix",".xlsx",".doc",".txt"]},
-    {q:"Dashboard?",o:["Visual display","Delete","Update","Insert"]},
-    {q:"Power Query?",o:["Data transform","Chart","Format","Insert"]},
-    {q:"Slicer?",o:["Filter visuals","Delete","Insert","Update"]},
-    {q:"Bar chart?",o:["Visual chart","Delete","Insert","Update"]},
-    {q:"Publish report?",o:["Share","Delete","Insert","Update"]},
-    {q:"Data model?",o:["Relationships in data","Delete","Update","Insert"]},
-    {q:"Calculated column?",o:["Derived field","Delete","Update","Insert"]},
-    {q:"Mobile support?",o:["Yes","No","Partial","None"]},
-    {q:"Refresh data?",o:["Update visuals","Delete","Insert","Update"]},
-    {q:"Filter pane?",o:["Filter visuals","Delete","Insert","Update"]},
-    {q:"Card visual?",o:["Single value display","Delete","Insert","Update"]}
-  ],
-  "Python":[
-    {q:"Python type?",o:["High level","Low level","Machine","None"]},
-    {q:"Creator?",o:["Guido van Rossum","Bill Gates","Steve Jobs","Mark Zuckerberg"]},
-    {q:"Print use?",o:["Display output","Delete","Insert","Update"]},
-    {q:"List type?",o:["Mutable","Immutable","Both","None"]},
-    {q:"Tuple mutable?",o:["No","Yes","Both","None"]},
-    {q:"Dictionary?",o:["Key-Value pairs","Array","Set","Tuple"]},
-    {q:"For loop?",o:["Iteration","Conditional","Function","Class"]},
-    {q:"While loop?",o:["Iteration","Conditional","Function","Class"]},
-    {q:"Function keyword?",o:["def","fun","func","lambda"]},
-    {q:"File extension?",o:[".py",".java",".txt",".doc"]},
-    {q:"len() use?",o:["Length","Count","Sum","Max"]},
-    {q:"Indentation?",o:["Block control","Delete","Insert","Format"]},
-    {q:"Comment?",o:["#","//","/*","$$"]},
-    {q:"Set?",o:["Unique items","List","Tuple","Dictionary"]},
-    {q:"Lambda?",o:["Anonymous function","Class","Method","Variable"]}
-  ]
-};
+"Excel":[
+{q:"VLOOKUP use?",o:["Search value","Delete data","Format","Chart"]},
+{q:"Excel file extension?",o:[".docx",".xlsx",".ppt",".txt"]},
+{q:"SUM function purpose?",o:["Add numbers","Subtract","Multiply","Divide"]},
+{q:"IF function use?",o:["Conditional logic","Formatting","Chart","Filter"]},
+{q:"COUNT function counts?",o:["Numbers","Text","Images","Charts"]},
+{q:"Pivot table is for?",o:["Summarizing data","Deleting data","Formatting","Printing"]},
+{q:"Freeze pane purpose?",o:["Lock rows/columns","Hide data","Sort","Filter"]},
+{q:"MAX function finds?",o:["Maximum value","Minimum","Average","Sum"]},
+{q:"MIN function finds?",o:["Minimum value","Maximum","Average","Sum"]},
+{q:"Excel company?",o:["Google","Microsoft","Amazon","Apple"]},
+{q:"Conditional formatting?",o:["Color cells based on rule","Delete","Insert","Chart"]},
+{q:"Formula starts with?",o:["=","+","-","#"]},
+{q:"Workbook is?",o:["File containing sheets","Single cell","Chart","Formula"]},
+{q:"Maximum rows in Excel?",o:["1048576","65536","10000","5000"]},
+{q:"Shortcut to save?",o:["Ctrl+S","Ctrl+C","Ctrl+V","Ctrl+Z"]},
+{q:"AVERAGE function?",o:["Average value","Sum","Count","Max"]},
+{q:"Chart creation?",o:["Visualize data","Format text","Delete","Insert formula"]},
+{q:"Text function purpose?",o:["Manipulate text","Math","Chart","Format"]},
+{q:"Cell address example?",o:["A1","1A","AA","1B"]},
+{q:"Sheet is?",o:["Single tab in workbook","Cell","Column","Row"]}
+],
+"Advanced Excel":[
+{q:"INDEX function use?",o:["Return cell value","Delete data","Chart","Format"]},
+{q:"MATCH function?",o:["Find position","Sum","Average","Count"]},
+{q:"VLOOKUP vs HLOOKUP?",o:["Vertical vs Horizontal lookup","Sum","Count","Average"]},
+{q:"ARRAY formula?",o:["Multiple cells calculation","Single cell","Chart","Delete"]},
+{q:"Data validation purpose?",o:["Restrict input","Sum","Count","Average"]},
+{q:"Goal Seek?",o:["Find input for desired output","Chart","Format","Sort"]},
+{q:"Advanced filter?",o:["Extract data","Delete","Insert","Chart"]},
+{q:"Conditional formula?",o:["IF combined with logic","Sum","Average","Count"]},
+{q:"Dynamic chart?",o:["Chart updates with data","Static chart","Filter","Delete"]},
+{q:"Power Query?",o:["Transform data","Chart","Delete","Format"]},
+{q:"Sparklines?",o:["Mini charts in cell","Macro","Delete","Format"]},
+{q:"Macro use?",o:["Automate tasks","Chart","Format","Filter"]},
+{q:"Protect sheet?",o:["Restrict editing","Delete","Format","Chart"]},
+{q:"Named range?",o:["Assign name to range","Delete","Chart","Format"]},
+{q:"Advanced Pivot table?",o:["Custom summarization","Simple table","Format","Chart"]}
+],
+"SQL":[
+{q:"SQL full form?",o:["Structured Query Language","Simple Query","None","Data"]},
+{q:"SELECT use?",o:["Retrieve data","Delete","Insert","Update"]},
+{q:"WHERE clause?",o:["Filter records","Insert","Delete","Update"]},
+{q:"JOIN use?",o:["Combine tables","Delete","Insert","Format"]},
+{q:"Primary key?",o:["Unique identifier","Duplicate","Optional","Format"]},
+{q:"GROUP BY?",o:["Aggregate data","Delete","Insert","Update"]},
+{q:"ORDER BY?",o:["Sort records","Delete","Insert","Update"]},
+{q:"COUNT function?",o:["Count rows","Sum","Average","Max"]},
+{q:"DELETE command?",o:["Remove rows","Add","Update","Select"]},
+{q:"UPDATE command?",o:["Modify data","Delete","Insert","Select"]},
+{q:"NULL meaning?",o:["No value","Zero","Empty string","Invalid"]},
+{q:"DROP command?",o:["Delete table","Delete row","Update data","Insert data"]},
+{q:"UNION?",o:["Combine results","Delete","Update","Insert"]},
+{q:"FOREIGN KEY?",o:["Link tables","Delete","Update","Insert"]},
+{q:"HAVING?",o:["Filter groups","Filter rows","Update","Insert"]}
+],
+"Power BI":[
+{q:"Power BI company?",o:["Microsoft","Google","Amazon","Apple"]},
+{q:"Use of Power BI?",o:["Data Visualization","Coding","Writing","Email"]},
+{q:"DAX use?",o:["Formulas","Chart","Delete","Filter"]},
+{q:"File extension?",o:[".pbix",".xlsx",".doc",".txt"]},
+{q:"Dashboard?",o:["Visual display","Delete","Update","Insert"]},
+{q:"Power Query?",o:["Data transform","Chart","Format","Insert"]},
+{q:"Slicer?",o:["Filter visuals","Delete","Insert","Update"]},
+{q:"Bar chart?",o:["Visual chart","Delete","Insert","Update"]},
+{q:"Publish report?",o:["Share","Delete","Insert","Update"]},
+{q:"Data model?",o:["Relationships in data","Delete","Update","Insert"]},
+{q:"Calculated column?",o:["Derived field","Delete","Update","Insert"]},
+{q:"Mobile support?",o:["Yes","No","Partial","None"]},
+{q:"Refresh data?",o:["Update visuals","Delete","Insert","Update"]},
+{q:"Filter pane?",o:["Filter visuals","Delete","Insert","Update"]},
+{q:"Card visual?",o:["Single value display","Delete","Insert","Update"]}
+],
+"Python":[
+{q:"Python type?",o:["High level","Low level","Machine","None"]},
+{q:"Creator?",o:["Guido van Rossum","Bill Gates","Steve Jobs","Mark Zuckerberg"]},
+{q:"Print use?",o:["Display output","Delete","Insert","Update"]},
+{q:"List type?",o:["Mutable","Immutable","Both","None"]},
+{q:"Tuple mutable?",o:["No","Yes","Both","None"]},
+{q:"Dictionary?",o:["Key-Value pairs","Array","Set","Tuple"]},
+{q:"For loop?",o:["Iteration","Conditional","Function","Class"]},
+{q:"While loop?",o:["Iteration","Conditional","Function","Class"]},
+{q:"Function keyword?",o:["def","fun","func","lambda"]},
+{q:"File extension?",o:[".py",".java",".txt",".doc"]},
+{q:"len() use?",o:["Length","Count","Sum","Max"]},
+{q:"Indentation?",o:["Block control","Delete","Insert","Format"]},
+{q:"Comment?",o:["#","//","/*","$$"]},
+{q:"Set?",o:["Unique items","List","Tuple","Dictionary"]},
+{q:"Lambda?",o:["Anonymous function","Class","Method","Variable"]}
+];
 
-/* ===== GLOBALS ===== */
-let user = "", skill = "", index = 0, score = 0, timer = null, timeLeft = 300;
-let test = [], answers = [];
+// ===== GLOBALS =====
+let user="", skill="", index=0, score=0, timer, timeLeft=300;
+let test=[], answers=[];
 
-/* ===== Utility: non-mutating Fisher-Yates shuffle ===== */
-function shuffle(arr){
-  const a = arr.slice();
-  for(let i = a.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-/* ===== LOGIN ===== */
+// ===== LOGIN =====
 function login(){
-  const nameInput = document.getElementById("username");
-  user = nameInput.value.trim();
-  if(!user){ alert("Please enter your name."); nameInput.focus(); return; }
-  document.getElementById("login").style.display = "none";
-  document.getElementById("stream").style.display = "block";
-  document.getElementById("stream").querySelector("button").focus();
+ user=document.getElementById("username").value;
+ if(!user){alert("Enter name"); return;}
+ document.getElementById("login").style.display="none";
+ document.getElementById("stream").style.display="block";
 }
 
-/* ===== START TEST =====
-   - Build a test copy without mutating QUESTIONS
-   - Assumes the first option in QUESTIONS[*].o is the correct answer
-*/
+// ===== START TEST =====
 function startTest(s){
-  if(!QUESTIONS[s] || QUESTIONS[s].length === 0){ alert("No questions found for selected skill."); return; }
-  skill = s;
-  document.getElementById("stream").style.display = "none";
-  document.getElementById("quiz").style.display = "block";
-  index = 0; score = 0; answers = [];
-
-  // clone question objects to avoid mutating the QUESTIONS constant
-  const pool = shuffle(QUESTIONS[skill].map(q => ({ q: q.q, o: q.o.slice() })));
-  const count = Math.min(15, pool.length);
-
-  test = pool.slice(0, count).map(item => {
-    // original correct is item.o[0]
-    const originalCorrect = item.o[0];
-    const shuffledOptions = shuffle(item.o.slice());
-    const correctIndex = shuffledOptions.indexOf(originalCorrect);
-    return { q: item.q, o: shuffledOptions, correct: correctIndex };
-  });
-
-  timeLeft = 300;
-  startTimer();
-  showQ();
+ skill=s;
+ document.getElementById("stream").style.display="none";
+ document.getElementById("quiz").style.display="block";
+ index=0; score=0; answers=[];
+ test=shuffle([...QUESTIONS[skill]]).slice(0,15).map(q=>{
+   return {q:q.q,o:shuffle(q.o),correct:q.o.indexOf(q.o[0])};
+ });
+ timeLeft=300; startTimer(); showQ();
 }
 
-/* ===== TIMER ===== */
+// ===== TIMER =====
 function startTimer(){
-  const timerDiv = document.getElementById("timer");
-  timerDiv.style.display = "block";
-  clearInterval(timer);
-  timer = setInterval(()=>{
-    // decrement then display
-    if (timeLeft <= 0) {
-      clearInterval(timer);
-      submit();
-      return;
-    }
-    timeLeft--;
-    const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
-    timerDiv.textContent = `⏱ Time Left: ${m}:${s < 10 ? "0"+s : s}`;
-  }, 1000);
+ const timerDiv=document.getElementById("timer");
+ timerDiv.style.display="block";
+ timer=setInterval(()=>{
+  let m=Math.floor(timeLeft/60), s=timeLeft%60;
+  timerDiv.innerHTML=`⏱ Time Left: ${m}:${s<10?"0"+s:s}`;
+  if(timeLeft--<=0){clearInterval(timer); submit();}
+ },1000);
 }
 
-/* ===== SHOW QUESTION ===== */
+// ===== SHUFFLE =====
+function shuffle(arr){return arr.sort(()=>Math.random()-0.5);}
+
+// ===== SHOW QUESTION =====
 function showQ(){
-  const q = test[index];
-  const quiz = document.getElementById("quiz");
-  const total = test.length;
-  const optsHtml = q.o.map((o,i)=> {
-    // Each radio has a unique id for accessibility
-    const id = `opt-${index}-${i}`;
-    const checked = answers[index] === i ? "checked" : "";
-    return `<label class="option"><input id="${id}" type="radio" name="opt" value="${i}" ${checked}> ${String.fromCharCode(65+i)}. ${escapeHtml(o)}</label>`;
-  }).join("");
-
-  quiz.innerHTML = `
-    <div>
-      <h3>Question ${index+1}/${total}</h3>
-      <p>${escapeHtml(q.q)}</p>
-      ${optsHtml}
-      <br>
-      <div class="center">
-        ${index>0?'<button type="button" onclick="prevQ()">Previous</button>':''}
-        ${index<total-1?'<button type="button" onclick="nextQ()">Next</button>':'<button type="button" onclick="submit()">Submit</button>'}
-      </div>
-      <p class="muted">Unanswered: ${countUnanswered()} • Use keyboard arrows and Enter to navigate.</p>
-    </div>
-  `;
-
-  // autofocus first option if present
-  const firstOpt = quiz.querySelector('input[name="opt"]');
-  if(firstOpt) firstOpt.focus();
+ const q=test[index];
+ const quiz=document.getElementById("quiz");
+ quiz.innerHTML=`<div>
+ <h3>Question ${index+1}/15</h3>
+ <p>${q.q}</p>
+ ${q.o.map((o,i)=>`
+ <label><input type="radio" name="opt" value="${i}" ${answers[index]==i?"checked":""}> ${String.fromCharCode(65+i)}. ${o}</label><br>`).join('')}
+ <br>
+ ${index>0?'<button onclick="prevQ()">Previous</button>':''}
+ ${index<14?'<button onclick="nextQ()">Next</button>':'<button onclick="submit()">Submit</button>'}
+ </div>`;
 }
 
-/* ===== Helpers for answers and navigation ===== */
 function saveAnswer(){
-  const sel = document.querySelector('input[name="opt"]:checked');
-  if(sel) answers[index] = Number(sel.value);
+ let sel=document.querySelector('input[name="opt"]:checked');
+ if(sel) answers[index]=Number(sel.value);
 }
 
-function nextQ(){
-  saveAnswer();
-  if (answers[index] === undefined){
-    if(!confirm("You haven't selected an answer for this question. Move to next?")) return;
-  }
-  if(index < test.length - 1){ index++; showQ(); }
-}
+function nextQ(){saveAnswer(); index++; showQ();}
+function prevQ(){saveAnswer(); index--; showQ();}
 
-function prevQ(){ saveAnswer(); if(index > 0){ index--; showQ(); } }
-
-function countUnanswered(){
-  let c = 0;
-  for(let i=0;i<test.length;i++) if(answers[i] === undefined) c++;
-  return c;
-}
-
-/* ===== SUBMIT TEST ===== */
+// ===== SUBMIT TEST =====
 function submit(){
-  clearInterval(timer);
-  saveAnswer();
-
-  // if there are unanswered, confirm submit
-  const unanswered = countUnanswered();
-  if(unanswered > 0){
-    if(!confirm(`There are ${unanswered} unanswered question(s). Do you still want to submit?`)) {
-      startTimer(); // resume timer
-      return;
-    }
-  }
-
-  // calculate score
-  score = 0;
-  test.forEach((q,i)=>{ if(answers[i] === q.correct) score++; });
-
-  document.getElementById("quiz").style.display = "none";
-  document.getElementById("timer").style.display = "none";
-  showCertificate();
+ clearInterval(timer); saveAnswer();
+ score=0;
+ test.forEach((q,i)=>{ if(answers[i]==q.correct) score++;});
+ document.getElementById("quiz").style.display="none";
+ document.getElementById("timer").style.display="none";
+ showCertificate();
 }
 
-/* ===== CERTIFICATE (safe: uses textContent, DOM APIs) ===== */
+// ===== CERTIFICATE =====
 function showCertificate(){
-  const level = score >= Math.ceil(test.length*0.8) ? "Advanced" : score >= Math.ceil(test.length*0.47) ? "Intermediate" : "Beginner";
-  const resultDiv = document.getElementById("result");
-  resultDiv.style.display = "block";
-  resultDiv.innerHTML = "";
-
-  const wrapper = document.createElement("div");
-  wrapper.style.border = "5px solid #764ba2";
-  wrapper.style.padding = "30px";
-  wrapper.style.textAlign = "center";
-
-  const h1 = document.createElement("h1");
-  h1.textContent = "🏆 Certificate of Completion";
-  wrapper.appendChild(h1);
-
-  const h3a = document.createElement("h3");
-  h3a.textContent = "This is to certify that";
-  wrapper.appendChild(h3a);
-
-  const h2user = document.createElement("h2");
-  h2user.textContent = user; // safe: textContent escapes
-  wrapper.appendChild(h2user);
-
-  const h3b = document.createElement("h3");
-  h3b.textContent = "has successfully completed the";
-  wrapper.appendChild(h3b);
-
-  const h2skill = document.createElement("h2");
-  h2skill.textContent = `${skill} Test`;
-  wrapper.appendChild(h2skill);
-
-  const pScore = document.createElement("p");
-  pScore.innerHTML = `<b>Score:</b> ${score}/${test.length}`;
-  wrapper.appendChild(pScore);
-
-  const pLevel = document.createElement("p");
-  pLevel.innerHTML = `<b>Level:</b> ${level}`;
-  wrapper.appendChild(pLevel);
-
-  const pDate = document.createElement("p");
-  pDate.textContent = `Date: ${new Date().toDateString()}`;
-  wrapper.appendChild(pDate);
-
-  const btnDownload = document.createElement("button");
-  btnDownload.type = "button";
-  btnDownload.textContent = "Download PDF";
-  btnDownload.onclick = downloadPDF;
-  wrapper.appendChild(btnDownload);
-
-  const btnRestart = document.createElement("button");
-  btnRestart.type = "button";
-  btnRestart.textContent = "Restart Test";
-  btnRestart.onclick = () => location.reload();
-  wrapper.appendChild(btnRestart);
-
-  resultDiv.appendChild(wrapper);
-  // move focus to the download button for keyboard users
-  btnDownload.focus();
+ const level=score>=12?"Advanced":score>=7?"Intermediate":"Beginner";
+ const resultDiv=document.getElementById("result");
+ resultDiv.style.display="block";
+ resultDiv.innerHTML=`
+ <div style="border:5px solid #764ba2; padding:30px; text-align:center;">
+ <h1>🏆 Certificate of Completion</h1>
+ <h3>This is to certify that</h3>
+ <h2>${user}</h2>
+ <h3>has successfully completed the</h3>
+ <h2>${skill} Test</h2>
+ <p><b>Score:</b> ${score}/15</p>
+ <p><b>Level:</b> ${level}</p>
+ <p>Date: ${new Date().toDateString()}</p>
+ <button onclick="downloadPDF()">Download PDF</button>
+ <button onclick="location.reload()">Restart Test</button>
+ </div>`;
 }
 
-/* ===== DOWNLOAD PDF (uses jspdf, centered layout) ===== */
+// ===== DOWNLOAD PDF WITH SITE LINK =====
 function downloadPDF(){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-  const pageWidth = doc.internal.pageSize.getWidth();
-
-  doc.setFontSize(26);
-  doc.text("Certificate of Completion", pageWidth / 2, 120, { align: 'center' });
-
-  doc.setFontSize(16);
-  doc.text("This is to certify that", pageWidth / 2, 160, { align: 'center' });
-
-  doc.setFontSize(22);
-  doc.text(user, pageWidth / 2, 200, { align: 'center' });
-
-  doc.setFontSize(16);
-  doc.text(`has successfully completed the ${skill} Test`, pageWidth / 2, 235, { align: 'center' });
-
-  doc.setFontSize(14);
-  doc.text(`Score: ${score}/${test.length}`, pageWidth / 2, 265, { align: 'center' });
-  doc.text(`Level: ${score >= Math.ceil(test.length*0.8) ? "Advanced" : score >= Math.ceil(test.length*0.47) ? "Intermediate" : "Beginner"}`, pageWidth / 2, 285, { align: 'center' });
-
-  doc.setFontSize(12);
-  doc.text(`Date: ${new Date().toDateString()}`, pageWidth / 2, 315, { align: 'center' });
-
-  // Add subtle border
-  doc.setLineWidth(1.5);
-  doc.rect(40, 60, pageWidth - 80, 420);
-
-  doc.save(`${(user || 'certificate').replace(/\s+/g,'_')}_Certificate.pdf`);
+ const {jsPDF} = window.jspdf;
+ const doc = new jsPDF();
+ doc.setFontSize(22); doc.text("Certificate of Completion",30,30);
+ doc.setFontSize(16); 
+ doc.text(`This is to certify that ${user}`,30,50);
+ doc.text(`has successfully completed the ${skill} Test`,30,60);
+ doc.text(`Score: ${score}/15`,30,75);
+ doc.text(`Level: ${score>=12?"Advanced":score>=7?"Intermediate":"Beginner"}`,30,85);
+ doc.text(`Date: ${new Date().toDateString()}`,30,100);
+ // clickable site link
+ const siteName="MySkillPortal.com";  // Change to your site
+ const siteURL="https://www.myskillportal.com"; // Change to your site
+ doc.setTextColor(0,0,255);
+ doc.textWithLink(siteName,30,120,{url:siteURL});
+ doc.save("Certificate.pdf");
 }
-
-/* ===== Small utility to escape displayed html content (questions/options) ===== */
-function escapeHtml(str){
-  return String(str)
-    .replaceAll('&','&amp;')
-    .replaceAll('<','&lt;')
-    .replaceAll('>','&gt;')
-    .replaceAll('"','&quot;')
-    .replaceAll("'",'&#39;');
-}
-
-/* ===== Keyboard shortcuts: left/right arrows & Enter to select & navigate ===== */
-document.addEventListener('keydown', (e) => {
-  if (document.getElementById('quiz').style.display === 'block') {
-    if (e.key === 'ArrowLeft') { e.preventDefault(); if(index>0) prevQ(); }
-    if (e.key === 'ArrowRight') { e.preventDefault(); if(index<test.length-1) nextQ(); }
-    if (e.key === 'Enter') {
-      // if an option is focused / checked, move next automatically
-      const focused = document.activeElement;
-      if (focused && focused.matches('input[name="opt"]')) {
-        saveAnswer();
-        if (index < test.length - 1) nextQ();
-      }
-    }
-  }
-});
 </script>
 </body>
 </html>
