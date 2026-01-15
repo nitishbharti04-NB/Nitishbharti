@@ -2,249 +2,500 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Skill Test Portal</title>
+<title>Skill Test Portal (Google Sheets Backend)</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-body { margin:0; font-family:Segoe UI; background:linear-gradient(135deg,#141e30,#243b55); color:white;}
-.container {max-width:900px;margin:auto;padding:20px;}
-.card {background:white;color:#333;padding:25px;border-radius:15px;margin-top:20px;box-shadow:0 15px 30px rgba(0,0,0,.3);}
-button {background:linear-gradient(135deg,#ff512f,#dd2476); color:white; border:none; padding:10px 20px; border-radius:25px; cursor:pointer; margin:5px; font-size:15px;}
-button:hover {transform:scale(1.05);}
-input {padding:8px;border-radius:8px;border:1px solid #ccc;}
-.correct {color:green;font-weight:bold;}
-.wrong {color:red;font-weight:bold;}
-#timer {font-weight:bold;color:#ff512f;margin-top:10px;}
+  body { margin:0; font-family:Segoe UI, system-ui, -apple-system, "Segoe UI Emoji"; background:linear-gradient(135deg,#141e30,#243b55); color:white;}
+  .container {max-width:900px;margin:auto;padding:20px;}
+  .card {background:white;color:#333;padding:25px;border-radius:15px;margin-top:20px;box-shadow:0 15px 30px rgba(0,0,0,.3);}
+  button {background:linear-gradient(135deg,#ff512f,#dd2476); color:white; border:none; padding:10px 20px; border-radius:25px; cursor:pointer; margin:5px; font-size:15px;}
+  button:hover {transform:scale(1.03);}
+  input[type="text"], input[type="email"] {padding:8px;border-radius:8px;border:1px solid #ccc; width: 300px;}
+  label.option { cursor: pointer; display:block; margin:6px 0; }
+  #timer {font-weight:bold;color:#ff512f;margin-top:10px;}
+  .muted { color: #666; font-size:14px; }
+  .center { text-align:center; }
 </style>
 </head>
 <body>
 <div class="container">
-<h1>🎯 Skill Assessment Portal</h1>
+  <h1>🎯 Skill Assessment Portal</h1>
 
-<!-- LOGIN -->
-<div id="login" class="card">
-<h2>Enter Your Name</h2>
-<input id="username" placeholder="Your Name">
-<br><br>
-<button onclick="login()">Next</button>
+  <!-- LOGIN / CANDIDATE CAPTURE -->
+  <div id="login" class="card" aria-live="polite">
+    <h2>Enter Your Details</h2>
+    <label for="username" class="muted">Full Name</label><br>
+    <input id="username" type="text" placeholder="Your Name" autocomplete="name"><br><br>
+    <label for="email" class="muted">Email</label><br>
+    <input id="email" type="email" placeholder="your@email.com" autocomplete="email"><br><br>
+    <button type="button" onclick="login()">Next</button>
+  </div>
+
+  <!-- SELECT STREAM -->
+  <div id="stream" class="card" style="display:none">
+    <h2>Select Your Stream/Skill</h2>
+    <div>
+      <button type="button" onclick="startTest('Excel')">Excel</button>
+      <button type="button" onclick="startTest('Advanced Excel')">Advanced Excel</button>
+      <button type="button" onclick="startTest('SQL')">SQL</button>
+      <button type="button" onclick="startTest('Power BI')">Power BI</button>
+      <button type="button" onclick="startTest('Python')">Python</button>
+    </div>
+  </div>
+
+  <div id="timer"></div>
+  <div id="quiz" class="card" style="display:none"></div>
+  <div id="result" class="card" style="display:none"></div>
 </div>
-
-<!-- SELECT STREAM -->
-<div id="stream" class="card" style="display:none">
-<h2>Select Your Stream/Skill</h2>
-<button onclick="startTest('Excel')">Excel</button>
-<button onclick="startTest('Advanced Excel')">Advanced Excel</button>
-<button onclick="startTest('SQL')">SQL</button>
-<button onclick="startTest('Power BI')">Power BI</button>
-<button onclick="startTest('Python')">Python</button>
-</div>
-
-<div id="timer"></div>
-<div id="quiz" class="card" style="display:none"></div>
-<div id="result" class="card" style="display:none"></div>
 
 <script>
-// ====== QUESTIONS FOR EACH STREAM ======
+/* ===========================
+   Configuration - replace this with your deployed Apps Script Web App URL
+   Deploy Apps Script as: Execute as -> Me, Who has access -> Anyone, even anonymous
+   (Deployment instructions below)
+   =========================== */
+const GAS_WEB_APP_URL = "https://script.google.com/macros/s/YOUR_DEPLOYED_WEBAPP_ID/exec";
+
+/* ====== QUESTIONS (first option = correct) ====== */
 const QUESTIONS = {
-"Excel":[
-{q:"VLOOKUP use?",o:["Search value","Delete data","Format","Chart"]},
-{q:"Excel file extension?",o:[".docx",".xlsx",".ppt",".txt"]},
-{q:"SUM function purpose?",o:["Add numbers","Subtract","Multiply","Divide"]},
-{q:"IF function use?",o:["Conditional logic","Formatting","Chart","Filter"]},
-{q:"COUNT function counts?",o:["Numbers","Text","Images","Charts"]},
-{q:"Pivot table is for?",o:["Summarizing data","Deleting data","Formatting","Printing"]},
-{q:"Freeze pane purpose?",o:["Lock rows/columns","Hide data","Sort","Filter"]},
-{q:"MAX function finds?",o:["Maximum value","Minimum","Average","Sum"]},
-{q:"MIN function finds?",o:["Minimum value","Maximum","Average","Sum"]},
-{q:"Excel company?",o:["Google","Microsoft","Amazon","Apple"]},
-{q:"Conditional formatting?",o:["Color cells based on rule","Delete","Insert","Chart"]},
-{q:"Formula starts with?",o:["=","+","-","#"]},
-{q:"Workbook is?",o:["File containing sheets","Single cell","Chart","Formula"]},
-{q:"Maximum rows in Excel?",o:["1048576","65536","10000","5000"]},
-{q:"Shortcut to save?",o:["Ctrl+S","Ctrl+C","Ctrl+V","Ctrl+Z"]},
-{q:"AVERAGE function?",o:["Average value","Sum","Count","Max"]},
-{q:"Chart creation?",o:["Visualize data","Format text","Delete","Insert formula"]},
-{q:"Text function purpose?",o:["Manipulate text","Math","Chart","Format"]},
-{q:"Cell address example?",o:["A1","1A","AA","1B"]},
-{q:"Sheet is?",o:["Single tab in workbook","Cell","Column","Row"]}
-],
-"Advanced Excel":[
-{q:"INDEX function use?",o:["Return cell value","Delete data","Chart","Format"]},
-{q:"MATCH function?",o:["Find position","Sum","Average","Count"]},
-{q:"VLOOKUP vs HLOOKUP?",o:["Vertical vs Horizontal lookup","Sum","Count","Average"]},
-{q:"ARRAY formula?",o:["Multiple cells calculation","Single cell","Chart","Delete"]},
-{q:"Data validation purpose?",o:["Restrict input","Sum","Count","Average"]},
-{q:"Goal Seek?",o:["Find input for desired output","Chart","Format","Sort"]},
-{q:"Advanced filter?",o:["Extract data","Delete","Insert","Chart"]},
-{q:"Conditional formula?",o:["IF combined with logic","Sum","Average","Count"]},
-{q:"Dynamic chart?",o:["Chart updates with data","Static chart","Filter","Delete"]},
-{q:"Power Query?",o:["Transform data","Chart","Delete","Format"]},
-{q:"Sparklines?",o:["Mini charts in cell","Macro","Delete","Format"]},
-{q:"Macro use?",o:["Automate tasks","Chart","Format","Filter"]},
-{q:"Protect sheet?",o:["Restrict editing","Delete","Format","Chart"]},
-{q:"Named range?",o:["Assign name to range","Delete","Chart","Format"]},
-{q:"Advanced Pivot table?",o:["Custom summarization","Simple table","Format","Chart"]}
-],
-"SQL":[
-{q:"SQL full form?",o:["Structured Query Language","Simple Query","None","Data"]},
-{q:"SELECT use?",o:["Retrieve data","Delete","Insert","Update"]},
-{q:"WHERE clause?",o:["Filter records","Insert","Delete","Update"]},
-{q:"JOIN use?",o:["Combine tables","Delete","Insert","Format"]},
-{q:"Primary key?",o:["Unique identifier","Duplicate","Optional","Format"]},
-{q:"GROUP BY?",o:["Aggregate data","Delete","Insert","Update"]},
-{q:"ORDER BY?",o:["Sort records","Delete","Insert","Update"]},
-{q:"COUNT function?",o:["Count rows","Sum","Average","Max"]},
-{q:"DELETE command?",o:["Remove rows","Add","Update","Select"]},
-{q:"UPDATE command?",o:["Modify data","Delete","Insert","Select"]},
-{q:"NULL meaning?",o:["No value","Zero","Empty string","Invalid"]},
-{q:"DROP command?",o:["Delete table","Delete row","Update data","Insert data"]},
-{q:"UNION?",o:["Combine results","Delete","Update","Insert"]},
-{q:"FOREIGN KEY?",o:["Link tables","Delete","Update","Insert"]},
-{q:"HAVING?",o:["Filter groups","Filter rows","Update","Insert"]}
-],
-"Power BI":[
-{q:"Power BI company?",o:["Microsoft","Google","Amazon","Apple"]},
-{q:"Use of Power BI?",o:["Data Visualization","Coding","Writing","Email"]},
-{q:"DAX use?",o:["Formulas","Chart","Delete","Filter"]},
-{q:"File extension?",o:[".pbix",".xlsx",".doc",".txt"]},
-{q:"Dashboard?",o:["Visual display","Delete","Update","Insert"]},
-{q:"Power Query?",o:["Data transform","Chart","Format","Insert"]},
-{q:"Slicer?",o:["Filter visuals","Delete","Insert","Update"]},
-{q:"Bar chart?",o:["Visual chart","Delete","Insert","Update"]},
-{q:"Publish report?",o:["Share","Delete","Insert","Update"]},
-{q:"Data model?",o:["Relationships in data","Delete","Update","Insert"]},
-{q:"Calculated column?",o:["Derived field","Delete","Update","Insert"]},
-{q:"Mobile support?",o:["Yes","No","Partial","None"]},
-{q:"Refresh data?",o:["Update visuals","Delete","Insert","Update"]},
-{q:"Filter pane?",o:["Filter visuals","Delete","Insert","Update"]},
-{q:"Card visual?",o:["Single value display","Delete","Insert","Update"]}
-],
-"Python":[
-{q:"Python type?",o:["High level","Low level","Machine","None"]},
-{q:"Creator?",o:["Guido van Rossum","Bill Gates","Steve Jobs","Mark Zuckerberg"]},
-{q:"Print use?",o:["Display output","Delete","Insert","Update"]},
-{q:"List type?",o:["Mutable","Immutable","Both","None"]},
-{q:"Tuple mutable?",o:["No","Yes","Both","None"]},
-{q:"Dictionary?",o:["Key-Value pairs","Array","Set","Tuple"]},
-{q:"For loop?",o:["Iteration","Conditional","Function","Class"]},
-{q:"While loop?",o:["Iteration","Conditional","Function","Class"]},
-{q:"Function keyword?",o:["def","fun","func","lambda"]},
-{q:"File extension?",o:[".py",".java",".txt",".doc"]},
-{q:"len() use?",o:["Length","Count","Sum","Max"]},
-{q:"Indentation?",o:["Block control","Delete","Insert","Format"]},
-{q:"Comment?",o:["#","//","/*","$$"]},
-{q:"Set?",o:["Unique items","List","Tuple","Dictionary"]},
-{q:"Lambda?",o:["Anonymous function","Class","Method","Variable"]}
-];
+  "Excel":[
+    {q:"VLOOKUP use?",o:["Search value","Delete data","Format","Chart"]},
+    {q:"Excel file extension?",o:[".xlsx",".docx",".ppt",".txt"]},
+    {q:"SUM function purpose?",o:["Add numbers","Subtract","Multiply","Divide"]},
+    {q:"IF function use?",o:["Conditional logic","Formatting","Chart","Filter"]},
+    {q:"COUNT function counts?",o:["Numbers","Text","Images","Charts"]},
+    {q:"Pivot table is for?",o:["Summarizing data","Deleting data","Formatting","Printing"]},
+    {q:"Freeze pane purpose?",o:["Lock rows/columns","Hide data","Sort","Filter"]},
+    {q:"MAX function finds?",o:["Maximum value","Minimum","Average","Sum"]},
+    {q:"MIN function finds?",o:["Minimum value","Maximum","Average","Sum"]},
+    {q:"Excel company?",o:["Microsoft","Google","Amazon","Apple"]},
+    {q:"Conditional formatting?",o:["Color cells based on rule","Delete","Insert","Chart"]},
+    {q:"Formula starts with?",o:["=","+","-","#"]},
+    {q:"Workbook is?",o:["File containing sheets","Single cell","Chart","Formula"]},
+    {q:"Maximum rows in Excel?",o:["1048576","65536","10000","5000"]},
+    {q:"Shortcut to save?",o:["Ctrl+S","Ctrl+C","Ctrl+V","Ctrl+Z"]},
+    {q:"AVERAGE function?",o:["Average value","Sum","Count","Max"]},
+    {q:"Chart creation?",o:["Visualize data","Format text","Delete","Insert formula"]},
+    {q:"Text function purpose?",o:["Manipulate text","Math","Chart","Format"]},
+    {q:"Cell address example?",o:["A1","1A","AA","1B"]},
+    {q:"Sheet is?",o:["Single tab in workbook","Cell","Column","Row"]}
+  ],
+  "Advanced Excel":[
+    {q:"INDEX function use?",o:["Return cell value","Delete data","Chart","Format"]},
+    {q:"MATCH function?",o:["Find position","Sum","Average","Count"]},
+    {q:"VLOOKUP vs HLOOKUP?",o:["Vertical vs Horizontal lookup","Sum","Count","Average"]},
+    {q:"ARRAY formula?",o:["Multiple cells calculation","Single cell","Chart","Delete"]},
+    {q:"Data validation purpose?",o:["Restrict input","Sum","Count","Average"]},
+    {q:"Goal Seek?",o:["Find input for desired output","Chart","Format","Sort"]},
+    {q:"Advanced filter?",o:["Extract data","Delete","Insert","Chart"]},
+    {q:"Conditional formula?",o:["IF combined with logic","Sum","Average","Count"]},
+    {q:"Dynamic chart?",o:["Chart updates with data","Static chart","Filter","Delete"]},
+    {q:"Power Query?",o:["Transform data","Chart","Delete","Format"]},
+    {q:"Sparklines?",o:["Mini charts in cell","Macro","Delete","Format"]},
+    {q:"Macro use?",o:["Automate tasks","Chart","Format","Filter"]},
+    {q:"Protect sheet?",o:["Restrict editing","Delete","Format","Chart"]},
+    {q:"Named range?",o:["Assign name to range","Delete","Chart","Format"]},
+    {q:"Advanced Pivot table?",o:["Custom summarization","Simple table","Format","Chart"]}
+  ],
+  "SQL":[
+    {q:"SQL full form?",o:["Structured Query Language","Simple Query","None","Data"]},
+    {q:"SELECT use?",o:["Retrieve data","Delete","Insert","Update"]},
+    {q:"WHERE clause?",o:["Filter records","Insert","Delete","Update"]},
+    {q:"JOIN use?",o:["Combine tables","Delete","Insert","Format"]},
+    {q:"Primary key?",o:["Unique identifier","Duplicate","Optional","Format"]},
+    {q:"GROUP BY?",o:["Aggregate data","Delete","Insert","Update"]},
+    {q:"ORDER BY?",o:["Sort records","Delete","Insert","Update"]},
+    {q:"COUNT function?",o:["Count rows","Sum","Average","Max"]},
+    {q:"DELETE command?",o:["Remove rows","Add","Update","Select"]},
+    {q:"UPDATE command?",o:["Modify data","Delete","Insert","Select"]},
+    {q:"NULL meaning?",o:["No value","Zero","Empty string","Invalid"]},
+    {q:"DROP command?",o:["Delete table","Delete row","Update data","Insert data"]},
+    {q:"UNION?",o:["Combine results","Delete","Update","Insert"]},
+    {q:"FOREIGN KEY?",o:["Link tables","Delete","Update","Insert"]},
+    {q:"HAVING?",o:["Filter groups","Filter rows","Update","Insert"]}
+  ],
+  "Power BI":[
+    {q:"Power BI company?",o:["Microsoft","Google","Amazon","Apple"]},
+    {q:"Use of Power BI?",o:["Data Visualization","Coding","Writing","Email"]},
+    {q:"DAX use?",o:["Formulas","Chart","Delete","Filter"]},
+    {q:"File extension?",o:[".pbix",".xlsx",".doc",".txt"]},
+    {q:"Dashboard?",o:["Visual display","Delete","Update","Insert"]},
+    {q:"Power Query?",o:["Data transform","Chart","Format","Insert"]},
+    {q:"Slicer?",o:["Filter visuals","Delete","Insert","Update"]},
+    {q:"Bar chart?",o:["Visual chart","Delete","Insert","Update"]},
+    {q:"Publish report?",o:["Share","Delete","Insert","Update"]},
+    {q:"Data model?",o:["Relationships in data","Delete","Update","Insert"]},
+    {q:"Calculated column?",o:["Derived field","Delete","Update","Insert"]},
+    {q:"Mobile support?",o:["Yes","No","Partial","None"]},
+    {q:"Refresh data?",o:["Update visuals","Delete","Insert","Update"]},
+    {q:"Filter pane?",o:["Filter visuals","Delete","Insert","Update"]},
+    {q:"Card visual?",o:["Single value display","Delete","Insert","Update"]}
+  ],
+  "Python":[
+    {q:"Python type?",o:["High level","Low level","Machine","None"]},
+    {q:"Creator?",o:["Guido van Rossum","Bill Gates","Steve Jobs","Mark Zuckerberg"]},
+    {q:"Print use?",o:["Display output","Delete","Insert","Update"]},
+    {q:"List type?",o:["Mutable","Immutable","Both","None"]},
+    {q:"Tuple mutable?",o:["No","Yes","Both","None"]},
+    {q:"Dictionary?",o:["Key-Value pairs","Array","Set","Tuple"]},
+    {q:"For loop?",o:["Iteration","Conditional","Function","Class"]},
+    {q:"While loop?",o:["Iteration","Conditional","Function","Class"]},
+    {q:"Function keyword?",o:["def","fun","func","lambda"]},
+    {q:"File extension?",o:[".py",".java",".txt",".doc"]},
+    {q:"len() use?",o:["Length","Count","Sum","Max"]},
+    {q:"Indentation?",o:["Block control","Delete","Insert","Format"]},
+    {q:"Comment?",o:["#","//","/*","$$"]},
+    {q:"Set?",o:["Unique items","List","Tuple","Dictionary"]},
+    {q:"Lambda?",o:["Anonymous function","Class","Method","Variable"]}
+  ]
+};
 
-// ===== GLOBALS =====
-let user="", skill="", index=0, score=0, timer, timeLeft=300;
-let test=[], answers=[];
+/* ===== Globals ===== */
+let user = "", email = "", skill = "", index = 0, score = 0, timer = null, timeLeft = 300;
+let test = [], answers = [], sessionId = null, startTime = null, autoSaveIntervalId = null;
+const TOTAL_QUESTIONS = 15;
+const AUTOSAVE_INTERVAL_MS = 15000; // 15s
 
-// ===== LOGIN =====
+/* ===== Helpers ===== */
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function escapeHtml(str){
+  return String(str).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
+}
+function nowISO(){ return new Date().toISOString(); }
+function secondsBetween(startISO, endISO){ return Math.max(0, Math.round((new Date(endISO) - new Date(startISO))/1000)); }
+
+/* ===== Login & Start Flow ===== */
 function login(){
- user=document.getElementById("username").value;
- if(!user){alert("Enter name"); return;}
- document.getElementById("login").style.display="none";
- document.getElementById("stream").style.display="block";
+  user = document.getElementById("username").value.trim();
+  email = document.getElementById("email").value.trim();
+  if(!user){ alert("Please enter your name."); return; }
+  if(!email){ alert("Please enter your email."); return; }
+  // restore session if present
+  const saved = localStorage.getItem('skill_test_session');
+  if(saved){
+    try{
+      const obj = JSON.parse(saved);
+      if(obj && obj.sessionId && obj.skill){
+        if(confirm("A previous session was found. Do you want to resume it?")){
+          sessionId = obj.sessionId;
+          skill = obj.skill;
+          // fetch server to load saved state will be handled in startTest after UI change
+          document.getElementById("login").style.display = "none";
+          document.getElementById("stream").style.display = "block";
+          return;
+        } else {
+          localStorage.removeItem('skill_test_session');
+        }
+      }
+    }catch(e){}
+  }
+  document.getElementById("login").style.display = "none";
+  document.getElementById("stream").style.display = "block";
 }
 
-// ===== START TEST =====
-function startTest(s){
- skill=s;
- document.getElementById("stream").style.display="none";
- document.getElementById("quiz").style.display="block";
- index=0; score=0; answers=[];
- test=shuffle([...QUESTIONS[skill]]).slice(0,15).map(q=>{
-   return {q:q.q,o:shuffle(q.o),correct:q.o.indexOf(q.o[0])};
- });
- timeLeft=300; startTimer(); showQ();
+/* ===== START TEST ===== */
+async function startTest(s){
+  skill = s;
+  document.getElementById("stream").style.display = "none";
+  document.getElementById("quiz").style.display = "block";
+  index = 0; score = 0; answers = [];
+  // build test without mutating original, and compute correct index after shuffle
+  const pool = shuffle(QUESTIONS[skill].map(q => ({ q: q.q, o: q.o.slice() })));
+  const count = Math.min(TOTAL_QUESTIONS, pool.length);
+  test = pool.slice(0,count).map(item=>{
+    const originalCorrect = item.o[0];
+    const shuffled = shuffle(item.o.slice());
+    const correctIndex = shuffled.indexOf(originalCorrect);
+    return { q: item.q, o: shuffled, correct: correctIndex };
+  });
+
+  // Start time
+  startTime = nowISO();
+  timeLeft = 300;
+  startTimer();
+  showQ();
+
+  // Create session on server (if not already present)
+  if(!sessionId){
+    try{
+      const res = await callServer({ action: 'create_session', name: user, email: email, skill: skill, startTime: startTime, totalQuestions: test.length });
+      if(res && res.success && res.sessionId){
+        sessionId = res.sessionId;
+        localStorage.setItem('skill_test_session', JSON.stringify({ sessionId: sessionId, skill: skill }));
+      } else {
+        console.warn("Could not create session on server", res);
+      }
+    }catch(err){
+      console.warn("Server session create error:", err);
+    }
+  } else {
+    // We had a sessionId from earlier resume; tell server the skill/startTime in case
+    try{ await callServer({ action:'resume_session', sessionId: sessionId, skill: skill, startTime: startTime }); }catch(e){}
+  }
+
+  // start autosave
+  if(autoSaveIntervalId) clearInterval(autoSaveIntervalId);
+  autoSaveIntervalId = setInterval(()=>{ autosave(); }, AUTOSAVE_INTERVAL_MS);
 }
 
-// ===== TIMER =====
+/* ===== TIMER ===== */
 function startTimer(){
- const timerDiv=document.getElementById("timer");
- timerDiv.style.display="block";
- timer=setInterval(()=>{
-  let m=Math.floor(timeLeft/60), s=timeLeft%60;
-  timerDiv.innerHTML=`⏱ Time Left: ${m}:${s<10?"0"+s:s}`;
-  if(timeLeft--<=0){clearInterval(timer); submit();}
- },1000);
+  const timerDiv = document.getElementById("timer");
+  timerDiv.style.display = "block";
+  clearInterval(timer);
+  timer = setInterval(()=>{
+    if(timeLeft <= 0){
+      clearInterval(timer);
+      submit();
+      return;
+    }
+    timeLeft--;
+    const m = Math.floor(timeLeft/60), s = timeLeft%60;
+    timerDiv.textContent = `⏱ Time Left: ${m}:${s<10?"0"+s:s}`;
+  },1000);
 }
 
-// ===== SHUFFLE =====
-function shuffle(arr){return arr.sort(()=>Math.random()-0.5);}
-
-// ===== SHOW QUESTION =====
+/* ===== UI: show question ===== */
 function showQ(){
- const q=test[index];
- const quiz=document.getElementById("quiz");
- quiz.innerHTML=`<div>
- <h3>Question ${index+1}/15</h3>
- <p>${q.q}</p>
- ${q.o.map((o,i)=>`
- <label><input type="radio" name="opt" value="${i}" ${answers[index]==i?"checked":""}> ${String.fromCharCode(65+i)}. ${o}</label><br>`).join('')}
- <br>
- ${index>0?'<button onclick="prevQ()">Previous</button>':''}
- ${index<14?'<button onclick="nextQ()">Next</button>':'<button onclick="submit()">Submit</button>'}
- </div>`;
+  const q = test[index];
+  const quiz = document.getElementById("quiz");
+  const total = test.length;
+  const optsHtml = q.o.map((o,i)=> {
+    const id = `opt-${index}-${i}`;
+    const checked = answers[index] === i ? "checked" : "";
+    return `<label class="option"><input id="${id}" type="radio" name="opt" value="${i}" ${checked}> ${String.fromCharCode(65+i)}. ${escapeHtml(o)}</label>`;
+  }).join("");
+  quiz.innerHTML = `
+    <div>
+      <h3>Question ${index+1}/${total}</h3>
+      <p>${escapeHtml(q.q)}</p>
+      ${optsHtml}
+      <br>
+      <div class="center">
+        ${index>0?'<button type="button" onclick="prevQ()">Previous</button>':''}
+        ${index<total-1?'<button type="button" onclick="nextQ()">Next</button>':'<button type="button" onclick="submit()">Submit</button>'}
+      </div>
+      <p class="muted">Unanswered: ${countUnanswered()} • Your answers are auto-saved every ${AUTOSAVE_INTERVAL_MS/1000}s.</p>
+    </div>
+  `;
+  const firstOpt = quiz.querySelector('input[name="opt"]');
+  if(firstOpt) firstOpt.focus();
 }
 
+/* ===== Answer saving and navigation ===== */
 function saveAnswer(){
- let sel=document.querySelector('input[name="opt"]:checked');
- if(sel) answers[index]=Number(sel.value);
+  const sel = document.querySelector('input[name="opt"]:checked');
+  if(sel) answers[index] = Number(sel.value);
+}
+function nextQ(){ saveAnswer(); if(answers[index]===undefined){ if(!confirm("You haven't selected an answer for this question. Move to next?")) return; } if(index < test.length-1){ index++; showQ(); } }
+function prevQ(){ saveAnswer(); if(index>0){ index--; showQ(); } }
+function countUnanswered(){ let c=0; for(let i=0;i<test.length;i++) if(answers[i]===undefined) c++; return c; }
+
+/* ===== SCORE & LEVEL FUNCTIONS ===== */
+function computeScore(){
+  let sc=0;
+  test.forEach((q,i)=>{ if(answers[i]===q.correct) sc++; });
+  return sc;
+}
+function computeLevel(score, total){
+  const pct = (score/total)*100;
+  if(pct >= 80) return "Advanced";
+  if(pct >= 50) return "Intermediate";
+  return "Beginner";
 }
 
-function nextQ(){saveAnswer(); index++; showQ();}
-function prevQ(){saveAnswer(); index--; showQ();}
-
-// ===== SUBMIT TEST =====
-function submit(){
- clearInterval(timer); saveAnswer();
- score=0;
- test.forEach((q,i)=>{ if(answers[i]==q.correct) score++;});
- document.getElementById("quiz").style.display="none";
- document.getElementById("timer").style.display="none";
- showCertificate();
+/* ===== AUTOSAVE (updates server without finalizing) ===== */
+async function autosave(){
+  saveAnswer();
+  if(!sessionId) return;
+  const payload = {
+    action: 'autosave',
+    sessionId: sessionId,
+    answers: answers,
+    lastSavedAt: nowISO(),
+    currentIndex: index,
+    elapsedSeconds: secondsBetween(startTime, nowISO())
+  };
+  try{
+    await callServer(payload);
+    // console.log("Autosaved");
+  }catch(err){
+    console.warn("Autosave failed", err);
+  }
 }
 
-// ===== CERTIFICATE =====
-function showCertificate(){
- const level=score>=12?"Advanced":score>=7?"Intermediate":"Beginner";
- const resultDiv=document.getElementById("result");
- resultDiv.style.display="block";
- resultDiv.innerHTML=`
- <div style="border:5px solid #764ba2; padding:30px; text-align:center;">
- <h1>🏆 Certificate of Completion</h1>
- <h3>This is to certify that</h3>
- <h2>${user}</h2>
- <h3>has successfully completed the</h3>
- <h2>${skill} Test</h2>
- <p><b>Score:</b> ${score}/15</p>
- <p><b>Level:</b> ${level}</p>
- <p>Date: ${new Date().toDateString()}</p>
- <button onclick="downloadPDF()">Download PDF</button>
- <button onclick="location.reload()">Restart Test</button>
- </div>`;
+/* ===== SUBMIT ===== */
+async function submit(){
+  clearInterval(timer);
+  saveAnswer();
+
+  // Confirm if unanswered
+  const unanswered = countUnanswered();
+  if(unanswered > 0){
+    if(!confirm(`There are ${unanswered} unanswered question(s). Do you want to submit anyway?`)){
+      startTimer(); return;
+    }
+  }
+
+  score = computeScore();
+  const endTime = nowISO();
+  const totalTimeSecs = secondsBetween(startTime, endTime);
+  const level = computeLevel(score, test.length);
+  const answersJSON = JSON.stringify(answers);
+
+  // Update server - finalize submission
+  const payload = {
+    action: 'submit',
+    sessionId: sessionId,
+    name: user,
+    email: email,
+    skill: skill,
+    startTime: startTime,
+    endTime: endTime,
+    totalTimeSecs: totalTimeSecs,
+    score: score,
+    totalQuestions: test.length,
+    level: level,
+    answers: answersJSON
+  };
+
+  try{
+    const res = await callServer(payload);
+    if(!res || !res.success) console.warn("Submit response:", res);
+  }catch(err){
+    console.warn("Submit failed:", err);
+  }
+
+  document.getElementById("quiz").style.display = "none";
+  document.getElementById("timer").style.display = "none";
+  clearInterval(autoSaveIntervalId);
+  localStorage.removeItem('skill_test_session');
+  showCertificate(user, skill, score, test.length, level);
 }
 
-// ===== DOWNLOAD PDF WITH SITE LINK =====
+/* ===== Certificate UI & PDF ===== */
+function showCertificate(name, skill, score, total, level){
+  const resultDiv = document.getElementById("result");
+  resultDiv.style.display = "block";
+  resultDiv.innerHTML = "";
+
+  const wrapper = document.createElement("div");
+  wrapper.style.border = "5px solid #764ba2";
+  wrapper.style.padding = "30px";
+  wrapper.style.textAlign = "center";
+
+  const h1 = document.createElement("h1"); h1.textContent = "🏆 Certificate of Completion"; wrapper.appendChild(h1);
+  const h3a = document.createElement("h3"); h3a.textContent = "This is to certify that"; wrapper.appendChild(h3a);
+  const h2user = document.createElement("h2"); h2user.textContent = name; wrapper.appendChild(h2user);
+  const h3b = document.createElement("h3"); h3b.textContent = "has successfully completed the"; wrapper.appendChild(h3b);
+  const h2skill = document.createElement("h2"); h2skill.textContent = `${skill} Test`; wrapper.appendChild(h2skill);
+
+  const pScore = document.createElement("p"); pScore.innerHTML = `<b>Score:</b> ${score}/${total}`; wrapper.appendChild(pScore);
+  const pLevel = document.createElement("p"); pLevel.innerHTML = `<b>Level:</b> ${level}`; wrapper.appendChild(pLevel);
+  const pDate = document.createElement("p"); pDate.textContent = `Date: ${new Date().toDateString()}`; wrapper.appendChild(pDate);
+
+  const btnDownload = document.createElement("button");
+  btnDownload.type = "button";
+  btnDownload.textContent = "Download PDF";
+  btnDownload.onclick = downloadPDF;
+  wrapper.appendChild(btnDownload);
+
+  const btnRestart = document.createElement("button");
+  btnRestart.type = "button";
+  btnRestart.textContent = "Restart Test";
+  btnRestart.onclick = () => location.reload();
+  wrapper.appendChild(btnRestart);
+
+  resultDiv.appendChild(wrapper);
+  btnDownload.focus();
+}
+
 function downloadPDF(){
- const {jsPDF} = window.jspdf;
- const doc = new jsPDF();
- doc.setFontSize(22); doc.text("Certificate of Completion",30,30);
- doc.setFontSize(16); 
- doc.text(`This is to certify that ${user}`,30,50);
- doc.text(`has successfully completed the ${skill} Test`,30,60);
- doc.text(`Score: ${score}/15`,30,75);
- doc.text(`Level: ${score>=12?"Advanced":score>=7?"Intermediate":"Beginner"}`,30,85);
- doc.text(`Date: ${new Date().toDateString()}`,30,100);
- // clickable site link
- const siteName="MySkillPortal.com";  // Change to your site
- const siteURL="https://www.myskillportal.com"; // Change to your site
- doc.setTextColor(0,0,255);
- doc.textWithLink(siteName,30,120,{url:siteURL});
- doc.save("Certificate.pdf");
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  doc.setFontSize(26);
+  doc.text("Certificate of Completion", pageWidth / 2, 120, { align: 'center' });
+  doc.setFontSize(16);
+  doc.text("This is to certify that", pageWidth / 2, 160, { align: 'center' });
+  doc.setFontSize(22);
+  doc.text(user, pageWidth / 2, 200, { align: 'center' });
+  doc.setFontSize(16);
+  doc.text(`has successfully completed the ${skill} Test`, pageWidth / 2, 235, { align: 'center' });
+  doc.setFontSize(14);
+  doc.text(`Score: ${score}/${test.length}`, pageWidth / 2, 265, { align: 'center' });
+  doc.text(`Level: ${computeLevel(score,test.length)}`, pageWidth / 2, 285, { align: 'center' });
+  doc.setFontSize(12);
+  doc.text(`Date: ${new Date().toDateString()}`, pageWidth / 2, 315, { align: 'center' });
+
+  doc.setLineWidth(1.5);
+  doc.rect(40, 60, pageWidth - 80, 420);
+
+  doc.save(`${(user || 'certificate').replace(/\s+/g,'_')}_Certificate.pdf`);
 }
+
+/* ===== Server communication helper ===== */
+async function callServer(payload){
+  if(!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("YOUR_DEPLOYED_WEBAPP_ID")){
+    throw new Error("GAS_WEB_APP_URL not set - replace with your deployed Apps Script URL.");
+  }
+  const res = await fetch(GAS_WEB_APP_URL, {
+    method: 'POST',
+    mode: 'cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const json = await res.json();
+  return json;
+}
+
+/* ===== Resume support - try to load session data on page load ===== */
+window.addEventListener('load', async ()=>{
+  const saved = localStorage.getItem('skill_test_session');
+  if(saved){
+    try{
+      const obj = JSON.parse(saved);
+      if(obj && obj.sessionId){
+        // attempt to fetch session state from server
+        try{
+          const res = await callServer({ action: 'load_session', sessionId: obj.sessionId });
+          if(res && res.success && res.data){
+            // load candidate back into UI so they can resume
+            // we only restore minimal: skill and saved answers if same test
+            sessionId = obj.sessionId;
+            // prefill name/email if available (keeps things consistent)
+            if(res.data.Name) document.getElementById('username').value = res.data.Name;
+            if(res.data.Email) document.getElementById('email').value = res.data.Email;
+            // If client started, user will click to resume during login flow
+          }
+        }catch(e){}
+      }
+    }catch(e){}
+  }
+});
+
+/* ===== Keyboard navigation (optional) ===== */
+document.addEventListener('keydown',(e)=>{
+  if(document.getElementById('quiz').style.display === 'block'){
+    if(e.key === 'ArrowLeft') { e.preventDefault(); if(index>0) prevQ(); }
+    if(e.key === 'ArrowRight') { e.preventDefault(); if(index<test.length-1) nextQ(); }
+    if(e.key === 'Enter') {
+      const focused = document.activeElement;
+      if(focused && focused.matches('input[name="opt"]')){
+        saveAnswer();
+        if(index < test.length-1) nextQ();
+      }
+    }
+  }
+});
 </script>
 </body>
 </html>
