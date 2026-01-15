@@ -3,188 +3,241 @@
 <head>
 <meta charset="UTF-8">
 <title>Skill Test Portal</title>
-
-<!-- PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 <style>
-body{
-  margin:0;
-  font-family:Segoe UI;
-  background:linear-gradient(135deg,#141e30,#243b55);
-  color:white;
-}
-.container{max-width:900px;margin:auto;padding:20px;}
-.card{
-  background:white;color:#333;padding:25px;border-radius:15px;
-  margin-top:20px;box-shadow:0 15px 30px rgba(0,0,0,.3);
-}
-button{
-  background:linear-gradient(135deg,#ff512f,#dd2476);
-  color:white;border:none;padding:10px 20px;border-radius:25px;
-  cursor:pointer;margin:5px;font-size:15px;
-}
-button:hover{transform:scale(1.05);}
-input{padding:8px;border-radius:8px;border:1px solid #ccc;}
-.correct{color:green;font-weight:bold;}
-.wrong{color:red;font-weight:bold;}
+body { margin:0; font-family:Segoe UI; background:linear-gradient(135deg,#141e30,#243b55); color:white;}
+.container {max-width:900px;margin:auto;padding:20px;}
+.card {background:white;color:#333;padding:25px;border-radius:15px;margin-top:20px;box-shadow:0 15px 30px rgba(0,0,0,.3);}
+button {background:linear-gradient(135deg,#ff512f,#dd2476); color:white; border:none; padding:10px 20px; border-radius:25px; cursor:pointer; margin:5px; font-size:15px;}
+button:hover {transform:scale(1.05);}
+input {padding:8px;border-radius:8px;border:1px solid #ccc;}
+.correct {color:green;font-weight:bold;}
+.wrong {color:red;font-weight:bold;}
+#timer {font-weight:bold;color:#ff512f;margin-top:10px;}
 </style>
 </head>
-
 <body>
 <div class="container">
 <h1>🎯 Skill Assessment Portal</h1>
 
 <!-- LOGIN -->
 <div id="login" class="card">
-<h2>Login</h2>
-<input id="username" placeholder="Enter your name">
+<h2>Enter Your Name</h2>
+<input id="username" placeholder="Your Name">
 <br><br>
-<button onclick="login()">Login</button>
-<button onclick="showAdmin()">Admin Panel</button>
+<button onclick="login()">Next</button>
 </div>
 
-<!-- ADMIN -->
-<div id="admin" class="card" style="display:none">
-<h2>Admin Panel</h2>
-<input id="newQ" placeholder="Question">
-<input id="a1" placeholder="Option A">
-<input id="a2" placeholder="Option B">
-<input id="a3" placeholder="Option C">
-<input id="a4" placeholder="Option D">
-<br><br>
-<button onclick="addQuestion()">Add Question</button>
-<button onclick="back()">Back</button>
-</div>
-
-<!-- MODE -->
-<div id="mode" class="card" style="display:none">
-<h2>Select Skill</h2>
-<button onclick="startTest()">Start Test</button>
+<!-- SELECT STREAM -->
+<div id="stream" class="card" style="display:none">
+<h2>Select Your Stream/Skill</h2>
+<button onclick="startTest('Excel')">Excel</button>
+<button onclick="startTest('Advanced Excel')">Advanced Excel</button>
+<button onclick="startTest('SQL')">SQL</button>
+<button onclick="startTest('Power BI')">Power BI</button>
+<button onclick="startTest('Python')">Python</button>
 </div>
 
 <div id="timer"></div>
 <div id="quiz" class="card" style="display:none"></div>
-<div id="review" class="card" style="display:none"></div>
-<div id="result" class="card"></div>
-
-</div>
+<div id="result" class="card" style="display:none"></div>
 
 <script>
-let user="",index=0,score=0,timeLeft=300,timer;
-let questions=JSON.parse(localStorage.getItem("questions"))||[
-{q:"Python type?",o:["High","Low","Machine","None"],c:0},
-{q:"SQL full form?",o:["Structured Query Language","Simple","None","Data"],c:0},
-{q:"Excel company?",o:["Google","Microsoft","Apple","Amazon"],c:1},
-{q:"Power BI use?",o:["Visualization","Coding","Design","Mail"],c:0}
+// ====== QUESTIONS FOR EACH STREAM ======
+const QUESTIONS = {
+"Excel":[
+{q:"VLOOKUP use?",o:["Search value","Delete data","Format","Chart"]},
+{q:"Excel file extension?",o:[".docx",".xlsx",".ppt",".txt"]},
+{q:"SUM function purpose?",o:["Add numbers","Subtract","Multiply","Divide"]},
+{q:"IF function use?",o:["Conditional logic","Formatting","Chart","Filter"]},
+{q:"COUNT function counts?",o:["Numbers","Text","Images","Charts"]},
+{q:"Pivot table is for?",o:["Summarizing data","Deleting data","Formatting","Printing"]},
+{q:"Freeze pane purpose?",o:["Lock rows/columns","Hide data","Sort","Filter"]},
+{q:"MAX function finds?",o:["Maximum value","Minimum","Average","Sum"]},
+{q:"MIN function finds?",o:["Minimum value","Maximum","Average","Sum"]},
+{q:"Excel company?",o:["Google","Microsoft","Amazon","Apple"]},
+{q:"Conditional formatting?",o:["Color cells based on rule","Delete","Insert","Chart"]},
+{q:"Formula starts with?",o:["=","+","-","#"]},
+{q:"Workbook is?",o:["File containing sheets","Single cell","Chart","Formula"]},
+{q:"Maximum rows in Excel?",o:["1048576","65536","10000","5000"]},
+{q:"Shortcut to save?",o:["Ctrl+S","Ctrl+C","Ctrl+V","Ctrl+Z"]},
+{q:"AVERAGE function?",o:["Average value","Sum","Count","Max"]},
+{q:"Chart creation?",o:["Visualize data","Format text","Delete","Insert formula"]},
+{q:"Text function purpose?",o:["Manipulate text","Math","Chart","Format"]},
+{q:"Cell address example?",o:["A1","1A","AA","1B"]},
+{q:"Sheet is?",o:["Single tab in workbook","Cell","Column","Row"]}
+],
+"Advanced Excel":[
+{q:"INDEX function use?",o:["Return cell value","Delete data","Chart","Format"]},
+{q:"MATCH function?",o:["Find position","Sum","Average","Count"]},
+{q:"VLOOKUP vs HLOOKUP?",o:["Vertical vs Horizontal lookup","Sum","Count","Average"]},
+{q:"ARRAY formula?",o:["Multiple cells calculation","Single cell","Chart","Delete"]},
+{q:"Data validation purpose?",o:["Restrict input","Sum","Count","Average"]},
+{q:"Goal Seek?",o:["Find input for desired output","Chart","Format","Sort"]},
+{q:"Advanced filter?",o:["Extract data","Delete","Insert","Chart"]},
+{q:"Conditional formula?",o:["IF combined with logic","Sum","Average","Count"]},
+{q:"Dynamic chart?",o:["Chart updates with data","Static chart","Filter","Delete"]},
+{q:"Power Query?",o:["Transform data","Chart","Delete","Format"]},
+{q:"Sparklines?",o:["Mini charts in cell","Macro","Delete","Format"]},
+{q:"Macro use?",o:["Automate tasks","Chart","Format","Filter"]},
+{q:"Protect sheet?",o:["Restrict editing","Delete","Format","Chart"]},
+{q:"Named range?",o:["Assign name to range","Delete","Chart","Format"]},
+{q:"Advanced Pivot table?",o:["Custom summarization","Simple table","Format","Chart"]}
+],
+"SQL":[
+{q:"SQL full form?",o:["Structured Query Language","Simple Query","None","Data"]},
+{q:"SELECT use?",o:["Retrieve data","Delete","Insert","Update"]},
+{q:"WHERE clause?",o:["Filter records","Insert","Delete","Update"]},
+{q:"JOIN use?",o:["Combine tables","Delete","Insert","Format"]},
+{q:"Primary key?",o:["Unique identifier","Duplicate","Optional","Format"]},
+{q:"GROUP BY?",o:["Aggregate data","Delete","Insert","Update"]},
+{q:"ORDER BY?",o:["Sort records","Delete","Insert","Update"]},
+{q:"COUNT function?",o:["Count rows","Sum","Average","Max"]},
+{q:"DELETE command?",o:["Remove rows","Add","Update","Select"]},
+{q:"UPDATE command?",o:["Modify data","Delete","Insert","Select"]},
+{q:"NULL meaning?",o:["No value","Zero","Empty string","Invalid"]},
+{q:"DROP command?",o:["Delete table","Delete row","Update data","Insert data"]},
+{q:"UNION?",o:["Combine results","Delete","Update","Insert"]},
+{q:"FOREIGN KEY?",o:["Link tables","Delete","Update","Insert"]},
+{q:"HAVING?",o:["Filter groups","Filter rows","Update","Insert"]}
+],
+"Power BI":[
+{q:"Power BI company?",o:["Microsoft","Google","Amazon","Apple"]},
+{q:"Use of Power BI?",o:["Data Visualization","Coding","Writing","Email"]},
+{q:"DAX use?",o:["Formulas","Chart","Delete","Filter"]},
+{q:"File extension?",o:[".pbix",".xlsx",".doc",".txt"]},
+{q:"Dashboard?",o:["Visual display","Delete","Update","Insert"]},
+{q:"Power Query?",o:["Data transform","Chart","Format","Insert"]},
+{q:"Slicer?",o:["Filter visuals","Delete","Insert","Update"]},
+{q:"Bar chart?",o:["Visual chart","Delete","Insert","Update"]},
+{q:"Publish report?",o:["Share","Delete","Insert","Update"]},
+{q:"Data model?",o:["Relationships in data","Delete","Update","Insert"]},
+{q:"Calculated column?",o:["Derived field","Delete","Update","Insert"]},
+{q:"Mobile support?",o:["Yes","No","Partial","None"]},
+{q:"Refresh data?",o:["Update visuals","Delete","Insert","Update"]},
+{q:"Filter pane?",o:["Filter visuals","Delete","Insert","Update"]},
+{q:"Card visual?",o:["Single value display","Delete","Insert","Update"]}
+],
+"Python":[
+{q:"Python type?",o:["High level","Low level","Machine","None"]},
+{q:"Creator?",o:["Guido van Rossum","Bill Gates","Steve Jobs","Mark Zuckerberg"]},
+{q:"Print use?",o:["Display output","Delete","Insert","Update"]},
+{q:"List type?",o:["Mutable","Immutable","Both","None"]},
+{q:"Tuple mutable?",o:["No","Yes","Both","None"]},
+{q:"Dictionary?",o:["Key-Value pairs","Array","Set","Tuple"]},
+{q:"For loop?",o:["Iteration","Conditional","Function","Class"]},
+{q:"While loop?",o:["Iteration","Conditional","Function","Class"]},
+{q:"Function keyword?",o:["def","fun","func","lambda"]},
+{q:"File extension?",o:[".py",".java",".txt",".doc"]},
+{q:"len() use?",o:["Length","Count","Sum","Max"]},
+{q:"Indentation?",o:["Block control","Delete","Insert","Format"]},
+{q:"Comment?",o:["#","//","/*","$$"]},
+{q:"Set?",o:["Unique items","List","Tuple","Dictionary"]},
+{q:"Lambda?",o:["Anonymous function","Class","Method","Variable"]}
 ];
 
-let test=[],answers=[];
+// ===== GLOBALS =====
+let user="", skill="", index=0, score=0, timer, timeLeft=300;
+let test=[], answers=[];
 
+// ===== LOGIN =====
 function login(){
  user=document.getElementById("username").value;
- if(!user)return alert("Enter name");
+ if(!user){alert("Enter name"); return;}
  document.getElementById("login").style.display="none";
- document.getElementById("mode").style.display="block";
+ document.getElementById("stream").style.display="block";
 }
 
-function showAdmin(){
- document.getElementById("login").style.display="none";
- document.getElementById("admin").style.display="block";
-}
-
-function back(){location.reload();}
-
-function addQuestion(){
- let q=document.getElementById("newQ").value;
- let o=[a1.value,a2.value,a3.value,a4.value];
- questions.push({q,o,c:Math.floor(Math.random()*4)});
- localStorage.setItem("questions",JSON.stringify(questions));
- alert("Question Added");
-}
-
-function shuffle(a){return a.sort(()=>Math.random()-0.5);}
-
-function startTest(){
- document.getElementById("mode").style.display="none";
+// ===== START TEST =====
+function startTest(s){
+ skill=s;
+ document.getElementById("stream").style.display="none";
  document.getElementById("quiz").style.display="block";
- index=0;score=0;answers=[];
- test=shuffle([...questions]).slice(0,5);
- startTimer();
- showQ();
+ index=0; score=0; answers=[];
+ test=shuffle([...QUESTIONS[skill]]).slice(0,15).map(q=>{
+   return {q:q.q,o:shuffle(q.o),correct:q.o.indexOf(q.o[0])}; // random option rotation
+ });
+ timeLeft=300; startTimer(); showQ();
 }
 
+// ===== TIMER =====
 function startTimer(){
+ const timerDiv=document.getElementById("timer");
  timer=setInterval(()=>{
- let m=Math.floor(timeLeft/60),s=timeLeft%60;
- timerDiv.innerHTML=`⏱ ${m}:${s<10?"0"+s:s}`;
- if(timeLeft--<=0){clearInterval(timer);submit();}
+  let m=Math.floor(timeLeft/60), s=timeLeft%60;
+  timerDiv.innerHTML=`⏱ Time Left: ${m}:${s<10?"0"+s:s}`;
+  if(timeLeft--<=0){clearInterval(timer); submit();}
  },1000);
 }
 
+// ===== SHUFFLE FUNCTION =====
+function shuffle(arr){return arr.sort(()=>Math.random()-0.5);}
+
+// ===== SHOW QUESTION =====
 function showQ(){
- let q=test[index];
- quiz.innerHTML=`
- <h3>Q ${index+1}/${test.length}</h3>
+ const q=test[index];
+ const quiz=document.getElementById("quiz");
+ quiz.innerHTML=`<div>
+ <h3>Question ${index+1}/15</h3>
  <p>${q.q}</p>
- ${q.o.map((x,i)=>`
- <label><input type="radio" name="o" value="${i}"
- ${answers[index]==i?"checked":""}> ${x}</label><br>`).join("")}
+ ${q.o.map((o,i)=>`
+ <label><input type="radio" name="opt" value="${i}" ${answers[index]==i?"checked":""}> ${String.fromCharCode(65+i)}. ${o}</label><br>`).join('')}
  <br>
- ${index>0?'<button onclick="prev()">Prev</button>':''}
- ${index<test.length-1?'<button onclick="next()">Next</button>':'<button onclick="submit()">Submit</button>'}
- `;
+ ${index>0?'<button onclick="prevQ()">Previous</button>':''}
+ ${index<14?'<button onclick="nextQ()">Next</button>':'<button onclick="submit()">Submit</button>'}
+ </div>`;
 }
 
-function save(){
- let s=document.querySelector("input[name=o]:checked");
- if(s)answers[index]=Number(s.value);
+function saveAnswer(){
+ let sel=document.querySelector('input[name="opt"]:checked');
+ if(sel) answers[index]=Number(sel.value);
 }
 
-function next(){save();index++;showQ();}
-function prev(){save();index--;showQ();}
+function nextQ(){saveAnswer(); index++; showQ();}
+function prevQ(){saveAnswer(); index--; showQ();}
 
+// ===== SUBMIT TEST =====
 function submit(){
- clearInterval(timer);
- save();
+ clearInterval(timer); saveAnswer();
+ // calculate score
+ score=0;
+ test.forEach((q,i)=>{ if(answers[i]==q.correct) score++;});
  document.getElementById("quiz").style.display="none";
- review();
+ document.getElementById("timer").style.display="none";
+ showCertificate();
 }
 
-function review(){
- document.getElementById("review").style.display="block";
- review.innerHTML="<h2>Review</h2>";
- test.forEach((q,i)=>{
- let cls=answers[i]==q.c?"correct":"wrong";
- if(answers[i]==q.c)score++;
- review.innerHTML+=`
- <p>${i+1}. ${q.q}<br>
- Your Answer: <span class="${cls}">${q.o[answers[i]]||"Not Attempted"}</span><br>
- Correct: ${q.o[q.c]}</p>`;
- });
- review.innerHTML+=`<button onclick="certificate()">Generate Certificate</button>`;
+// ===== CERTIFICATE =====
+function showCertificate(){
+ const level=score>=12?"Advanced":score>=7?"Intermediate":"Beginner";
+ const resultDiv=document.getElementById("result");
+ resultDiv.style.display="block";
+ resultDiv.innerHTML=`
+ <div style="border:5px solid #764ba2; padding:30px; text-align:center;">
+ <h1>🏆 Certificate of Completion</h1>
+ <h3>This is to certify that</h3>
+ <h2>${user}</h2>
+ <h3>has successfully completed the</h3>
+ <h2>${skill} Test</h2>
+ <p><b>Score:</b> ${score}/15</p>
+ <p><b>Level:</b> ${level}</p>
+ <p>Date: ${new Date().toDateString()}</p>
+ <button onclick="downloadPDF()">Download PDF</button>
+ <button onclick="location.reload()">Restart Test</button>
+ </div>`;
 }
 
-function certificate(){
- review.style.display="none";
- let level=score>=4?"Advanced":score>=2?"Intermediate":"Beginner";
- result.innerHTML=`
- <h2>🏆 Certificate</h2>
- <p>Name: <b>${user}</b></p>
- <p>Score: ${score}/${test.length}</p>
- <p>Level: ${level}</p>
- <button onclick="pdf()">Download PDF</button>
- <button onclick="location.reload()">Restart</button>`;
-}
-
-function pdf(){
+// ===== DOWNLOAD PDF =====
+function downloadPDF(){
  const {jsPDF}=window.jspdf;
- let pdf=new jsPDF();
- pdf.text("Certificate of Completion",60,30);
- pdf.text(`Name: ${user}`,20,50);
- pdf.text(`Score: ${score}`,20,60);
- pdf.text(`Level: ${score>=4?"Advanced":score>=2?"Intermediate":"Beginner"}`,20,70);
- pdf.save("certificate.pdf");
+ const doc=new jsPDF();
+ doc.setFontSize(22); doc.text("Certificate of Completion",30,30);
+ doc.setFontSize(16); doc.text(`This is to certify that ${user}`,30,50);
+ doc.text(`has successfully completed the ${skill} Test`,30,60);
+ doc.text(`Score: ${score}/15`,30,75);
+ doc.text(`Level: ${score>=12?"Advanced":score>=7?"Intermediate":"Beginner"}`,30,85);
+ doc.text(`Date: ${new Date().toDateString()}`,30,100);
+ doc.save("Certificate.pdf");
 }
 </script>
 </body>
