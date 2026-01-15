@@ -1,209 +1,191 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Skill Assessment Test</title>
+<title>Skill Test Portal</title>
+
+<!-- PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 body{
   margin:0;
-  font-family:'Segoe UI', sans-serif;
-  background: linear-gradient(135deg,#667eea,#764ba2);
-  color:#fff;
-  min-height:100vh;
-}
-
-h1,h2{
-  margin-bottom:10px;
-}
-
-.container{
-  max-width:900px;
-  margin:auto;
-  padding:30px;
-}
-
-.card{
-  background:#ffffff;
-  color:#333;
-  border-radius:15px;
-  padding:25px;
-  box-shadow:0 15px 30px rgba(0,0,0,0.2);
-  margin-top:20px;
-}
-
-button{
-  background: linear-gradient(135deg,#ff758c,#ff7eb3);
-  border:none;
+  font-family:Segoe UI;
+  background:linear-gradient(135deg,#141e30,#243b55);
   color:white;
-  padding:12px 25px;
-  border-radius:30px;
-  cursor:pointer;
-  font-size:16px;
-  margin:8px;
-  transition:0.3s;
 }
-
-button:hover{
-  transform:scale(1.05);
-  box-shadow:0 10px 20px rgba(0,0,0,0.3);
+.container{max-width:900px;margin:auto;padding:20px;}
+.card{
+  background:white;color:#333;padding:25px;border-radius:15px;
+  margin-top:20px;box-shadow:0 15px 30px rgba(0,0,0,.3);
 }
-
-.question{
-  margin:15px 0;
-  padding:15px;
-  background:#f7f7f7;
-  border-radius:10px;
+button{
+  background:linear-gradient(135deg,#ff512f,#dd2476);
+  color:white;border:none;padding:10px 20px;border-radius:25px;
+  cursor:pointer;margin:5px;font-size:15px;
 }
-
-.question p{
-  font-weight:600;
-}
-
-input[type=radio]{
-  margin-right:8px;
-}
-
-#result h2{
-  color:#764ba2;
-}
-
-.level{
-  font-size:20px;
-  font-weight:bold;
-}
-
+button:hover{transform:scale(1.05);}
+input{padding:8px;border-radius:8px;border:1px solid #ccc;}
+.correct{color:green;font-weight:bold;}
+.wrong{color:red;font-weight:bold;}
 </style>
 </head>
 
 <body>
-
 <div class="container">
+<h1>🎯 Skill Assessment Portal</h1>
 
-<h1>🎯 Skill Assessment Test</h1>
-
-<div id="mode" class="card">
-  <h2>Select Skill</h2>
-  <button onclick="startTest('Excel')">Excel</button>
-  <button onclick="startTest('SQL')">SQL</button>
-  <button onclick="startTest('Power BI')">Power BI</button>
-  <button onclick="startTest('Python')">Python</button>
+<!-- LOGIN -->
+<div id="login" class="card">
+<h2>Login</h2>
+<input id="username" placeholder="Enter your name">
+<br><br>
+<button onclick="login()">Login</button>
+<button onclick="showAdmin()">Admin Panel</button>
 </div>
 
-<div id="quiz" class="card" style="display:none;"></div>
+<!-- ADMIN -->
+<div id="admin" class="card" style="display:none">
+<h2>Admin Panel</h2>
+<input id="newQ" placeholder="Question">
+<input id="a1" placeholder="Option A">
+<input id="a2" placeholder="Option B">
+<input id="a3" placeholder="Option C">
+<input id="a4" placeholder="Option D">
+<br><br>
+<button onclick="addQuestion()">Add Question</button>
+<button onclick="back()">Back</button>
+</div>
+
+<!-- MODE -->
+<div id="mode" class="card" style="display:none">
+<h2>Select Skill</h2>
+<button onclick="startTest()">Start Test</button>
+</div>
+
+<div id="timer"></div>
+<div id="quiz" class="card" style="display:none"></div>
+<div id="review" class="card" style="display:none"></div>
 <div id="result" class="card"></div>
 
 </div>
 
 <script>
-const data = {
-Excel:[
-{q:"Excel me VLOOKUP ka use?",a:["Search value","Delete","Chart","Format"],c:0},
-{q:"Excel file extension?",a:[".doc",".xlsx",".ppt",".txt"],c:1},
-{q:"SUM function ka kaam?",a:["Add numbers","Text","Chart","Sort"],c:0},
-{q:"IF function kisliye?",a:["Condition","Delete","Format","Chart"],c:0},
-{q:"COUNT function?",a:["Count cells","Add","Format","Graph"],c:0},
-{q:"Freeze Pane ka use?",a:["Lock rows","Delete","Chart","Hide"],c:0},
-{q:"Pivot Table ka use?",a:["Analysis","Delete","Design","Print"],c:0},
-{q:"Excel kis company ka?",a:["Google","Apple","Microsoft","Amazon"],c:2},
-{q:"Conditional Formatting?",a:["Rules","Delete","Chart","Insert"],c:0},
-{q:"Excel formula start hota?",a:["=","+","-","@"],c:0},
-{q:"MAX function?",a:["Highest","Lowest","Text","Sort"],c:0},
-{q:"MIN function?",a:["Lowest","Highest","Chart","Delete"],c:0},
-{q:"Excel rows limit?",a:["1M+","10k","5k","100"],c:0},
-{q:"Excel shortcut save?",a:["Ctrl+S","Ctrl+A","Ctrl+Z","Ctrl+C"],c:0},
-{q:"Workbook kya hota?",a:["Excel file","Sheet","Cell","Row"],c:0}
-],
+let user="",index=0,score=0,timeLeft=300,timer;
+let questions=JSON.parse(localStorage.getItem("questions"))||[
+{q:"Python type?",o:["High","Low","Machine","None"],c:0},
+{q:"SQL full form?",o:["Structured Query Language","Simple","None","Data"],c:0},
+{q:"Excel company?",o:["Google","Microsoft","Apple","Amazon"],c:1},
+{q:"Power BI use?",o:["Visualization","Coding","Design","Mail"],c:0}
+];
 
-SQL:[
-{q:"SQL full form?",a:["Structured Query Language","Simple Query","None","Data"],c:0},
-{q:"SELECT ka use?",a:["Data fetch","Delete","Insert","Update"],c:0},
-{q:"WHERE clause?",a:["Condition","Join","Order","Group"],c:0},
-{q:"JOIN ka use?",a:["Combine tables","Delete","Insert","Drop"],c:0},
-{q:"Primary Key?",a:["Unique","Duplicate","Null","Index"],c:0},
-{q:"GROUP BY?",a:["Group rows","Delete","Sort","Insert"],c:0},
-{q:"ORDER BY?",a:["Sort","Delete","Join","Update"],c:0},
-{q:"COUNT()?",a:["Count rows","Sum","Avg","Min"],c:0},
-{q:"DELETE command?",a:["Remove data","Add","Fetch","Join"],c:0},
-{q:"UPDATE command?",a:["Modify data","Delete","Insert","Fetch"],c:0},
-{q:"NULL ka matlab?",a:["No value","Zero","Text","False"],c:0},
-{q:"HAVING clause?",a:["Group condition","Row filter","Join","Sort"],c:0},
-{q:"SQL database?",a:["MySQL","HTML","CSS","JS"],c:0},
-{q:"DROP command?",a:["Remove table","Insert","Fetch","Join"],c:0},
-{q:"UNION?",a:["Combine results","Delete","Sort","Update"],c:0}
-],
+let test=[],answers=[];
 
-"Power BI":[
-{q:"Power BI company?",a:["Google","Microsoft","Amazon","Apple"],c:1},
-{q:"Power BI use?",a:["Visualization","Coding","Design","Email"],c:0},
-{q:"DAX ka use?",a:["Calculation","Design","Delete","Sort"],c:0},
-{q:"Power BI file extension?",a:[".pbix",".xlsx",".doc",".csv"],c:0},
-{q:"Dashboard kya hota?",a:["Visual page","Code","Table","Sheet"],c:0},
-{q:"Power Query?",a:["Data cleaning","Chart","Email","Code"],c:0},
-{q:"Slicer ka use?",a:["Filter","Delete","Insert","Sort"],c:0},
-{q:"Bar chart use?",a:["Compare","Delete","Sort","Join"],c:0},
-{q:"Power BI free hai?",a:["Limited","Yes","No","Trial"],c:0},
-{q:"Publish kaha hota?",a:["Service","Excel","SQL","Python"],c:0},
-{q:"Data model?",a:["Relations","Charts","Emails","Sheets"],c:0},
-{q:"Calculated column?",a:["DAX","SQL","HTML","CSS"],c:0},
-{q:"Power BI mobile?",a:["Yes","No","Only iOS","Only Android"],c:0},
-{q:"Map visual?",a:["Location","Text","Table","Code"],c:0},
-{q:"Refresh data?",a:["Update","Delete","Format","Hide"],c:0}
-],
-
-Python:[
-{q:"Python kis type ki language?",a:["High","Low","Machine","None"],c:0},
-{q:"Python creator?",a:["Guido","Elon","Jobs","Bill"],c:0},
-{q:"Print function?",a:["Output","Input","Loop","Condition"],c:0},
-{q:"List kya hoti?",a:["Collection","Loop","Condition","Class"],c:0},
-{q:"Tuple mutable?",a:["No","Yes","Sometimes","Null"],c:0},
-{q:"Dictionary kya hai?",a:["Key-Value","List","Tuple","Loop"],c:0},
-{q:"For loop?",a:["Iteration","Condition","Class","Error"],c:0},
-{q:"While loop?",a:["Condition loop","Function","Class","List"],c:0},
-{q:"Function keyword?",a:["def","fun","method","define"],c:0},
-{q:"Python file extension?",a:[".py",".java",".js",".html"],c:0},
-{q:"len()?",a:["Length","Sum","Avg","Sort"],c:0},
-{q:"Indentation?",a:["Mandatory","Optional","Ignore","None"],c:0},
-{q:"Comment symbol?",a:["#","//","<!--","**"],c:0},
-{q:"Python use?",a:["All","Web","AI","Data"],c:0},
-{q:"Variable store?",a:["Data","Loop","Class","Function"],c:0}
-]
-};
-
-let score=0;
-
-function startTest(mode){
- document.getElementById("mode").style.display="none";
- let quiz=document.getElementById("quiz");
- quiz.style.display="block";
- quiz.innerHTML=`<h2>${mode} Test</h2>`;
- data[mode].forEach((item,i)=>{
-  quiz.innerHTML+=`
-  <div class="question">
-    <p>${i+1}. ${item.q}</p>
-    ${item.a.map((op,j)=>`
-    <label><input type="radio" name="q${i}" value="${j}">${op}</label><br>
-    `).join("")}
-  </div>`;
- });
- quiz.innerHTML+=`<button onclick="submitTest('${mode}')">Submit Test</button>`;
+function login(){
+ user=document.getElementById("username").value;
+ if(!user)return alert("Enter name");
+ document.getElementById("login").style.display="none";
+ document.getElementById("mode").style.display="block";
 }
 
-function submitTest(mode){
- score=0;
- data[mode].forEach((item,i)=>{
-  let ans=document.querySelector(`input[name="q${i}"]:checked`);
-  if(ans && Number(ans.value)===item.c) score++;
- });
- let level= score>=12 ? "Advanced" : score>=7 ? "Intermediate" : "Beginner";
+function showAdmin(){
+ document.getElementById("login").style.display="none";
+ document.getElementById("admin").style.display="block";
+}
+
+function back(){location.reload();}
+
+function addQuestion(){
+ let q=document.getElementById("newQ").value;
+ let o=[a1.value,a2.value,a3.value,a4.value];
+ questions.push({q,o,c:Math.floor(Math.random()*4)});
+ localStorage.setItem("questions",JSON.stringify(questions));
+ alert("Question Added");
+}
+
+function shuffle(a){return a.sort(()=>Math.random()-0.5);}
+
+function startTest(){
+ document.getElementById("mode").style.display="none";
+ document.getElementById("quiz").style.display="block";
+ index=0;score=0;answers=[];
+ test=shuffle([...questions]).slice(0,5);
+ startTimer();
+ showQ();
+}
+
+function startTimer(){
+ timer=setInterval(()=>{
+ let m=Math.floor(timeLeft/60),s=timeLeft%60;
+ timerDiv.innerHTML=`⏱ ${m}:${s<10?"0"+s:s}`;
+ if(timeLeft--<=0){clearInterval(timer);submit();}
+ },1000);
+}
+
+function showQ(){
+ let q=test[index];
+ quiz.innerHTML=`
+ <h3>Q ${index+1}/${test.length}</h3>
+ <p>${q.q}</p>
+ ${q.o.map((x,i)=>`
+ <label><input type="radio" name="o" value="${i}"
+ ${answers[index]==i?"checked":""}> ${x}</label><br>`).join("")}
+ <br>
+ ${index>0?'<button onclick="prev()">Prev</button>':''}
+ ${index<test.length-1?'<button onclick="next()">Next</button>':'<button onclick="submit()">Submit</button>'}
+ `;
+}
+
+function save(){
+ let s=document.querySelector("input[name=o]:checked");
+ if(s)answers[index]=Number(s.value);
+}
+
+function next(){save();index++;showQ();}
+function prev(){save();index--;showQ();}
+
+function submit(){
+ clearInterval(timer);
+ save();
  document.getElementById("quiz").style.display="none";
- document.getElementById("result").innerHTML=
- `<h2>Result</h2>
- <p>Score: ${score} / 15</p>
- <p class="level">Level: ${level}</p>
+ review();
+}
+
+function review(){
+ document.getElementById("review").style.display="block";
+ review.innerHTML="<h2>Review</h2>";
+ test.forEach((q,i)=>{
+ let cls=answers[i]==q.c?"correct":"wrong";
+ if(answers[i]==q.c)score++;
+ review.innerHTML+=`
+ <p>${i+1}. ${q.q}<br>
+ Your Answer: <span class="${cls}">${q.o[answers[i]]||"Not Attempted"}</span><br>
+ Correct: ${q.o[q.c]}</p>`;
+ });
+ review.innerHTML+=`<button onclick="certificate()">Generate Certificate</button>`;
+}
+
+function certificate(){
+ review.style.display="none";
+ let level=score>=4?"Advanced":score>=2?"Intermediate":"Beginner";
+ result.innerHTML=`
+ <h2>🏆 Certificate</h2>
+ <p>Name: <b>${user}</b></p>
+ <p>Score: ${score}/${test.length}</p>
+ <p>Level: ${level}</p>
+ <button onclick="pdf()">Download PDF</button>
  <button onclick="location.reload()">Restart</button>`;
 }
-</script>
 
+function pdf(){
+ const {jsPDF}=window.jspdf;
+ let pdf=new jsPDF();
+ pdf.text("Certificate of Completion",60,30);
+ pdf.text(`Name: ${user}`,20,50);
+ pdf.text(`Score: ${score}`,20,60);
+ pdf.text(`Level: ${score>=4?"Advanced":score>=2?"Intermediate":"Beginner"}`,20,70);
+ pdf.save("certificate.pdf");
+}
+</script>
 </body>
 </html>
