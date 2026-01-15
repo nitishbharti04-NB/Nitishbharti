@@ -15,11 +15,15 @@
   #timer {font-weight:bold;color:#ff512f;margin-top:10px;}
   .muted { color: #666; font-size:14px; }
   .center { text-align:center; }
+  .logo { height:44px; vertical-align:middle; margin-right:12px; }
 </style>
 </head>
 <body>
 <div class="container">
-  <h1>🎯 Skill Assessment Portal</h1>
+  <div style="display:flex;align-items:center;">
+    <img id="orgLogo" class="logo" src="" alt="" style="display:none;">
+    <h1 id="orgName">🎯 Skill Assessment Portal</h1>
+  </div>
 
   <!-- LOGIN / CANDIDATE CAPTURE -->
   <div id="login" class="card" aria-live="polite">
@@ -50,113 +54,25 @@
 
 <script>
 /* ===========================
-   Configuration - replace this with your deployed Apps Script Web App URL
+   CONFIG — replace with your deployed Apps Script Web App URL
    Deploy Apps Script as: Execute as -> Me, Who has access -> Anyone, even anonymous
-   (Deployment instructions below)
    =========================== */
 const GAS_WEB_APP_URL = "https://script.google.com/macros/s/YOUR_DEPLOYED_WEBAPP_ID/exec";
 
-/* ====== QUESTIONS (first option = correct) ====== */
-const QUESTIONS = {
-  "Excel":[
-    {q:"VLOOKUP use?",o:["Search value","Delete data","Format","Chart"]},
-    {q:"Excel file extension?",o:[".xlsx",".docx",".ppt",".txt"]},
-    {q:"SUM function purpose?",o:["Add numbers","Subtract","Multiply","Divide"]},
-    {q:"IF function use?",o:["Conditional logic","Formatting","Chart","Filter"]},
-    {q:"COUNT function counts?",o:["Numbers","Text","Images","Charts"]},
-    {q:"Pivot table is for?",o:["Summarizing data","Deleting data","Formatting","Printing"]},
-    {q:"Freeze pane purpose?",o:["Lock rows/columns","Hide data","Sort","Filter"]},
-    {q:"MAX function finds?",o:["Maximum value","Minimum","Average","Sum"]},
-    {q:"MIN function finds?",o:["Minimum value","Maximum","Average","Sum"]},
-    {q:"Excel company?",o:["Microsoft","Google","Amazon","Apple"]},
-    {q:"Conditional formatting?",o:["Color cells based on rule","Delete","Insert","Chart"]},
-    {q:"Formula starts with?",o:["=","+","-","#"]},
-    {q:"Workbook is?",o:["File containing sheets","Single cell","Chart","Formula"]},
-    {q:"Maximum rows in Excel?",o:["1048576","65536","10000","5000"]},
-    {q:"Shortcut to save?",o:["Ctrl+S","Ctrl+C","Ctrl+V","Ctrl+Z"]},
-    {q:"AVERAGE function?",o:["Average value","Sum","Count","Max"]},
-    {q:"Chart creation?",o:["Visualize data","Format text","Delete","Insert formula"]},
-    {q:"Text function purpose?",o:["Manipulate text","Math","Chart","Format"]},
-    {q:"Cell address example?",o:["A1","1A","AA","1B"]},
-    {q:"Sheet is?",o:["Single tab in workbook","Cell","Column","Row"]}
-  ],
-  "Advanced Excel":[
-    {q:"INDEX function use?",o:["Return cell value","Delete data","Chart","Format"]},
-    {q:"MATCH function?",o:["Find position","Sum","Average","Count"]},
-    {q:"VLOOKUP vs HLOOKUP?",o:["Vertical vs Horizontal lookup","Sum","Count","Average"]},
-    {q:"ARRAY formula?",o:["Multiple cells calculation","Single cell","Chart","Delete"]},
-    {q:"Data validation purpose?",o:["Restrict input","Sum","Count","Average"]},
-    {q:"Goal Seek?",o:["Find input for desired output","Chart","Format","Sort"]},
-    {q:"Advanced filter?",o:["Extract data","Delete","Insert","Chart"]},
-    {q:"Conditional formula?",o:["IF combined with logic","Sum","Average","Count"]},
-    {q:"Dynamic chart?",o:["Chart updates with data","Static chart","Filter","Delete"]},
-    {q:"Power Query?",o:["Transform data","Chart","Delete","Format"]},
-    {q:"Sparklines?",o:["Mini charts in cell","Macro","Delete","Format"]},
-    {q:"Macro use?",o:["Automate tasks","Chart","Format","Filter"]},
-    {q:"Protect sheet?",o:["Restrict editing","Delete","Format","Chart"]},
-    {q:"Named range?",o:["Assign name to range","Delete","Chart","Format"]},
-    {q:"Advanced Pivot table?",o:["Custom summarization","Simple table","Format","Chart"]}
-  ],
-  "SQL":[
-    {q:"SQL full form?",o:["Structured Query Language","Simple Query","None","Data"]},
-    {q:"SELECT use?",o:["Retrieve data","Delete","Insert","Update"]},
-    {q:"WHERE clause?",o:["Filter records","Insert","Delete","Update"]},
-    {q:"JOIN use?",o:["Combine tables","Delete","Insert","Format"]},
-    {q:"Primary key?",o:["Unique identifier","Duplicate","Optional","Format"]},
-    {q:"GROUP BY?",o:["Aggregate data","Delete","Insert","Update"]},
-    {q:"ORDER BY?",o:["Sort records","Delete","Insert","Update"]},
-    {q:"COUNT function?",o:["Count rows","Sum","Average","Max"]},
-    {q:"DELETE command?",o:["Remove rows","Add","Update","Select"]},
-    {q:"UPDATE command?",o:["Modify data","Delete","Insert","Select"]},
-    {q:"NULL meaning?",o:["No value","Zero","Empty string","Invalid"]},
-    {q:"DROP command?",o:["Delete table","Delete row","Update data","Insert data"]},
-    {q:"UNION?",o:["Combine results","Delete","Update","Insert"]},
-    {q:"FOREIGN KEY?",o:["Link tables","Delete","Update","Insert"]},
-    {q:"HAVING?",o:["Filter groups","Filter rows","Update","Insert"]}
-  ],
-  "Power BI":[
-    {q:"Power BI company?",o:["Microsoft","Google","Amazon","Apple"]},
-    {q:"Use of Power BI?",o:["Data Visualization","Coding","Writing","Email"]},
-    {q:"DAX use?",o:["Formulas","Chart","Delete","Filter"]},
-    {q:"File extension?",o:[".pbix",".xlsx",".doc",".txt"]},
-    {q:"Dashboard?",o:["Visual display","Delete","Update","Insert"]},
-    {q:"Power Query?",o:["Data transform","Chart","Format","Insert"]},
-    {q:"Slicer?",o:["Filter visuals","Delete","Insert","Update"]},
-    {q:"Bar chart?",o:["Visual chart","Delete","Insert","Update"]},
-    {q:"Publish report?",o:["Share","Delete","Insert","Update"]},
-    {q:"Data model?",o:["Relationships in data","Delete","Update","Insert"]},
-    {q:"Calculated column?",o:["Derived field","Delete","Update","Insert"]},
-    {q:"Mobile support?",o:["Yes","No","Partial","None"]},
-    {q:"Refresh data?",o:["Update visuals","Delete","Insert","Update"]},
-    {q:"Filter pane?",o:["Filter visuals","Delete","Insert","Update"]},
-    {q:"Card visual?",o:["Single value display","Delete","Insert","Update"]}
-  ],
-  "Python":[
-    {q:"Python type?",o:["High level","Low level","Machine","None"]},
-    {q:"Creator?",o:["Guido van Rossum","Bill Gates","Steve Jobs","Mark Zuckerberg"]},
-    {q:"Print use?",o:["Display output","Delete","Insert","Update"]},
-    {q:"List type?",o:["Mutable","Immutable","Both","None"]},
-    {q:"Tuple mutable?",o:["No","Yes","Both","None"]},
-    {q:"Dictionary?",o:["Key-Value pairs","Array","Set","Tuple"]},
-    {q:"For loop?",o:["Iteration","Conditional","Function","Class"]},
-    {q:"While loop?",o:["Iteration","Conditional","Function","Class"]},
-    {q:"Function keyword?",o:["def","fun","func","lambda"]},
-    {q:"File extension?",o:[".py",".java",".txt",".doc"]},
-    {q:"len() use?",o:["Length","Count","Sum","Max"]},
-    {q:"Indentation?",o:["Block control","Delete","Insert","Format"]},
-    {q:"Comment?",o:["#","//","/*","$$"]},
-    {q:"Set?",o:["Unique items","List","Tuple","Dictionary"]},
-    {q:"Lambda?",o:["Anonymous function","Class","Method","Variable"]}
-  ]
-};
+/* Branding (set by server response on session create/load) */
+let ORG_NAME = "Skill Test Portal";
+let ORG_LOGO = "";
+let THEME_COLOR = "#764ba2";
 
 /* ===== Globals ===== */
-let user = "", email = "", skill = "", index = 0, score = 0, timer = null, timeLeft = 300;
-let test = [], answers = [], sessionId = null, startTime = null, autoSaveIntervalId = null;
+let user = "", email = "", skill = "", sessionId = null, startTime = null;
+let test = [], answers = [], index = 0, score = 0, timer = null, timeLeft = 300;
+let proctor = { tabSwitchCount:0, fullscreenExitCount:0, devtoolsDetected:0, idleTimeSecs:0, lastActivityTs: Date.now(), idleStart: null };
+let autoSaveIntervalId = null;
 const TOTAL_QUESTIONS = 15;
 const AUTOSAVE_INTERVAL_MS = 15000; // 15s
 
-/* ===== Helpers ===== */
+/* ===== Utility ===== */
 function shuffle(arr){
   const a = arr.slice();
   for(let i=a.length-1;i>0;i--){
@@ -166,29 +82,76 @@ function shuffle(arr){
   return a;
 }
 function escapeHtml(str){
-  return String(str).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
+  return String(str||"").replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
 }
 function nowISO(){ return new Date().toISOString(); }
 function secondsBetween(startISO, endISO){ return Math.max(0, Math.round((new Date(endISO) - new Date(startISO))/1000)); }
 
-/* ===== Login & Start Flow ===== */
+/* ===== Anti-cheat & proctoring hooks ===== */
+document.addEventListener('visibilitychange', ()=>{
+  if(document.hidden){
+    proctor.tabSwitchCount++;
+    sendProctorEvent('tab_switch');
+  } else {
+    sendProctorEvent('tab_resume');
+  }
+});
+document.addEventListener('fullscreenchange', ()=>{
+  if(!document.fullscreenElement){
+    proctor.fullscreenExitCount++;
+    sendProctorEvent('fullscreen_exit');
+  } else {
+    sendProctorEvent('fullscreen_enter');
+  }
+});
+(function devtoolsDetector(){
+  let threshold = 160;
+  setInterval(()=>{
+    try{
+      if(window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold){
+        proctor.devtoolsDetected++;
+        sendProctorEvent('devtools_suspected');
+      }
+    }catch(e){}
+  }, 2000);
+})();
+['mousemove','keydown','scroll','touchstart'].forEach(ev=>document.addEventListener(ev, ()=>{ proctor.lastActivityTs = Date.now(); if(proctor.idleStart){ proctor.idleTimeSecs += Math.round((Date.now()-proctor.idleStart)/1000); proctor.idleStart = null; sendProctorEvent('resume_from_idle'); } }));
+setInterval(()=>{
+  const idleLimitMs = 30000;
+  if(Date.now() - proctor.lastActivityTs > idleLimitMs && !proctor.idleStart){
+    proctor.idleStart = Date.now();
+    sendProctorEvent('idle_start');
+  }
+}, 2000);
+function sendProctorEvent(type){
+  if(!sessionId) return;
+  const payload = {
+    action: 'proctor_log',
+    sessionId: sessionId,
+    eventType: type,
+    timestamp: nowISO(),
+    proctorSummary: proctor,
+    ua: navigator.userAgent,
+    screen: { width: screen.width, height: screen.height }
+  };
+  fetch(GAS_WEB_APP_URL, { method:'POST', headers:{'Content-Type':'application/json'}, mode:'cors', body: JSON.stringify(payload) }).catch(()=>{/* ignore */});
+}
+
+/* ===== Login & Resume detection ===== */
 function login(){
   user = document.getElementById("username").value.trim();
   email = document.getElementById("email").value.trim();
   if(!user){ alert("Please enter your name."); return; }
   if(!email){ alert("Please enter your email."); return; }
-  // restore session if present
+
   const saved = localStorage.getItem('skill_test_session');
   if(saved){
     try{
       const obj = JSON.parse(saved);
-      if(obj && obj.sessionId && obj.skill){
-        if(confirm("A previous session was found. Do you want to resume it?")){
+      if(obj && obj.sessionId){
+        if(confirm("A previous session was found in this browser. Resume?")){
           sessionId = obj.sessionId;
-          skill = obj.skill;
-          // fetch server to load saved state will be handled in startTest after UI change
-          document.getElementById("login").style.display = "none";
-          document.getElementById("stream").style.display = "block";
+          loadAndResume(sessionId);
           return;
         } else {
           localStorage.removeItem('skill_test_session');
@@ -196,85 +159,117 @@ function login(){
       }
     }catch(e){}
   }
+
   document.getElementById("login").style.display = "none";
   document.getElementById("stream").style.display = "block";
 }
 
-/* ===== START TEST ===== */
+/* ===== Create session (server-side authoritative questions & shuffle) ===== */
 async function startTest(s){
   skill = s;
   document.getElementById("stream").style.display = "none";
   document.getElementById("quiz").style.display = "block";
-  index = 0; score = 0; answers = [];
-  // build test without mutating original, and compute correct index after shuffle
-  const pool = shuffle(QUESTIONS[skill].map(q => ({ q: q.q, o: q.o.slice() })));
-  const count = Math.min(TOTAL_QUESTIONS, pool.length);
-  test = pool.slice(0,count).map(item=>{
-    const originalCorrect = item.o[0];
-    const shuffled = shuffle(item.o.slice());
-    const correctIndex = shuffled.indexOf(originalCorrect);
-    return { q: item.q, o: shuffled, correct: correctIndex };
-  });
 
-  // Start time
-  startTime = nowISO();
-  timeLeft = 300;
-  startTimer();
-  showQ();
+  const payload = {
+    action: 'create_session',
+    name: user,
+    email: email,
+    skill: skill,
+    requestedQuestions: TOTAL_QUESTIONS,
+    clientInfo: { ua: navigator.userAgent, screen: { width: screen.width, height: screen.height } }
+  };
 
-  // Create session on server (if not already present)
-  if(!sessionId){
-    try{
-      const res = await callServer({ action: 'create_session', name: user, email: email, skill: skill, startTime: startTime, totalQuestions: test.length });
-      if(res && res.success && res.sessionId){
-        sessionId = res.sessionId;
-        localStorage.setItem('skill_test_session', JSON.stringify({ sessionId: sessionId, skill: skill }));
-      } else {
-        console.warn("Could not create session on server", res);
-      }
-    }catch(err){
-      console.warn("Server session create error:", err);
+  try{
+    const res = await callServer(payload);
+    if(!res || !res.success){
+      alert("Unable to start test: " + (res && res.message ? res.message : "server error"));
+      document.getElementById("quiz").style.display = "none";
+      document.getElementById("stream").style.display = "block";
+      return;
     }
-  } else {
-    // We had a sessionId from earlier resume; tell server the skill/startTime in case
-    try{ await callServer({ action:'resume_session', sessionId: sessionId, skill: skill, startTime: startTime }); }catch(e){}
+    sessionId = res.sessionId;
+    test = res.questions;
+    answers = new Array(test.length);
+    index = 0;
+    startTime = res.startTime;
+    if(res.branding) { ORG_NAME = res.branding.name || ORG_NAME; ORG_LOGO = res.branding.logo || ""; THEME_COLOR = res.branding.color || THEME_COLOR; applyBranding(); }
+    localStorage.setItem('skill_test_session', JSON.stringify({ sessionId: sessionId, skill: skill, startTime: startTime }));
+    timeLeft = res.timeLimitSecs || 300;
+    startTimer();
+    showQ();
+    if(autoSaveIntervalId) clearInterval(autoSaveIntervalId);
+    autoSaveIntervalId = setInterval(()=>{ autosave(); }, AUTOSAVE_INTERVAL_MS);
+  }catch(err){
+    console.error(err);
+    alert("Network or server error starting test.");
+    document.getElementById("quiz").style.display = "none";
+    document.getElementById("stream").style.display = "block";
   }
-
-  // start autosave
-  if(autoSaveIntervalId) clearInterval(autoSaveIntervalId);
-  autoSaveIntervalId = setInterval(()=>{ autosave(); }, AUTOSAVE_INTERVAL_MS);
 }
 
-/* ===== TIMER ===== */
+/* ===== Resume restore from server ===== */
+async function loadAndResume(sessionIdToLoad){
+  try{
+    const res = await callServer({ action:'load_session', sessionId: sessionIdToLoad });
+    if(!res || !res.success){ alert("Could not load session. Starting fresh."); localStorage.removeItem('skill_test_session'); return; }
+    const data = res.data;
+    if(data.Completed === "TRUE"){ alert("This session has been already submitted. You cannot resume it."); localStorage.removeItem('skill_test_session'); return; }
+    if(res.SessionData){
+      const sd = res.SessionData;
+      test = sd.questions || [];
+      answers = sd.answers || new Array(test.length);
+      index = sd.currentIndex || 0;
+      startTime = sd.startTime || data.StartTime;
+      sessionId = data.SessionID;
+      skill = data.Skill || sd.skill;
+      user = data.Name || user;
+      email = data.Email || email;
+      document.getElementById("login").style.display = "none";
+      document.getElementById("stream").style.display = "none";
+      document.getElementById("quiz").style.display = "block";
+      timeLeft = sd.timeLimitSecs || 300;
+      startTimer();
+      showQ();
+      if(autoSaveIntervalId) clearInterval(autoSaveIntervalId);
+      autoSaveIntervalId = setInterval(()=>{ autosave(); }, AUTOSAVE_INTERVAL_MS);
+    } else {
+      document.getElementById("login").style.display = "none";
+      document.getElementById("stream").style.display = "block";
+    }
+    document.getElementById('username').value = user;
+    document.getElementById('email').value = email;
+  }catch(err){
+    console.error(err);
+    alert("Failed to resume session.");
+  }
+}
+
+/* ===== Timer (client UI) ===== */
 function startTimer(){
   const timerDiv = document.getElementById("timer");
   timerDiv.style.display = "block";
   clearInterval(timer);
   timer = setInterval(()=>{
-    if(timeLeft <= 0){
-      clearInterval(timer);
-      submit();
-      return;
-    }
+    if(timeLeft <= 0){ clearInterval(timer); submit(); return; }
     timeLeft--;
     const m = Math.floor(timeLeft/60), s = timeLeft%60;
     timerDiv.textContent = `⏱ Time Left: ${m}:${s<10?"0"+s:s}`;
   },1000);
 }
 
-/* ===== UI: show question ===== */
+/* ===== Show question UI ===== */
 function showQ(){
   const q = test[index];
   const quiz = document.getElementById("quiz");
   const total = test.length;
-  const optsHtml = q.o.map((o,i)=> {
+  const optsHtml = (q.options || []).map((o,i)=> {
     const id = `opt-${index}-${i}`;
     const checked = answers[index] === i ? "checked" : "";
     return `<label class="option"><input id="${id}" type="radio" name="opt" value="${i}" ${checked}> ${String.fromCharCode(65+i)}. ${escapeHtml(o)}</label>`;
   }).join("");
   quiz.innerHTML = `
     <div>
-      <h3>Question ${index+1}/${total}</h3>
+      <h3 style="color:${THEME_COLOR}">Question ${index+1}/${total} <small class="muted">(${q.difficulty || 'medium'})</small></h3>
       <p>${escapeHtml(q.q)}</p>
       ${optsHtml}
       <br>
@@ -282,36 +277,28 @@ function showQ(){
         ${index>0?'<button type="button" onclick="prevQ()">Previous</button>':''}
         ${index<total-1?'<button type="button" onclick="nextQ()">Next</button>':'<button type="button" onclick="submit()">Submit</button>'}
       </div>
-      <p class="muted">Unanswered: ${countUnanswered()} • Your answers are auto-saved every ${AUTOSAVE_INTERVAL_MS/1000}s.</p>
+      <p class="muted">Unanswered: ${countUnanswered()} • Auto-saved every ${AUTOSAVE_INTERVAL_MS/1000}s.</p>
     </div>
   `;
   const firstOpt = quiz.querySelector('input[name="opt"]');
   if(firstOpt) firstOpt.focus();
 }
 
-/* ===== Answer saving and navigation ===== */
+/* ===== Answers & navigation ===== */
 function saveAnswer(){
   const sel = document.querySelector('input[name="opt"]:checked');
   if(sel) answers[index] = Number(sel.value);
 }
-function nextQ(){ saveAnswer(); if(answers[index]===undefined){ if(!confirm("You haven't selected an answer for this question. Move to next?")) return; } if(index < test.length-1){ index++; showQ(); } }
+function nextQ(){ saveAnswer(); if(answers[index]===undefined){ if(!confirm("You haven't selected an answer for this question. Move to next?")) return; } adaptiveAdjust(); if(index < test.length-1){ index++; showQ(); } }
 function prevQ(){ saveAnswer(); if(index>0){ index--; showQ(); } }
 function countUnanswered(){ let c=0; for(let i=0;i<test.length;i++) if(answers[i]===undefined) c++; return c; }
 
-/* ===== SCORE & LEVEL FUNCTIONS ===== */
-function computeScore(){
-  let sc=0;
-  test.forEach((q,i)=>{ if(answers[i]===q.correct) sc++; });
-  return sc;
-}
-function computeLevel(score, total){
-  const pct = (score/total)*100;
-  if(pct >= 80) return "Advanced";
-  if(pct >= 50) return "Intermediate";
-  return "Beginner";
+/* ===== Adaptive (client-side light) ===== */
+function adaptiveAdjust(){
+  // Placeholder: server-side handles true adaptive selection for next sessions.
 }
 
-/* ===== AUTOSAVE (updates server without finalizing) ===== */
+/* ===== Autosave ===== */
 async function autosave(){
   saveAnswer();
   if(!sessionId) return;
@@ -319,130 +306,100 @@ async function autosave(){
     action: 'autosave',
     sessionId: sessionId,
     answers: answers,
-    lastSavedAt: nowISO(),
     currentIndex: index,
-    elapsedSeconds: secondsBetween(startTime, nowISO())
+    proctorSummary: proctor,
+    clientInfo: { ua: navigator.userAgent, screen: { width: screen.width, height: screen.height } },
+    lastSavedAt: nowISO()
   };
-  try{
-    await callServer(payload);
-    // console.log("Autosaved");
-  }catch(err){
-    console.warn("Autosave failed", err);
-  }
+  try{ await callServer(payload); }catch(err){ console.warn("Autosave failed", err); }
 }
 
-/* ===== SUBMIT ===== */
+/* ===== Submit (server authoritative) ===== */
 async function submit(){
   clearInterval(timer);
   saveAnswer();
-
-  // Confirm if unanswered
   const unanswered = countUnanswered();
-  if(unanswered > 0){
-    if(!confirm(`There are ${unanswered} unanswered question(s). Do you want to submit anyway?`)){
-      startTimer(); return;
-    }
-  }
-
-  score = computeScore();
-  const endTime = nowISO();
-  const totalTimeSecs = secondsBetween(startTime, endTime);
-  const level = computeLevel(score, test.length);
-  const answersJSON = JSON.stringify(answers);
-
-  // Update server - finalize submission
-  const payload = {
-    action: 'submit',
-    sessionId: sessionId,
-    name: user,
-    email: email,
-    skill: skill,
-    startTime: startTime,
-    endTime: endTime,
-    totalTimeSecs: totalTimeSecs,
-    score: score,
-    totalQuestions: test.length,
-    level: level,
-    answers: answersJSON
-  };
-
+  if(unanswered > 0){ if(!confirm(`There are ${unanswered} unanswered question(s). Submit anyway?`)){ startTimer(); return; } }
+  const payload = { action: 'submit', sessionId: sessionId, clientInfo: { ua: navigator.userAgent, screen: { width: screen.width, height: screen.height } }, answers: answers };
   try{
     const res = await callServer(payload);
-    if(!res || !res.success) console.warn("Submit response:", res);
+    if(!res || !res.success){ alert("Submit failed: " + (res && res.message ? res.message : "server error")); return; }
+    score = res.score;
+    const total = res.totalQuestions || test.length;
+    const level = res.level || computeLevel(score, total);
+    localStorage.removeItem('skill_test_session');
+    document.getElementById("quiz").style.display = "none";
+    document.getElementById("timer").style.display = "none";
+    if(autoSaveIntervalId) clearInterval(autoSaveIntervalId);
+    showCertificate(user, skill, score, total, level, res.certificateId);
   }catch(err){
-    console.warn("Submit failed:", err);
+    console.error(err);
+    alert("Network error submitting test.");
   }
-
-  document.getElementById("quiz").style.display = "none";
-  document.getElementById("timer").style.display = "none";
-  clearInterval(autoSaveIntervalId);
-  localStorage.removeItem('skill_test_session');
-  showCertificate(user, skill, score, test.length, level);
 }
+function computeLevel(score, total){ const pct = (score/total)*100; if(pct >= 80) return "Advanced"; if(pct >= 50) return "Intermediate"; return "Beginner"; }
 
-/* ===== Certificate UI & PDF ===== */
-function showCertificate(name, skill, score, total, level){
+/* ===== Certificate UI & Download ===== */
+function showCertificate(name, skill, score, total, level, certificateId){
   const resultDiv = document.getElementById("result");
   resultDiv.style.display = "block";
   resultDiv.innerHTML = "";
-
   const wrapper = document.createElement("div");
-  wrapper.style.border = "5px solid #764ba2";
+  wrapper.style.border = `5px solid ${THEME_COLOR}`;
   wrapper.style.padding = "30px";
   wrapper.style.textAlign = "center";
-
-  const h1 = document.createElement("h1"); h1.textContent = "🏆 Certificate of Completion"; wrapper.appendChild(h1);
+  const h1 = document.createElement("h1"); h1.innerHTML = `<span style="background:linear-gradient(90deg,#ff512f,#dd2476); -webkit-background-clip:text; color:transparent;">🏆 Certificate of Completion</span>`; wrapper.appendChild(h1);
   const h3a = document.createElement("h3"); h3a.textContent = "This is to certify that"; wrapper.appendChild(h3a);
   const h2user = document.createElement("h2"); h2user.textContent = name; wrapper.appendChild(h2user);
   const h3b = document.createElement("h3"); h3b.textContent = "has successfully completed the"; wrapper.appendChild(h3b);
-  const h2skill = document.createElement("h2"); h2skill.textContent = `${skill} Test`; wrapper.appendChild(h2skill);
-
+  const h2skill = document.createElement("h2"); h2skill.innerHTML = `<b style="color:${THEME_COLOR}">${escapeHtml(skill)} Test</b>`; wrapper.appendChild(h2skill);
   const pScore = document.createElement("p"); pScore.innerHTML = `<b>Score:</b> ${score}/${total}`; wrapper.appendChild(pScore);
   const pLevel = document.createElement("p"); pLevel.innerHTML = `<b>Level:</b> ${level}`; wrapper.appendChild(pLevel);
   const pDate = document.createElement("p"); pDate.textContent = `Date: ${new Date().toDateString()}`; wrapper.appendChild(pDate);
-
-  const btnDownload = document.createElement("button");
-  btnDownload.type = "button";
-  btnDownload.textContent = "Download PDF";
-  btnDownload.onclick = downloadPDF;
-  wrapper.appendChild(btnDownload);
-
-  const btnRestart = document.createElement("button");
-  btnRestart.type = "button";
-  btnRestart.textContent = "Restart Test";
-  btnRestart.onclick = () => location.reload();
-  wrapper.appendChild(btnRestart);
-
+  const pThanks = document.createElement("p");
+  pThanks.innerHTML = `Thanks for visiting our page — <a href="https://nitishbharti04-nb.github.io/Nitishbharti/" target="_blank">https://nitishbharti04-nb.github.io/Nitishbharti/</a>`;
+  wrapper.appendChild(pThanks);
+  const idLine = document.createElement("p");
+  if(certificateId) idLine.innerHTML = `<b style="background:linear-gradient(90deg,#12c2e9,#c471ed,#f64f59); -webkit-background-clip:text; color:transparent;">Certificate ID: ${escapeHtml(certificateId)}</b>`;
+  wrapper.appendChild(idLine);
+  const btnDownload = document.createElement("button"); btnDownload.type = "button"; btnDownload.textContent = "Download PDF"; btnDownload.onclick = () => downloadPDFStyled(name, skill, score, total, level, certificateId); wrapper.appendChild(btnDownload);
+  const btnRestart = document.createElement("button"); btnRestart.type = "button"; btnRestart.textContent = "Restart Test"; btnRestart.onclick = () => location.reload(); wrapper.appendChild(btnRestart);
   resultDiv.appendChild(wrapper);
   btnDownload.focus();
 }
-
-function downloadPDF(){
+function downloadPDFStyled(name, skill, score, total, level, certificateId){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const pageWidth = doc.internal.pageSize.getWidth();
-
-  doc.setFontSize(26);
+  doc.setFontSize(28);
+  doc.setTextColor(255,80,47);
   doc.text("Certificate of Completion", pageWidth / 2, 120, { align: 'center' });
-  doc.setFontSize(16);
-  doc.text("This is to certify that", pageWidth / 2, 160, { align: 'center' });
-  doc.setFontSize(22);
-  doc.text(user, pageWidth / 2, 200, { align: 'center' });
-  doc.setFontSize(16);
-  doc.text(`has successfully completed the ${skill} Test`, pageWidth / 2, 235, { align: 'center' });
   doc.setFontSize(14);
-  doc.text(`Score: ${score}/${test.length}`, pageWidth / 2, 265, { align: 'center' });
-  doc.text(`Level: ${computeLevel(score,test.length)}`, pageWidth / 2, 285, { align: 'center' });
+  doc.setTextColor(0,0,0);
+  doc.text("This is to certify that", pageWidth / 2, 150, { align: 'center' });
+  doc.setFontSize(22);
+  doc.setTextColor(30,30,30);
+  doc.text(name, pageWidth / 2, 185, { align: 'center' });
+  doc.setFontSize(16);
+  doc.setTextColor(0,102,204);
+  doc.setFont(undefined, 'bold');
+  doc.text(`${skill} Test`, pageWidth / 2, 210, { align: 'center' });
+  doc.setFont(undefined, 'normal');
   doc.setFontSize(12);
-  doc.text(`Date: ${new Date().toDateString()}`, pageWidth / 2, 315, { align: 'center' });
-
+  doc.setTextColor(0,0,0);
+  doc.text(`Score: ${score}/${total}  |  Level: ${level}`, pageWidth / 2, 240, { align: 'center' });
+  if(certificateId){ doc.setFontSize(10); doc.setTextColor(120, 0, 200); doc.text(`Certificate ID: ${certificateId}`, pageWidth / 2, 260, { align: 'center' }); }
+  doc.setFontSize(11);
+  doc.setTextColor(50,50,50);
+  doc.text("Thanks for visiting our page", pageWidth / 2, 290, { align: 'center' });
+  doc.setTextColor(0, 102, 204);
+  doc.textWithLink("https://nitishbharti04-nb.github.io/Nitishbharti/", pageWidth / 2, 310, { align: 'center', url: "https://nitishbharti04-nb.github.io/Nitishbharti/" });
   doc.setLineWidth(1.5);
-  doc.rect(40, 60, pageWidth - 80, 420);
-
-  doc.save(`${(user || 'certificate').replace(/\s+/g,'_')}_Certificate.pdf`);
+  doc.rect(40, 60, pageWidth - 80, 460);
+  doc.save(`${(name || 'certificate').replace(/\s+/g,'_')}_Certificate.pdf`);
 }
 
-/* ===== Server communication helper ===== */
+/* ===== Server comms helper ===== */
 async function callServer(payload){
   if(!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("YOUR_DEPLOYED_WEBAPP_ID")){
     throw new Error("GAS_WEB_APP_URL not set - replace with your deployed Apps Script URL.");
@@ -453,34 +410,20 @@ async function callServer(payload){
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
-  const json = await res.json();
-  return json;
+  return res.json();
 }
 
-/* ===== Resume support - try to load session data on page load ===== */
-window.addEventListener('load', async ()=>{
-  const saved = localStorage.getItem('skill_test_session');
-  if(saved){
-    try{
-      const obj = JSON.parse(saved);
-      if(obj && obj.sessionId){
-        // attempt to fetch session state from server
-        try{
-          const res = await callServer({ action: 'load_session', sessionId: obj.sessionId });
-          if(res && res.success && res.data){
-            // load candidate back into UI so they can resume
-            // we only restore minimal: skill and saved answers if same test
-            sessionId = obj.sessionId;
-            // prefill name/email if available (keeps things consistent)
-            if(res.data.Name) document.getElementById('username').value = res.data.Name;
-            if(res.data.Email) document.getElementById('email').value = res.data.Email;
-            // If client started, user will click to resume during login flow
-          }
-        }catch(e){}
-      }
-    }catch(e){}
-  }
-});
+/* ===== Branding apply ===== */
+function applyBranding(){
+  try{
+    if(ORG_LOGO){
+      const img = document.getElementById('orgLogo');
+      img.src = ORG_LOGO;
+      img.style.display = 'inline-block';
+    }
+    document.getElementById('orgName').textContent = ORG_NAME;
+  }catch(e){}
+}
 
 /* ===== Keyboard navigation (optional) ===== */
 document.addEventListener('keydown',(e)=>{
@@ -491,9 +434,16 @@ document.addEventListener('keydown',(e)=>{
       const focused = document.activeElement;
       if(focused && focused.matches('input[name="opt"]')){
         saveAnswer();
-        if(index < test.length-1) nextQ();
+        if(index < test.length - 1) nextQ();
       }
     }
+  }
+});
+
+/* ===== On unload, attempt save ===== */
+window.addEventListener('beforeunload', (e)=>{
+  if(sessionId){
+    navigator.sendBeacon && navigator.sendBeacon(GAS_WEB_APP_URL, JSON.stringify({ action:'autosave', sessionId: sessionId, answers: answers, currentIndex: index, proctorSummary: proctor }));
   }
 });
 </script>
