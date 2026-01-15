@@ -1,18 +1,88 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Skill Test</title>
-  <style>
-    body { font-family: Arial; text-align: center; }
-    button { padding: 10px 20px; margin: 5px; }
-    .question { margin: 20px; }
-  </style>
+<meta charset="UTF-8">
+<title>Skill Assessment Test</title>
+
+<style>
+body{
+  margin:0;
+  font-family:'Segoe UI', sans-serif;
+  background: linear-gradient(135deg,#667eea,#764ba2);
+  color:#fff;
+  min-height:100vh;
+}
+
+h1,h2{
+  margin-bottom:10px;
+}
+
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:30px;
+}
+
+.card{
+  background:#ffffff;
+  color:#333;
+  border-radius:15px;
+  padding:25px;
+  box-shadow:0 15px 30px rgba(0,0,0,0.2);
+  margin-top:20px;
+}
+
+button{
+  background: linear-gradient(135deg,#ff758c,#ff7eb3);
+  border:none;
+  color:white;
+  padding:12px 25px;
+  border-radius:30px;
+  cursor:pointer;
+  font-size:16px;
+  margin:8px;
+  transition:0.3s;
+}
+
+button:hover{
+  transform:scale(1.05);
+  box-shadow:0 10px 20px rgba(0,0,0,0.3);
+}
+
+.question{
+  margin:15px 0;
+  padding:15px;
+  background:#f7f7f7;
+  border-radius:10px;
+}
+
+.question p{
+  font-weight:600;
+}
+
+input[type=radio]{
+  margin-right:8px;
+}
+
+#result h2{
+  color:#764ba2;
+}
+
+.level{
+  font-size:20px;
+  font-weight:bold;
+}
+
+</style>
 </head>
+
 <body>
 
-<h1>Skill Assessment Test</h1>
+<div class="container">
 
-<div id="mode">
+<h1>🎯 Skill Assessment Test</h1>
+
+<div id="mode" class="card">
   <h2>Select Skill</h2>
   <button onclick="startTest('Excel')">Excel</button>
   <button onclick="startTest('SQL')">SQL</button>
@@ -20,61 +90,118 @@
   <button onclick="startTest('Python')">Python</button>
 </div>
 
-<div id="quiz" style="display:none;"></div>
-<div id="result"></div>
+<div id="quiz" class="card" style="display:none;"></div>
+<div id="result" class="card"></div>
+
+</div>
 
 <script>
 const data = {
-  Excel: [
-    {q:"VLOOKUP ka use kya hai?", a:["Search value","Delete data","Format","Chart"], c:0},
-    {q:"Excel file extension?", a:[".docx",".xlsx",".ppt",".txt"], c:1}
-  ],
-  SQL: [
-    {q:"SQL ka full form?", a:["Structured Query Language","Simple Query","None","Data"], c:0},
-    {q:"JOIN ka use?", a:["Tables connect","Delete","Insert","Format"], c:0}
-  ],
-  "Power BI": [
-    {q:"Power BI kis company ka hai?", a:["Google","Microsoft","Amazon","Apple"], c:1}
-  ],
-  Python: [
-    {q:"Python kis type ki language?", a:["Low","High","Machine","None"], c:1}
-  ]
+Excel:[
+{q:"Excel me VLOOKUP ka use?",a:["Search value","Delete","Chart","Format"],c:0},
+{q:"Excel file extension?",a:[".doc",".xlsx",".ppt",".txt"],c:1},
+{q:"SUM function ka kaam?",a:["Add numbers","Text","Chart","Sort"],c:0},
+{q:"IF function kisliye?",a:["Condition","Delete","Format","Chart"],c:0},
+{q:"COUNT function?",a:["Count cells","Add","Format","Graph"],c:0},
+{q:"Freeze Pane ka use?",a:["Lock rows","Delete","Chart","Hide"],c:0},
+{q:"Pivot Table ka use?",a:["Analysis","Delete","Design","Print"],c:0},
+{q:"Excel kis company ka?",a:["Google","Apple","Microsoft","Amazon"],c:2},
+{q:"Conditional Formatting?",a:["Rules","Delete","Chart","Insert"],c:0},
+{q:"Excel formula start hota?",a:["=","+","-","@"],c:0},
+{q:"MAX function?",a:["Highest","Lowest","Text","Sort"],c:0},
+{q:"MIN function?",a:["Lowest","Highest","Chart","Delete"],c:0},
+{q:"Excel rows limit?",a:["1M+","10k","5k","100"],c:0},
+{q:"Excel shortcut save?",a:["Ctrl+S","Ctrl+A","Ctrl+Z","Ctrl+C"],c:0},
+{q:"Workbook kya hota?",a:["Excel file","Sheet","Cell","Row"],c:0}
+],
+
+SQL:[
+{q:"SQL full form?",a:["Structured Query Language","Simple Query","None","Data"],c:0},
+{q:"SELECT ka use?",a:["Data fetch","Delete","Insert","Update"],c:0},
+{q:"WHERE clause?",a:["Condition","Join","Order","Group"],c:0},
+{q:"JOIN ka use?",a:["Combine tables","Delete","Insert","Drop"],c:0},
+{q:"Primary Key?",a:["Unique","Duplicate","Null","Index"],c:0},
+{q:"GROUP BY?",a:["Group rows","Delete","Sort","Insert"],c:0},
+{q:"ORDER BY?",a:["Sort","Delete","Join","Update"],c:0},
+{q:"COUNT()?",a:["Count rows","Sum","Avg","Min"],c:0},
+{q:"DELETE command?",a:["Remove data","Add","Fetch","Join"],c:0},
+{q:"UPDATE command?",a:["Modify data","Delete","Insert","Fetch"],c:0},
+{q:"NULL ka matlab?",a:["No value","Zero","Text","False"],c:0},
+{q:"HAVING clause?",a:["Group condition","Row filter","Join","Sort"],c:0},
+{q:"SQL database?",a:["MySQL","HTML","CSS","JS"],c:0},
+{q:"DROP command?",a:["Remove table","Insert","Fetch","Join"],c:0},
+{q:"UNION?",a:["Combine results","Delete","Sort","Update"],c:0}
+],
+
+"Power BI":[
+{q:"Power BI company?",a:["Google","Microsoft","Amazon","Apple"],c:1},
+{q:"Power BI use?",a:["Visualization","Coding","Design","Email"],c:0},
+{q:"DAX ka use?",a:["Calculation","Design","Delete","Sort"],c:0},
+{q:"Power BI file extension?",a:[".pbix",".xlsx",".doc",".csv"],c:0},
+{q:"Dashboard kya hota?",a:["Visual page","Code","Table","Sheet"],c:0},
+{q:"Power Query?",a:["Data cleaning","Chart","Email","Code"],c:0},
+{q:"Slicer ka use?",a:["Filter","Delete","Insert","Sort"],c:0},
+{q:"Bar chart use?",a:["Compare","Delete","Sort","Join"],c:0},
+{q:"Power BI free hai?",a:["Limited","Yes","No","Trial"],c:0},
+{q:"Publish kaha hota?",a:["Service","Excel","SQL","Python"],c:0},
+{q:"Data model?",a:["Relations","Charts","Emails","Sheets"],c:0},
+{q:"Calculated column?",a:["DAX","SQL","HTML","CSS"],c:0},
+{q:"Power BI mobile?",a:["Yes","No","Only iOS","Only Android"],c:0},
+{q:"Map visual?",a:["Location","Text","Table","Code"],c:0},
+{q:"Refresh data?",a:["Update","Delete","Format","Hide"],c:0}
+],
+
+Python:[
+{q:"Python kis type ki language?",a:["High","Low","Machine","None"],c:0},
+{q:"Python creator?",a:["Guido","Elon","Jobs","Bill"],c:0},
+{q:"Print function?",a:["Output","Input","Loop","Condition"],c:0},
+{q:"List kya hoti?",a:["Collection","Loop","Condition","Class"],c:0},
+{q:"Tuple mutable?",a:["No","Yes","Sometimes","Null"],c:0},
+{q:"Dictionary kya hai?",a:["Key-Value","List","Tuple","Loop"],c:0},
+{q:"For loop?",a:["Iteration","Condition","Class","Error"],c:0},
+{q:"While loop?",a:["Condition loop","Function","Class","List"],c:0},
+{q:"Function keyword?",a:["def","fun","method","define"],c:0},
+{q:"Python file extension?",a:[".py",".java",".js",".html"],c:0},
+{q:"len()?",a:["Length","Sum","Avg","Sort"],c:0},
+{q:"Indentation?",a:["Mandatory","Optional","Ignore","None"],c:0},
+{q:"Comment symbol?",a:["#","//","<!--","**"],c:0},
+{q:"Python use?",a:["All","Web","AI","Data"],c:0},
+{q:"Variable store?",a:["Data","Loop","Class","Function"],c:0}
+]
 };
 
-let score = 0;
+let score=0;
 
 function startTest(mode){
-  document.getElementById("mode").style.display="none";
-  let quizDiv = document.getElementById("quiz");
-  quizDiv.style.display="block";
-  quizDiv.innerHTML = `<h2>${mode} Test</h2>`;
-  
-  data[mode].forEach((item,i)=>{
-    quizDiv.innerHTML += `
-      <div class="question">
-        <p>${item.q}</p>
-        ${item.a.map((op,j)=>`
-          <input type="radio" name="q${i}" value="${j}">${op}<br>
-        `).join("")}
-      </div>`;
-  });
-
-  quizDiv.innerHTML += `<button onclick="submitTest('${mode}')">Submit</button>`;
+ document.getElementById("mode").style.display="none";
+ let quiz=document.getElementById("quiz");
+ quiz.style.display="block";
+ quiz.innerHTML=`<h2>${mode} Test</h2>`;
+ data[mode].forEach((item,i)=>{
+  quiz.innerHTML+=`
+  <div class="question">
+    <p>${i+1}. ${item.q}</p>
+    ${item.a.map((op,j)=>`
+    <label><input type="radio" name="q${i}" value="${j}">${op}</label><br>
+    `).join("")}
+  </div>`;
+ });
+ quiz.innerHTML+=`<button onclick="submitTest('${mode}')">Submit Test</button>`;
 }
 
 function submitTest(mode){
-  score = 0;
-  data[mode].forEach((item,i)=>{
-    let ans = document.querySelector(`input[name="q${i}"]:checked`);
-    if(ans && Number(ans.value) === item.c) score++;
-  });
-
-  let level = score >=2 ? "Intermediate" : "Beginner";
-  document.getElementById("quiz").style.display="none";
-  document.getElementById("result").innerHTML =
-    `<h2>Result</h2>
-     <p>Score: ${score}</p>
-     <p>Level: ${level}</p>`;
+ score=0;
+ data[mode].forEach((item,i)=>{
+  let ans=document.querySelector(`input[name="q${i}"]:checked`);
+  if(ans && Number(ans.value)===item.c) score++;
+ });
+ let level= score>=12 ? "Advanced" : score>=7 ? "Intermediate" : "Beginner";
+ document.getElementById("quiz").style.display="none";
+ document.getElementById("result").innerHTML=
+ `<h2>Result</h2>
+ <p>Score: ${score} / 15</p>
+ <p class="level">Level: ${level}</p>
+ <button onclick="location.reload()">Restart</button>`;
 }
 </script>
 
