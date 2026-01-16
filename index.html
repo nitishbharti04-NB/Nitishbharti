@@ -200,21 +200,51 @@ function getOrMakePool(segment){
 
 function makePool(segment, size){
   // banks & templates for variety
-  const banks = {
-    "Excel": ["TODAY()", "NOW()", "VLOOKUP()", "INDEX()", "MATCH()", "SUM()", "AVERAGE()", "COUNT()", "COUNTA()", "IF()", "SUMIF()", "CONCAT()", "TEXT()", "LEFT()", "RIGHT()", "MID()", "TRIM()", "PROPER()", "UPPER()", "LOWER()", "FILTER()", "SORT()", "UNIQUE()", "XLOOKUP()", "TRANSPOSE()", "ROUND()", "RAND()", "RANDBETWEEN()", "PMT()", "PIVOT TABLE", "FLASH FILL"],
-    "Advanced Excel": ["LET()", "LAMBDA()", "XLOOKUP()", "FILTER()", "SEQUENCE()", "SORTBY()", "UNIQUE()", "INDEX-MATCH", "Power Query", "Power Pivot", "DAX SUMX", "CALCULATE()", "EARLIER()", "OFFSET()", "INDIRECT()", "SLICER", "WHAT-IF", "GOAL SEEK", "SCENARIO MANAGER", "GETPIVOTDATA()", "XMATCH()", "TEXTJOIN()", "IFS()", "SWITCH()", "SPILL"],
-    "SQL": ["SELECT", "WHERE", "GROUP BY", "ORDER BY", "JOIN", "LEFT JOIN", "INNER JOIN", "RIGHT JOIN", "INSERT INTO", "UPDATE", "DELETE", "DISTINCT", "HAVING", "COUNT()", "SUM()", "AVG()", "MIN()", "MAX()", "CREATE TABLE", "ALTER TABLE", "DROP TABLE", "INDEX", "PRIMARY KEY", "FOREIGN KEY", "TRANSACTION", "COMMIT", "ROLLBACK", "UNION", "EXISTS", "IN"],
-    "Power BI": ["Power Query", "Power Pivot", "DAX", "M language", "Measure", "Calculated Column", "Visualization", "Report View", "Data Model", "Relationships", "Slicer", "Publish", "Get Data", "Transform", "Merge Queries", "Bookmarks", "Drillthrough", "Row-level security", "Dataflows", "Gateway", "Refresh"],
-    "Python": ["def", "for", "while", "tuple", "list", "dict", "set", "len()", "print()", "import", "from", "lambda", "map()", "filter()", "list comprehension", "generator", "yield", "None", "True", "False", "str()", "int()", "float()", "open()", "with", "try/except", "class", "self", "range()", "enumerate()"]
-  };
-
   const templates = {
-    "Excel": ["Which function returns current date/time?", "Which feature removes duplicate rows?", "Which function counts numeric entries?", "Which function looks up values vertically?", "Which returns position of item in a range?"],
-    "Advanced Excel": ["Which function provides dynamic arrays?", "Which approach replaces VLOOKUP?", "Which language is used for measures in Power Pivot?", "Which helps ETL data for Excel?", "Which creates reusable custom functions?"],
-    "SQL": ["Which clause filters rows?", "Which statement inserts rows?", "Which keyword removes duplicates?", "Which JOIN returns all left rows?", "Which clause groups rows?"],
-    "Power BI": ["Which transforms raw data in Power BI?", "Which language writes measures in Power BI?", "Which visual is ideal for trends?", "Which merges queries?", "Which secures data per user?"],
-    "Python": ["Which keyword defines a function?", "Which statement loops over items?", "Which is immutable: list or tuple?", "Which symbol starts a comment?", "Which returns length of an object?"]
-  };
+Excel:[
+{q:"Which function returns current date and time?",a:"NOW()"},
+{q:"Which function counts numeric entries?",a:"COUNT()"},
+{q:"Which function looks up values vertically?",a:"VLOOKUP()"},
+{q:"Which function returns position of value in range?",a:"MATCH()"},
+{q:"Which feature removes duplicate rows?",a:"REMOVE DUPLICATES"}
+],
+"Advanced Excel":[
+{q:"Which function replaces VLOOKUP?",a:"XLOOKUP()"},
+{q:"Which function creates reusable functions?",a:"LAMBDA()"},
+{q:"Which tool performs ETL in Excel?",a:"Power Query"},
+{q:"Which language is used in Power Pivot?",a:"DAX"},
+{q:"Which function supports dynamic arrays?",a:"FILTER()"}
+],
+SQL:[
+{q:"Which clause filters rows?",a:"WHERE"},
+{q:"Which keyword removes duplicates?",a:"DISTINCT"},
+{q:"Which clause groups rows?",a:"GROUP BY"},
+{q:"Which join returns all left rows?",a:"LEFT JOIN"},
+{q:"Which command inserts rows?",a:"INSERT INTO"}
+],
+"Power BI":[
+{q:"Which tool transforms data?",a:"Power Query"},
+{q:"Which language creates measures?",a:"DAX"},
+{q:"Which feature restricts data per user?",a:"Row-level security"},
+{q:"Which visual shows trends?",a:"Line chart"},
+{q:"Which refreshes cloud data?",a:"Gateway"}
+],
+Python:[
+{q:"Which keyword defines a function?",a:"def"},
+{q:"Which type is immutable?",a:"tuple"},
+{q:"Which function returns length?",a:"len()"},
+{q:"Which keyword handles exceptions?",a:"try/except"},
+{q:"Which creates a generator?",a:"yield"}
+]
+};
+
+const banks = {
+Excel:["NOW()","TODAY()","COUNT()","SUM()","AVERAGE()","VLOOKUP()","MATCH()","INDEX()","ROUND()","RANDBETWEEN()","REMOVE DUPLICATES"],
+"Advanced Excel":["XLOOKUP()","LAMBDA()","FILTER()","Power Query","DAX","CALCULATE()","OFFSET()"],
+SQL:["SELECT","WHERE","GROUP BY","ORDER BY","DISTINCT","LEFT JOIN","INSERT INTO","UPDATE"],
+"Power BI":["Power Query","DAX","Line chart","Gateway","Row-level security","Slicer"],
+Python:["def","tuple","list","len()","yield","lambda","try/except"]
+};
 
   const bank = banks[segment] || banks["Excel"];
   const base = templates[segment] || templates["Excel"];
