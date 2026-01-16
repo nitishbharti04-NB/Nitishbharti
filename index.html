@@ -3,301 +3,292 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>NITI Professional Assessment Portal — Fixed Answers</title>
+<title>NITI Professional Assessment — Final</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Pinyon+Script&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-    body { margin:0; font-family:'Montserrat', sans-serif; background:#121217; color:white; }
-    .container { max-width:1000px; margin:40px auto; padding:20px; }
-    .card { background:white; color:#222; padding:28px; border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,0.45); }
-    .btn { background:linear-gradient(135deg,#003366,#00509d); color:white; border:none; padding:12px 20px; border-radius:6px; cursor:pointer; font-weight:700; font-size:16px; transition:0.15s; }
-    .btn:hover { transform:translateY(-2px); }
-    input[type="text"], input[type="email"] { width:100%; padding:12px; margin:10px 0; border:1px solid #ccc; border-radius:6px; font-size:16px; box-sizing:border-box; }
-    #timer { font-size:20px; color:#ffcc00; text-align:center; margin-bottom:10px; font-weight:700; }
-    .option { display:block; background:#f9f9f9; padding:12px; margin:10px 0; border:1px solid #eee; border-radius:8px; cursor:pointer; color:#222; }
-    .option input { margin-right:10px; }
-    .muted { color:#666; font-size:13px; }
-    .center { text-align:center; }
-    .cert-container { width:1000px; height:650px; padding:20px; background:#003366; position:relative; margin: 18px auto; box-sizing:border-box; }
-    .cert-inner-frame { background:#fff; background-image: radial-gradient(#fff, #fdfbf2); height:100%; width:100%; border:4px solid #c5a059; padding:40px; box-sizing:border-box; position:relative; text-align:center; }
-    .cert-title { font-family:Cinzel, serif; font-size:42px; color:#1a1a1a; margin:0; border-bottom:3px solid #c5a059; display:inline-block; padding-bottom:6px; }
-    .cert-subtext { text-transform:uppercase; font-size:14px; color:#555; margin-top:18px; }
-    .cert-name { font-family:Pinyon Script, cursive; font-size:64px; color:#003366; margin:16px 0; }
-    .cert-course-line { font-size:20px; color:#333; }
-    .cert-stats { margin-top:18px; font-size:16px; color:#444; }
-    .cert-footer-link { font-size:13px; color:#777; margin-top:20px; }
-    .niti-label { font-family:Cinzel, serif; font-size:18px; color:#003366; font-weight:700; margin-top:18px; }
-    .cert-id-tag { display:inline-block; margin-top:8px; padding:6px 12px; background:#f0f0f0; border-radius:6px; font-weight:700; color:#000; border:1px solid #ddd; }
-    .cert-bottom { display:flex; justify-content:space-between; align-items:flex-end; position:absolute; bottom:40px; left:40px; right:40px; }
-    .seal-box { width:120px; height:120px; background: radial-gradient(circle,#f9d976,#f39c12); border-radius:50%; border:3px dashed #7d5a00; display:flex; align-items:center; justify-content:center; color:#7d5a00; font-weight:700; text-align:center; box-shadow:0 5px 15px rgba(0,0,0,0.2); }
-    .sig-area { text-align:center; width:220px; }
-    .sig-name { font-family:Pinyon Script, cursive; font-size:28px; color:#000; margin-bottom:-8px; }
-    .sig-line { border-top:2px solid #333; padding-top:6px; font-weight:700; font-size:14px; color:#000; }
-    .controls { display:flex; gap:10px; justify-content:center; margin-top:12px; }
-    .controls .btn.secondary { background:#666; }
-    @media (max-width:900px) { .container { padding:10px; } .cert-container { width:100%; height:auto; } .cert-inner-frame { padding:20px; } }
+  body { margin:0; font-family:'Montserrat', sans-serif; background:#0e0f12; color:white; }
+  .container { max-width:1000px; margin:36px auto; padding:18px; }
+  .card { background:#fff; color:#222; padding:22px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.45); }
+  .btn { background:linear-gradient(135deg,#003366,#00509d); color:white; border:none; padding:10px 16px; border-radius:6px; cursor:pointer; font-weight:700; }
+  .btn.secondary { background:#666; }
+  input[type="text"], input[type="email"] { width:100%; padding:10px; margin:8px 0; border:1px solid #ccc; border-radius:6px; box-sizing:border-box; font-size:15px; }
+  .option { display:block; background:#f8f8f8; padding:12px; margin:10px 0; border-radius:8px; color:#222; border:1px solid #eee; cursor:pointer; }
+  .muted { color:#666; font-size:13px; }
+  #timer { font-weight:700; color:#ffcc00; text-align:center; margin-bottom:12px; }
+  /* Certificate */
+  .cert-container { width:1000px; height:650px; padding:20px; background:#003366; position:relative; margin:20px auto; box-sizing:border-box; }
+  .cert-inner-frame { background:#fff; background-image: radial-gradient(#fff, #fdfbf2); height:100%; width:100%; border:4px solid #c5a059; padding:36px; box-sizing:border-box; position:relative; text-align:center; }
+  .cert-title { font-family:Cinzel, serif; font-size:40px; color:#1a1a1a; margin:0; border-bottom:3px solid #c5a059; display:inline-block; padding-bottom:6px; }
+  .cert-subtext { text-transform:uppercase; font-size:14px; color:#555; margin-top:18px; }
+  .cert-name { font-family:Pinyon Script, cursive; font-size:64px; color:#003366; margin:16px 0; }
+  .cert-course-line { font-size:20px; color:#333; }
+  .cert-stats { margin-top:18px; font-size:16px; color:#444; }
+  .cert-footer-link { font-size:13px; color:#777; margin-top:20px; }
+  .niti-label { font-family:Cinzel, serif; font-size:18px; color:#003366; font-weight:700; margin-top:18px; }
+  .cert-id-tag { display:inline-block; margin-top:8px; padding:6px 12px; background:#f0f0f0; border-radius:6px; font-weight:700; color:#000; border:1px solid #ddd; }
+  .cert-bottom { display:flex; justify-content:space-between; align-items:flex-end; position:absolute; bottom:40px; left:40px; right:40px; }
+  .seal-box { width:120px; height:120px; background: radial-gradient(circle,#f9d976,#f39c12); border-radius:50%; border:3px dashed #7d5a00; display:flex; align-items:center; justify-content:center; color:#7d5a00; font-weight:700; text-align:center; box-shadow:0 5px 15px rgba(0,0,0,0.2); }
+  .sig-area { text-align:center; width:220px; }
+  .sig-name { font-family:Pinyon Script, cursive; font-size:28px; color:#000; margin-bottom:-8px; }
+  .sig-line { border-top:2px solid #333; padding-top:6px; font-weight:700; font-size:14px; color:#000; }
+
+  /* Admin button */
+  #admin-launch { position:fixed; right:18px; bottom:18px; z-index:9999; border-radius:8px; padding:10px 12px; background:#222; color:white; border:none; cursor:pointer; }
+  /* Admin modal */
+  #admin-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:10000; }
+  #admin-panel { width:90%; max-width:1100px; max-height:90%; overflow:auto; background:#fff; color:#222; border-radius:8px; padding:16px; box-sizing:border-box; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th, td { padding:8px; border:1px solid #eaeaea; text-align:left; }
+  thead tr { background:#f6f6f6; }
+  @media (max-width:900px){ .cert-container { width:100%; height:auto; } .cert-inner-frame { padding:16px; } }
 </style>
 </head>
 <body>
-<div class="container">
-  <div id="landing-card" class="card" style="text-align:center;">
-    <h1 style="color:#003366">Welcome to NITI Professional Assessment</h1>
-    <p class="muted">Click Start to begin — you'll enter name & email, choose a segment, then take a 15-question hard test.</p>
-    <button class="btn" onclick="showLogin()">Start Test</button>
-  </div>
-
-  <div id="login-card" class="card" style="display:none;">
-    <h2 style="color:#003366">Enter Your Details</h2>
-    <input id="inputName" type="text" placeholder="Full name (for certificate)">
-    <input id="inputEmail" type="email" placeholder="Email address">
-    <div style="display:flex; gap:10px; margin-top:8px;">
-      <button class="btn" style="flex:1" onclick="submitUser()">Continue</button>
-      <button class="btn secondary" style="flex:1" onclick="backToLanding()">Back</button>
+  <div class="container">
+    <!-- Landing -->
+    <div id="landing" class="card" style="text-align:center;">
+      <h1 style="color:#003366">NITI Professional Assessment</h1>
+      <p class="muted">Click Start to enter your details and choose a segment.</p>
+      <button class="btn" onclick="showLogin()">Start</button>
     </div>
-    <p class="muted" style="margin-top:12px;">Demo stores session locally. For production, wire to a backend.</p>
-  </div>
 
-  <div id="subject-card" class="card" style="display:none;">
-    <h2 style="color:#003366">Choose your Segment</h2>
-    <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-top:12px;">
-      <button class="btn" onclick="beginIfReady('Excel')">Excel</button>
-      <button class="btn" onclick="beginIfReady('Advanced Excel')">Advanced Excel</button>
-      <button class="btn" onclick="beginIfReady('SQL')">SQL</button>
-      <button class="btn" onclick="beginIfReady('Power BI')">Power BI</button>
-      <button class="btn" onclick="beginIfReady('Python')">Python</button>
+    <!-- Login -->
+    <div id="login" class="card" style="display:none;">
+      <h2 style="color:#003366">Your Details</h2>
+      <input id="inputName" type="text" placeholder="Full name (for certificate)">
+      <input id="inputEmail" type="email" placeholder="Email address">
+      <div style="display:flex; gap:10px; margin-top:8px;">
+        <button class="btn" onclick="continueToSubject()">Continue</button>
+        <button class="btn secondary" onclick="backToLanding()">Back</button>
+      </div>
+      <p class="muted" style="margin-top:12px;">Data is saved locally in your browser (demo). For a server backend I can help integrate later.</p>
     </div>
-    <p class="muted" style="margin-top:12px;">Each test: 15 hard questions from a large pool. Retakes avoid repeating the most recent set for the same email + segment.</p>
-  </div>
 
-  <div id="quiz-card" style="display:none;">
-    <div id="timer" class="muted"></div>
-    <div id="question-card" class="card"></div>
-  </div>
+    <!-- Subject -->
+    <div id="subject" class="card" style="display:none;">
+      <h2 style="color:#003366">Choose Segment</h2>
+      <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-top:12px;">
+        <button class="btn" onclick="startIfReady('Excel')">Excel</button>
+        <button class="btn" onclick="startIfReady('Advanced Excel')">Advanced Excel</button>
+        <button class="btn" onclick="startIfReady('SQL')">SQL</button>
+        <button class="btn" onclick="startIfReady('Power BI')">Power BI</button>
+        <button class="btn" onclick="startIfReady('Python')">Python</button>
+      </div>
+      <p class="muted" style="margin-top:12px;">Each test: 15 hard questions randomized from a large pool. Retakes attempt to avoid repeating your previous set.</p>
+    </div>
 
-  <div id="result-card" style="display:none;">
-    <div id="cert-capture">
-      <div class="cert-container">
-        <div class="cert-inner-frame" id="certificateFrame">
-          <div class="cert-title">Certificate of Completion</div>
-          <div class="cert-subtext">This is to certify that</div>
-          <div id="certName" class="cert-name">Candidate Name</div>
-          <div class="cert-course-line">has successfully completed the <strong id="certSkill">Skill Test</strong></div>
+    <!-- Quiz -->
+    <div id="quiz" style="display:none;">
+      <div id="timer" class="muted"></div>
+      <div id="questionCard" class="card"></div>
+    </div>
 
-          <div class="cert-stats">
-            <strong>Score:</strong> <span id="certScore">0/15</span> &nbsp; | &nbsp;
-            <strong>Grade:</strong> <span id="certGrade">Beginner</span> <br>
-            <strong>Date:</strong> <span id="certDate"></span>
-          </div>
+    <!-- Result -->
+    <div id="result" style="display:none;">
+      <div id="certWrap">
+        <div class="cert-container">
+          <div class="cert-inner-frame" id="certificateFrame">
+            <div class="cert-title">Certificate of Completion</div>
+            <div class="cert-subtext">This is to certify that</div>
+            <div id="certName" class="cert-name">Candidate Name</div>
+            <div class="cert-course-line">has successfully completed the <strong id="certSkill">Skill Test</strong></div>
 
-          <div class="cert-footer-link">Thanks for visiting our page — <u>https://nitishbharti04-nb.github.io/Nitishbharti/</u></div>
+            <div class="cert-stats">
+              <strong>Score:</strong> <span id="certScore">0/15</span> &nbsp; | &nbsp;
+              <strong>Grade:</strong> <span id="certGrade">Beginner</span> <br>
+              <strong>Date:</strong> <span id="certDate"></span>
+            </div>
 
-          <div class="niti-label">NITI</div>
-          <div id="certId" class="cert-id-tag">NITI CERT - XXXX</div>
+            <div class="cert-footer-link">Thanks for visiting our page — <u>https://nitishbharti04-nb.github.io/Nitishbharti/</u></div>
 
-          <div class="cert-bottom">
-            <div class="seal-box">OFFICIAL<br>GRADUATE</div>
-            <div class="sig-area">
-              <div class="sig-name">Program Director</div>
-              <div class="sig-line">Signature</div>
+            <div class="niti-label">NITI</div>
+            <div id="certId" class="cert-id-tag">NITI CERT - XXXX</div>
+
+            <div class="cert-bottom">
+              <div class="seal-box">OFFICIAL<br>GRADUATE</div>
+              <div class="sig-area">
+                <div class="sig-name">Program Director</div>
+                <div class="sig-line">Signature</div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="controls">
-      <button class="btn" onclick="downloadCertificatePDF()">Download Official PDF Certificate</button>
-      <button class="btn secondary" onclick="location.reload()">Take Another Test</button>
+      <div style="display:flex; gap:12px; justify-content:center; margin-top:12px;">
+        <button class="btn" onclick="downloadCertificate()">Download Official PDF Certificate</button>
+        <button class="btn secondary" onclick="location.reload()">Take Another Test</button>
+      </div>
     </div>
   </div>
-</div>
+
+  <button id="admin-launch" title="Admin: View results">Admin: View Results</button>
+
+  <!-- Admin modal -->
+  <div id="admin-modal">
+    <div id="admin-panel">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0">NITI — Assessment Results</h3>
+        <div style="display:flex; gap:8px;">
+          <button class="btn" id="exportCSV">Export CSV</button>
+          <button class="btn secondary" id="clearData">Clear All</button>
+          <button class="btn secondary" id="closeAdmin">Close</button>
+        </div>
+      </div>
+      <div id="summary" style="margin-top:12px; display:flex; gap:12px; flex-wrap:wrap;"></div>
+      <div style="margin-top:12px; overflow:auto;">
+        <table>
+          <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Segment</th><th>Score</th><th>Total</th><th>Grade</th><th>Cert ID</th><th>Timestamp</th></tr></thead>
+          <tbody id="admin-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
 <script>
-/* ---------------------------
-   Config & State
-   --------------------------- */
-const POOL_SIZE_PER_SEGMENT = 140;
-const QUESTIONS_PER_TEST = 15;
-const TIME_LIMIT_SECONDS = 20 * 60;
+/* ====== Config & state ====== */
+const POOL_SIZE = 140;            // 100-200 recommended
+const Q_PER_TEST = 15;
+const TIME_LIMIT_S = 20 * 60;     // 20 minutes
+
 let userName = '', userEmail = '';
 let currentSegment = '';
 let poolCache = {};
-let currentTest = [];
-let userResponses = [];
+let currentTest = [];             // question objects for this attempt
+let userResponses = [];           // indices or null
 let currentIndex = 0;
-let remainingSeconds = TIME_LIMIT_SECONDS;
+let remainingSeconds = TIME_LIMIT_S;
 let timerInterval = null;
 
-/* ---------------------------
-   Helpers
-   --------------------------- */
+/* ====== Utilities ====== */
 function show(id){ document.getElementById(id).style.display = ''; }
 function hide(id){ document.getElementById(id).style.display = 'none'; }
 function nowISO(){ return new Date().toISOString(); }
 function genCertId(){ return 'NITI-' + Math.random().toString(36).substring(2,10).toUpperCase(); }
-function shuffle(arr){ const a = arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function shuffle(arr){ const a = arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
 function sample(arr,k){ if(k>=arr.length) return arr.slice(); const out=[], used=new Set(); while(out.length<k){ const i=Math.floor(Math.random()*arr.length); if(!used.has(i)){ used.add(i); out.push(arr[i]); }} return out; }
-function escapeHtml(s){ return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#39;'); }
+function escapeHtml(s){ return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#39;"); }
 
-/* ---------------------------
-   UI Flow
-   --------------------------- */
-function showLogin(){ hide('landing-card'); show('login-card'); }
-function backToLanding(){ hide('login-card'); show('landing-card'); }
-function submitUser(){
+/* ====== Navigation flow ====== */
+function showLogin(){ hide('landing'); show('login'); }
+function backToLanding(){ hide('login'); show('landing'); }
+function continueToSubject(){
   const n = document.getElementById('inputName').value.trim();
   const e = document.getElementById('inputEmail').value.trim().toLowerCase();
-  if(!n) return alert('Please enter your full name.');
-  if(!e) return alert('Please enter your email.');
+  if(!n) return alert('Enter your full name.');
+  if(!e) return alert('Enter an email.');
   userName = n; userEmail = e;
-  hide('login-card'); show('subject-card');
+  hide('login'); show('subject');
 }
 
-/* ---------------------------
-   Pool generation (store correct text explicitly)
-   --------------------------- */
-function getOrCreatePool(segment){
+/* ====== Pool generation (explicit correct text) ====== */
+function getOrMakePool(segment){
   if(poolCache[segment]) return poolCache[segment];
   const key = `niti_pool_${segment}`;
   const saved = localStorage.getItem(key);
   if(saved){ poolCache[segment] = JSON.parse(saved); return poolCache[segment]; }
-  const pool = generatePoolForSegment(segment, POOL_SIZE_PER_SEGMENT);
+  const pool = makePool(segment, POOL_SIZE);
   poolCache[segment] = pool;
   localStorage.setItem(key, JSON.stringify(pool));
   return pool;
 }
 
-function generatePoolForSegment(segment, size){
+function makePool(segment, size){
+  // banks & templates for variety
   const banks = {
-    "Excel": ["TODAY()", "NOW()", "VLOOKUP()", "INDEX()", "MATCH()", "SUM()", "AVERAGE()", "COUNT()", "COUNTA()", "IF()", "SUMIF()", "CONCAT()", "TEXT()", "LEFT()", "RIGHT()", "MID()", "TRIM()", "PROPER()", "UPPER()", "LOWER()", "REMOVE DUPLICATES", "FILTER()", "SORT()", "UNIQUE()", "XLOOKUP()", "TRANSPOSE()", "ROUND()", "RAND()", "RANDBETWEEN()", "PMT()", "SUBTOTAL()", "PIVOT TABLE", "FLASH FILL", "F9"],
-    "Advanced Excel": ["LET()", "LAMBDA()", "XLOOKUP()", "FILTER()", "SEQUENCE()", "SORTBY()", "UNIQUE()", "INDEX-MATCH", "Power Query", "Power Pivot", "DAX SUMX", "CALCULATE()", "EARLIER()", "OFFSET()", "INDIRECT()", "ARRAY FORMULA", "SLICER", "WHAT-IF", "GOAL SEEK", "SCENARIO MANAGER", "GETPIVOTDATA()", "XMATCH()", "TEXTJOIN()", "IFS()", "SWITCH()", "SPILL", "DYNAMIC ARRAYS", "POWER MAP"],
+    "Excel": ["TODAY()", "NOW()", "VLOOKUP()", "INDEX()", "MATCH()", "SUM()", "AVERAGE()", "COUNT()", "COUNTA()", "IF()", "SUMIF()", "CONCAT()", "TEXT()", "LEFT()", "RIGHT()", "MID()", "TRIM()", "PROPER()", "UPPER()", "LOWER()", "FILTER()", "SORT()", "UNIQUE()", "XLOOKUP()", "TRANSPOSE()", "ROUND()", "RAND()", "RANDBETWEEN()", "PMT()", "PIVOT TABLE", "FLASH FILL"],
+    "Advanced Excel": ["LET()", "LAMBDA()", "XLOOKUP()", "FILTER()", "SEQUENCE()", "SORTBY()", "UNIQUE()", "INDEX-MATCH", "Power Query", "Power Pivot", "DAX SUMX", "CALCULATE()", "EARLIER()", "OFFSET()", "INDIRECT()", "SLICER", "WHAT-IF", "GOAL SEEK", "SCENARIO MANAGER", "GETPIVOTDATA()", "XMATCH()", "TEXTJOIN()", "IFS()", "SWITCH()", "SPILL"],
     "SQL": ["SELECT", "WHERE", "GROUP BY", "ORDER BY", "JOIN", "LEFT JOIN", "INNER JOIN", "RIGHT JOIN", "INSERT INTO", "UPDATE", "DELETE", "DISTINCT", "HAVING", "COUNT()", "SUM()", "AVG()", "MIN()", "MAX()", "CREATE TABLE", "ALTER TABLE", "DROP TABLE", "INDEX", "PRIMARY KEY", "FOREIGN KEY", "TRANSACTION", "COMMIT", "ROLLBACK", "UNION", "EXISTS", "IN"],
-    "Power BI": ["Power Query", "Power Pivot", "DAX", "M language", "Measure", "Calculated Column", "Visualization", "Report View", "Data Model", "Relationships", "Slicer", "Publish", "Get Data", "Transform", "Merge Queries", "Append Queries", "Bookmarks", "Drillthrough", "Row-level security", "Dataflows", "Gateway", "Refresh", "Query Folding"],
+    "Power BI": ["Power Query", "Power Pivot", "DAX", "M language", "Measure", "Calculated Column", "Visualization", "Report View", "Data Model", "Relationships", "Slicer", "Publish", "Get Data", "Transform", "Merge Queries", "Bookmarks", "Drillthrough", "Row-level security", "Dataflows", "Gateway", "Refresh"],
     "Python": ["def", "for", "while", "tuple", "list", "dict", "set", "len()", "print()", "import", "from", "lambda", "map()", "filter()", "list comprehension", "generator", "yield", "None", "True", "False", "str()", "int()", "float()", "open()", "with", "try/except", "class", "self", "range()", "enumerate()"]
   };
 
   const templates = {
-    "Excel": [
-      "Which function returns the current date/time?",
-      "Which feature removes duplicate rows in a dataset?",
-      "Which function counts numeric entries in a range?",
-      "Which function retrieves a value from the leftmost column?",
-      "Which function returns position of an item in a range?"
-    ],
-    "Advanced Excel": [
-      "Which new Excel function provides dynamic arrays?",
-      "Which combination is preferred instead of VLOOKUP for flexibility?",
-      "Which language is used for measures in Power Pivot?",
-      "Which Excel feature helps ETL large datasets?",
-      "Which function lets you define reusable custom formulas?"
-    ],
-    "SQL": [
-      "Which clause filters rows in a SELECT?",
-      "Which statement inserts rows into a table?",
-      "Which keyword removes duplicates from results?",
-      "Which JOIN returns all rows from left plus matches on right?",
-      "Which clause groups rows for aggregates?"
-    ],
-    "Power BI": [
-      "Which component transforms raw data in Power BI?",
-      "Which language is used for measures in Power BI?",
-      "Which visual is ideal for trends over time?",
-      "Which feature merges queries in Power Query?",
-      "Which feature secures data at user level?"
-    ],
-    "Python": [
-      "Which keyword defines a function in Python?",
-      "Which statement loops over iterable items?",
-      "Which data type is immutable: list or tuple?",
-      "Which symbol begins a comment in Python?",
-      "Which built-in returns the length of an object?"
-    ]
+    "Excel": ["Which function returns current date/time?", "Which feature removes duplicate rows?", "Which function counts numeric entries?", "Which function looks up values vertically?", "Which returns position of item in a range?"],
+    "Advanced Excel": ["Which function provides dynamic arrays?", "Which approach replaces VLOOKUP?", "Which language is used for measures in Power Pivot?", "Which helps ETL data for Excel?", "Which creates reusable custom functions?"],
+    "SQL": ["Which clause filters rows?", "Which statement inserts rows?", "Which keyword removes duplicates?", "Which JOIN returns all left rows?", "Which clause groups rows?"],
+    "Power BI": ["Which transforms raw data in Power BI?", "Which language writes measures in Power BI?", "Which visual is ideal for trends?", "Which merges queries?", "Which secures data per user?"],
+    "Python": ["Which keyword defines a function?", "Which statement loops over items?", "Which is immutable: list or tuple?", "Which symbol starts a comment?", "Which returns length of an object?"]
   };
 
   const bank = banks[segment] || banks["Excel"];
   const base = templates[segment] || templates["Excel"];
 
+  // extend bank to ensure many distractors
   let ext = bank.slice();
-  while(ext.length < 60) ext = ext.concat(bank.map((b,i)=> b + " " + ((i%10)+1)));
+  while(ext.length < 80) ext = ext.concat(bank.map((b,i)=> b + ' ' + ((i%10)+1)));
 
   const pool = [];
   for(let i=0;i<size;i++){
-    const textTemplate = base[i % base.length];
+    const tmpl = base[i % base.length];
     const variant = Math.floor(i / base.length) + 1;
-    const questionText = `${segment} — Q${i+1}: ${textTemplate} (variant ${variant})`;
-    // choose a correct answer text (explicit)
-    const correctText = ext[(i * 7) % ext.length];
-    // pick 3 distinct distractors
+    const qtext = `${segment} — Q${i+1}: ${tmpl} (variant ${variant})`;
+    const correctText = ext[(i * 11) % ext.length];
     const distractors = [];
     let attempts = 0;
-    while(distractors.length < 3 && attempts < 100){
+    while(distractors.length < 3 && attempts < 200){
       const cand = ext[Math.floor(Math.random()*ext.length)];
       if(cand !== correctText && distractors.indexOf(cand) === -1) distractors.push(cand);
       attempts++;
     }
-    // make options and shuffle them
-    const options = shuffle([correctText, ...distractors]);
-    const correctIndex = options.indexOf(correctText);
-    // store question with explicit correct text and index
-    pool.push({ id: `${segment}-${i+1}`, q: questionText, options, _answerIndex: correctIndex, correct: correctText, difficulty: 'hard' });
+    const opts = shuffle([correctText, ...distractors]);
+    const correctIndex = opts.indexOf(correctText);
+    pool.push({ id: `${segment}-${i+1}`, q: qtext, options: opts, _answerIndex: correctIndex, correct: correctText, difficulty: 'hard' });
   }
   return pool;
 }
 
-/* ---------------------------
-   Select questions avoiding immediate repeat; shuffle options using 'correct' text
-   --------------------------- */
-function selectQuestionsForAttempt(segment, email, k){
-  const pool = getOrCreatePool(segment);
+/* ====== select questions avoiding immediate previous set for same email+segment ====== */
+function selectQuestions(segment, email, k){
+  const pool = getOrMakePool(segment);
   const lastKey = `niti_last_${email}_${segment}`;
   const prev = JSON.parse(localStorage.getItem(lastKey) || 'null');
   const prevIds = prev ? prev.ids : null;
-  const maxAttempts = 60;
-  for(let attempt=0; attempt<maxAttempts; attempt++){
+  for(let attempt=0; attempt<60; attempt++){
     const sampleQs = sample(pool, k);
-    const ids = sampleQs.map(x => x.id);
+    const ids = sampleQs.map(q => q.id);
     const overlap = prevIds ? ids.filter(id => prevIds.includes(id)).length : 0;
     if(!prevIds || overlap === 0){
-      // ensure option shuffle based on correct text and include correct field
-      const prepared = sampleQs.map(q => shuffleQuestionOptionsWithCorrect(q));
+      const prepared = sampleQs.map(q => shuffleOptionsUsingCorrect(q));
       localStorage.setItem(lastKey, JSON.stringify({ ids: prepared.map(p=>p.id), time: nowISO() }));
       return prepared;
     }
   }
-  return sample(pool, k).map(q => shuffleQuestionOptionsWithCorrect(q));
+  return sample(pool, k).map(q => shuffleOptionsUsingCorrect(q));
 }
 
-function shuffleQuestionOptionsWithCorrect(q){
+/* Shuffle options but compute correct index using explicit correct text */
+function shuffleOptionsUsingCorrect(q){
   const correctText = q.correct !== undefined ? q.correct : q.options[q._answerIndex];
   const opts = q.options.slice();
   const shuffled = shuffle(opts);
   const newIndex = shuffled.indexOf(correctText);
-  // return a fresh object (avoid mutating stored pool)
-  return { id: q.id, q: q.q, options: shuffled, _answerIndex: newIndex, correct: correctText, difficulty: q.difficulty || 'hard' };
+  return { id: q.id, q: q.q, options: shuffled, _answerIndex: newIndex, correct: correctText, difficulty: q.difficulty };
 }
 
-/* ---------------------------
-   Start test, navigation, rendering
-   --------------------------- */
-function beginIfReady(segment){
+/* ====== Start test flow ====== */
+function startIfReady(segment){
   if(!userName || !userEmail){
     alert('Please enter name & email first.');
-    hide('landing-card'); show('login-card');
+    hide('landing'); show('login');
     return;
   }
   currentSegment = segment;
-  hide('subject-card'); show('quiz-card');
-  currentTest = selectQuestionsForAttempt(segment, userEmail, QUESTIONS_PER_TEST);
+  hide('subject'); show('quiz');
+  currentTest = selectQuestions(segment, userEmail, Q_PER_TEST);
   userResponses = new Array(currentTest.length).fill(null);
   currentIndex = 0;
-  remainingSeconds = TIME_LIMIT_SECONDS;
+  remainingSeconds = TIME_LIMIT_S;
   renderQuestion();
   startTimer();
 }
 
+/* ====== Timer & rendering ====== */
 function startTimer(){
   document.getElementById('timer').textContent = `Time Left: ${formatTime(remainingSeconds)}`;
   if(timerInterval) clearInterval(timerInterval);
@@ -307,146 +298,204 @@ function startTimer(){
     if(remainingSeconds <= 0){ clearInterval(timerInterval); finishTest(); }
   }, 1000);
 }
-function formatTime(sec){ const m=Math.floor(sec/60), s=sec%60; return `${m}:${s<10?'0'+s:s}`; }
+function formatTime(s){ const m=Math.floor(s/60), sec=s%60; return `${m}:${sec<10?'0'+sec:sec}`; }
 
 function renderQuestion(){
-  const card = document.getElementById('question-card');
+  const card = document.getElementById('questionCard');
   const q = currentTest[currentIndex];
-  const opts = q.options.map((o, idx) => {
-    const checked = userResponses[currentIndex] === idx ? 'checked' : '';
-    return `<label class="option"><input type="radio" name="opt" value="${idx}" ${checked}> ${escapeHtml(o)}</label>`;
+  const optsHtml = q.options.map((opt,i) => {
+    const checked = userResponses[currentIndex] === i ? 'checked' : '';
+    return `<label class="option"><input type="radio" name="opt" value="${i}" ${checked}> ${escapeHtml(opt)}</label>`;
   }).join('');
-  const navPrev = currentIndex > 0 ? `<button class="btn secondary" onclick="prevQuestion()">Previous</button>` : '';
-  const navNext = currentIndex < currentTest.length - 1 ? `<button class="btn" onclick="nextQuestion()">Next</button>` : `<button class="btn" onclick="finishTest()">Finish Test</button>`;
+  const prevBtn = currentIndex > 0 ? `<button class="btn secondary" onclick="prevQ()">Previous</button>` : '';
+  const nextBtn = currentIndex < currentTest.length - 1 ? `<button class="btn" onclick="nextQ()">Next</button>` : `<button class="btn" onclick="finishTest()">Finish Test</button>`;
   card.innerHTML = `
     <h3 style="color:#003366">Question ${currentIndex+1} / ${currentTest.length} <small class="muted">(${q.difficulty})</small></h3>
     <p style="font-weight:700; font-size:18px;">${escapeHtml(q.q)}</p>
-    <div style="margin-top:8px;">${opts}</div>
-    <div style="margin-top:18px; display:flex; gap:10px; justify-content:center;">${navPrev} ${navNext}</div>
+    <div style="margin-top:8px;">${optsHtml}</div>
+    <div style="margin-top:16px; display:flex; gap:10px; justify-content:center;">${prevBtn} ${nextBtn}</div>
     <p class="muted" style="margin-top:12px;">Answered: ${userResponses.filter(x=>x!==null).length} • Unanswered: ${userResponses.filter(x=>x===null).length}</p>
   `;
-  setTimeout(()=>{ const first = card.querySelector('input[name="opt"]'); if(first) first.focus(); }, 40);
+  setTimeout(()=>{ const first = card.querySelector('input[name="opt"]'); if(first) first.focus(); },40);
 }
 
-function saveCurrentAnswer(){
+function saveAnswer(){
   const sel = document.querySelector('input[name="opt"]:checked');
   if(sel) userResponses[currentIndex] = parseInt(sel.value);
 }
-function nextQuestion(){ saveCurrentAnswer(); if(currentIndex < currentTest.length - 1){ currentIndex++; renderQuestion(); } }
-function prevQuestion(){ saveCurrentAnswer(); if(currentIndex > 0){ currentIndex--; renderQuestion(); } }
+function nextQ(){ saveAnswer(); if(currentIndex < currentTest.length - 1){ currentIndex++; renderQuestion(); } }
+function prevQ(){ saveAnswer(); if(currentIndex > 0){ currentIndex--; renderQuestion(); } }
 
-/* ---------------------------
-   Finish, scoring and debug output (console)
-   --------------------------- */
+/* ====== Finish, score, persist and certificate ====== */
 function finishTest(){
-  saveCurrentAnswer();
+  saveAnswer();
   if(timerInterval) clearInterval(timerInterval);
 
   let score = 0;
-  const debugRows = [];
+  const debug = [];
   for(let i=0;i<currentTest.length;i++){
     const q = currentTest[i];
-    const chosenIndex = userResponses[i];
-    const chosenText = (typeof chosenIndex === 'number') ? q.options[chosenIndex] : null;
+    const chosen = userResponses[i];
+    const chosenText = (typeof chosen === 'number') ? q.options[chosen] : null;
     const correctText = q.correct;
     const correctIndex = q._answerIndex;
-    const ok = (typeof chosenIndex === 'number' && chosenIndex === correctIndex);
+    const ok = (typeof chosen === 'number' && chosen === correctIndex);
     if(ok) score++;
-    debugRows.push({ index:i+1, q: q.q, chosenIndex, chosenText, correctIndex, correctText, ok });
+    debug.push({ i:i+1, q: q.q, chosenIndex: chosen, chosenText, correctIndex, correctText, ok });
   }
 
-  // Debug: log each question with chosen & correct answers
-  console.group('%cTest Debug — question / chosen / correct', 'color:#00ff88; font-weight:700;');
-  debugRows.forEach(r => {
-    console.log(`Q${r.index}: %c${r.q}`, 'color:#fff;');
-    console.log(`   chosen: [${r.chosenIndex}] ${r.chosenText}`);
-    console.log(`   correct: [${r.correctIndex}] ${r.correctText}`);
-    console.log(`   %c${r.ok ? 'OK' : 'WRONG'}`, `color:${r.ok ? 'green' : 'red'}; font-weight:700`);
+  // log debug to console
+  console.group('Test debug (chosen vs correct)');
+  debug.forEach(r => {
+    console.log(`Q${r.i}: ${r.q}`);
+    console.log(`  chosen: [${r.chosenIndex}] ${r.chosenText}`);
+    console.log(`  correct: [${r.correctIndex}] ${r.correctText}`);
+    console.log(`  ${r.ok ? 'OK' : 'WRONG'}`);
   });
   console.groupEnd();
 
   const grade = score >= 12 ? 'Excellent' : (score >= 8 ? 'Advanced' : 'Beginner');
   const certId = genCertId();
 
-  // save record
-  const recsKey = 'niti_results';
-  const recs = JSON.parse(localStorage.getItem(recsKey) || '[]');
-  recs.push({ name: userName, email: userEmail, segment: currentSegment, score, total: currentTest.length, grade, certId, ts: nowISO() });
-  localStorage.setItem(recsKey, JSON.stringify(recs));
+  // persist record
+  const recKey = 'niti_results';
+  const recs = JSON.parse(localStorage.getItem(recKey) || '[]');
+  const rec = { name: userName, email: userEmail, segment: currentSegment, score, total: currentTest.length, grade, certId, ts: nowISO() };
+  recs.push(rec);
+  localStorage.setItem(recKey, JSON.stringify(recs));
 
-  // render certificate
+  // show certificate
   document.getElementById('certName').textContent = userName;
   document.getElementById('certSkill').textContent = currentSegment + ' Test';
   document.getElementById('certScore').textContent = `${score}/${currentTest.length}`;
   document.getElementById('certGrade').textContent = grade;
   document.getElementById('certDate').textContent = new Date().toDateString();
-  document.getElementById('certId').textContent = 'NITI CERT - ' + certId;
+  document.getElementById('certId').textContent = `NITI CERT - ${certId}`;
 
-  hide('quiz-card');
-  show('result-card');
+  hide('quiz');
+  show('result');
 }
 
-/* ---------------------------
-   PDF download
-   --------------------------- */
-async function downloadCertificatePDF(){
+/* ====== Certificate PDF ====== */
+async function downloadCertificate(){
   const el = document.getElementById('certificateFrame');
   if(!el) return alert('Certificate not found');
-  const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: null });
+  const canvas = await html2canvas(el, { scale: 2, useCORS:true, backgroundColor: null });
   const imgData = canvas.toDataURL('image/png');
   const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'letter' });
-  const pageW = pdf.internal.pageSize.getWidth();
-  const pageH = pdf.internal.pageSize.getHeight();
-  const imgW = canvas.width;
-  const imgH = canvas.height;
-  const ratio = Math.min(pageW / imgW, pageH / imgH);
-  const renderW = imgW * ratio;
-  const renderH = imgH * ratio;
-  const marginX = (pageW - renderW) / 2;
-  const marginY = (pageH - renderH) / 2;
+  const pdf = new jsPDF({ orientation:'landscape', unit:'pt', format:'letter' });
+  const pageW = pdf.internal.pageSize.getWidth(), pageH = pdf.internal.pageSize.getHeight();
+  const imgW = canvas.width, imgH = canvas.height;
+  const ratio = Math.min(pageW/imgW, pageH/imgH);
+  const renderW = imgW * ratio, renderH = imgH * ratio;
+  const marginX = (pageW - renderW) / 2, marginY = (pageH - renderH) / 2;
   pdf.addImage(imgData, 'PNG', marginX, marginY, renderW, renderH, undefined, 'FAST');
-  const safeName = (userName || 'certificate').replace(/\s+/g,'_').replace(/[^\w\-\.]/g,'');
-  pdf.save(`${safeName}_NITI_CERT.pdf`);
+  const safe = (userName || 'certificate').replace(/\s+/g,'_').replace(/[^\w\-\.]/g,'');
+  pdf.save(`${safe}_NITI_CERT.pdf`);
 }
 
-/* ---------------------------
-   Buttons & small wiring
-   --------------------------- */
-function showLogin(){ hide('landing-card'); show('login-card'); }
-function backToLanding(){ hide('login-card'); show('landing-card'); }
-function submitUser(){ /* overwritten above for local scope */ }
+/* ====== Admin dashboard ====== */
+const adminLaunch = document.getElementById('admin-launch');
+const adminModal = document.getElementById('admin-modal');
+const adminPanel = document.getElementById('admin-panel');
+adminLaunch.addEventListener('click', ()=>{ adminModal.style.display = 'flex'; renderAdmin(); });
+
+document.getElementById('closeAdmin').addEventListener('click', ()=>{ adminModal.style.display = 'none'; });
+
+function getResults(){ return JSON.parse(localStorage.getItem('niti_results') || '[]'); }
+
+function renderAdmin(){
+  const results = getResults();
+  const summaryDiv = document.getElementById('summary');
+  summaryDiv.innerHTML = '';
+  const totalAssess = results.length;
+  const uniqueUsers = new Set(results.map(r => (r.email||'').toLowerCase())).size;
+  summaryDiv.appendChild(makeSummaryCard('Total assessments', totalAssess));
+  summaryDiv.appendChild(makeSummaryCard('Unique users', uniqueUsers));
+  const bySeg = {};
+  results.forEach(r => {
+    bySeg[r.segment] = bySeg[r.segment] || { count:0, sum:0, sumTotal:0 };
+    bySeg[r.segment].count++;
+    bySeg[r.segment].sum += Number(r.score || 0);
+    bySeg[r.segment].sumTotal += Number(r.total || 0);
+  });
+  for(const seg in bySeg){
+    const meta = bySeg[seg];
+    const avg = meta.count ? (meta.sum / meta.count).toFixed(1) : '0';
+    const pct = meta.sumTotal ? ((meta.sum / meta.sumTotal) * 100).toFixed(1) : '0';
+    summaryDiv.appendChild(makeSummaryCard(`${seg} attempts`, `${meta.count} (avg ${avg}, ${pct}%)`));
+  }
+
+  const tbody = document.getElementById('admin-tbody');
+  tbody.innerHTML = '';
+  results.slice().reverse().forEach((r, idx) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${results.length - idx}</td>
+      <td>${escapeHtml(r.name||'')}</td>
+      <td>${escapeHtml(r.email||'')}</td>
+      <td>${escapeHtml(r.segment||'')}</td>
+      <td>${escapeHtml(String(r.score||''))}</td>
+      <td>${escapeHtml(String(r.total||''))}</td>
+      <td>${escapeHtml(r.grade||'')}</td>
+      <td>${escapeHtml(r.certId||'')}</td>
+      <td>${escapeHtml(r.ts||'')}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+function makeSummaryCard(title, value){
+  const d = document.createElement('div');
+  d.style.minWidth = '200px';
+  d.style.padding = '10px';
+  d.style.border = '1px solid #eee';
+  d.style.borderRadius = '8px';
+  d.style.background = '#fafafa';
+  d.innerHTML = `<div style="font-size:13px;color:#666">${title}</div><div style="font-weight:700;font-size:18px;margin-top:6px">${value}</div>`;
+  return d;
+}
+
+document.getElementById('exportCSV').addEventListener('click', ()=>{
+  const results = getResults();
+  if(!results.length) return alert('No data');
+  const headers = ['name','email','segment','score','total','grade','certId','timestamp'];
+  const rows = results.map(r => [r.name||'', r.email||'', r.segment||'', r.score||'', r.total||'', r.grade||'', r.certId||'', r.ts||'']);
+  const csv = [headers.join(',')].concat(rows.map(row => row.map(cell => {
+    if(cell === null || cell === undefined) return '';
+    const s = String(cell).replaceAll('"','""');
+    return (s.includes(',')||s.includes('"')||s.includes('\n')) ? `"${s}"` : s;
+  }).join(','))).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `niti_results_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('clearData').addEventListener('click', ()=>{
+  if(!confirm('Clear ALL results stored in this browser?')) return;
+  localStorage.removeItem('niti_results');
+  renderAdmin();
+  alert('Cleared.');
+});
+
+/* ====== Escape (for admin) ====== */
+function escapeHtml(s){ return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;'); }
+
+/* ====== Expose functions used by inline handlers ====== */
 window.showLogin = showLogin;
 window.backToLanding = backToLanding;
-window.submitUser = submitUser;
+window.continueToSubject = continueToSubject;
+window.startIfReady = startIfReady;
+window.nextQ = nextQ;
+window.prevQ = prevQ;
 window.finishTest = finishTest;
-window.nextQuestion = nextQuestion;
-window.prevQuestion = prevQuestion;
-window.downloadCertificatePDF = downloadCertificatePDF;
-window.beginIfReady = function(segment){ if(!userName || !userEmail){ hide('landing-card'); show('login-card'); alert('Please enter name & email first.'); return; } beginIfReady(segment); };
+window.downloadCertificate = downloadCertificate;
 
-/* Correct small bug: ensure submitUser defined properly in this scope */
-document.addEventListener('DOMContentLoaded', ()=>{
-  // hook submit button again (safe)
-  document.querySelectorAll('#subject-card .btn').forEach(b => {
-    b.addEventListener('click', (e) => {
-      const seg = e.target.textContent.trim();
-      // map to segment keys (exact)
-      let segKey = seg;
-      if(seg === 'Excel') segKey = 'Excel';
-      else if(seg === 'Advanced Excel') segKey = 'Advanced Excel';
-      else if(seg === 'SQL') segKey = 'SQL';
-      else if(seg === 'Power BI') segKey = 'Power BI';
-      else if(seg === 'Python') segKey = 'Python';
-      if(!userName || !userEmail){ alert('Please enter name & email first.'); hide('landing-card'); show('login-card'); return; }
-      beginIfReady(segKey);
-    });
-  });
-
-  // wire login continue (since function was re-defined above)
-  const cont = document.querySelector('#login-card .btn');
-  if(cont) cont.addEventListener('click', ()=>{ submitUser(); });
-});
+/* ====== console hint ====== */
+console.info('NITI Assessment ready — open Admin (bottom-right) to view results.');
 </script>
 </body>
 </html>
