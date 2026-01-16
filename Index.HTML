@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Web Group Chat</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f0f0f0;
+    }
+    input {
+      padding: 10px;
+      margin: 5px;
+    }
+    button {
+      padding: 10px 15px;
+      margin: 5px;
+      cursor: pointer;
+    }
+    #messages {
+      border: 1px solid #ccc;
+      height: 300px;
+      width: 90%;
+      margin: 10px auto;
+      overflow-y: scroll;
+      background-color: #fff;
+      text-align: left;
+      padding: 5px;
+    }
+  </style>
+
+  <!-- Firebase Libraries -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+</head>
+<body>
+
+<h2>Phone Login Group Chat</h2>
+
+<div id="loginDiv">
+  <input type="text" id="phoneNumber" placeholder="+91xxxxxxxxxx">
+  <div id="recaptcha-container"></div>
+  <button onclick="sendOTP()">Send OTP</button>
+</div>
+
+<div id="otpDiv" style="display:none;">
+  <input type="text" id="otp" placeholder="Enter OTP">
+  <button onclick="verifyOTP()">Verify OTP</button>
+</div>
+
+<div id="chatDiv" style="display:none;">
+  <h3>Group Chat</h3>
+  <div id="messages"></div>
+  <input type="text" id="messageInput" placeholder="Type message...">
+  <button onclick="sendMessage()">Send</button>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<script>
+  // 🔑 Replace with your Firebase project config
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    databaseURL: "YOUR_DB_URL",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MSG_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+
+  const auth = firebase.auth();
+  const database = firebase.database();
+  let confirmationResult;
+
+  window.onload = function() {
+    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+      'size': 'invisible',
+      'callback': (response) => {}
+    });
+  };
+
+  // Send OTP
+  function sendOTP() {
+    const phoneNumber = document.getElementById('phoneNumber').value;
+    auth.signInWithPhoneNumber(phoneNumber, window.recaptchaVerifier)
+      .then((result) => {
+        confirmationResult = result;
+        document.getElementById('loginDiv').style.display = 'none';
+        document.getElementById('otpDiv').style.display = 'block';
+      })
+      .catch((error) => alert(error.message));
+  }
+
+  // Verify OTP
+  function verifyOTP() {
+    const code = document.getElementById('otp').value;
+    confirmationResult.confirm(code).then((result) => {
+      document.getElementById('otpDiv').style.display = 'none';
+      document.getElementById('chatDiv').style.display = 'block';
+      loadMessages();
+    }).catch((error) => alert(error.message));
+  }
+
+  // Load messages
+  function loadMessages() {
+    database.ref('groupchat').on('value', (snapshot) => {
+      const messagesDiv = document.getElementById('messages');
+      messagesDiv.innerHTML = '';
+      snapshot.forEach((child) => {
+        const msg = child.val();
+        const p = document.createElement('p');
+        p.textContent = msg.phone + ': ' + msg.text;
+        messagesDiv.appendChild(p);
+      });
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    });
+  }
+
+  // Send message
+  function sendMessage() {
+    const msg = document.getElementById('messageInput').value;
+    const user = auth.currentUser;
+    if (msg.trim() !== '') {
+      database.ref('groupchat').push({
+        phone: user.phoneNumber,
+        text: msg,
+        timestamp: Date.now()
+      });
+      document.getElementById('messageInput').value = '';
+    }
+  }
+
+  // Logout
+  function logout() {
+    auth.signOut().then(() => location.reload());
+  }
+</script>
+
+</body>
+</html>
