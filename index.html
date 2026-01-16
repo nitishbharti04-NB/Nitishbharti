@@ -1,218 +1,228 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<title>Skill Test Portal — Demo (NITI CERT)</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>NITI Skill Test Portal</title>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Pinyon+Script&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+
+<!-- jsPDF & html2canvas -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <style>
-  body { margin:0; font-family:Segoe UI, system-ui, -apple-system, "Segoe UI Emoji"; background:linear-gradient(135deg,#0f2027,#203a43,#2c5364); color:white;}
-  .container {max-width:980px;margin:auto;padding:24px;}
-  .card {background:white;color:#333;padding:24px;border-radius:14px;margin-top:18px;box-shadow:0 12px 26px rgba(0,0,0,.35);}
-  button {background:linear-gradient(135deg,#ff512f,#dd2476); color:white; border:none; padding:10px 18px; border-radius:20px; cursor:pointer; margin:6px; font-size:15px;}
-  button:hover {transform:translateY(-2px);box-shadow:0 8px 18px rgba(0,0,0,.2);}
-  input[type="text"], input[type="email"] {padding:10px;border-radius:8px;border:1px solid #ccc; width: 340px;}
-  label.option { cursor: pointer; display:block; margin:8px 0; color:#222; }
-  #timer {font-weight:bold;color:#ffcc00;margin-top:10px;}
-  .muted { color: #666; font-size:13px; }
-  .center { text-align:center; }
-  .logo { height:48px; vertical-align:middle; margin-right:14px; }
-  .tiny { font-size:12px; color:#666; }
-  .header-row { display:flex; align-items:center; gap:12px; }
-  .brand-name { font-size:22px; margin:0; }
+  /* App layout */
+  body { margin:0; font-family:Montserrat, system-ui, -apple-system; background:linear-gradient(135deg,#0f2027,#203a43,#2c5364); color:white; -webkit-font-smoothing:antialiased; }
+  .container { max-width:980px; margin:28px auto; padding:20px; }
+  .card { background:white; color:#222; padding:22px; border-radius:12px; margin-top:18px; box-shadow:0 12px 26px rgba(0,0,0,0.35); }
+  button { background:linear-gradient(135deg,#ff512f,#dd2476); color:white; border:none; padding:10px 18px; border-radius:20px; cursor:pointer; margin:6px; font-size:15px;}
+  button:hover{ transform:translateY(-2px); }
+  input[type="text"], input[type="email"]{ padding:10px; border-radius:8px; border:1px solid #ccc; width:340px; }
+  label.option{ cursor:pointer; display:block; margin:8px 0; color:#222; }
+  #timer{ font-weight:bold; color:#ffcc00; margin-top:10px; }
+  .muted{ color:#666; font-size:13px; }
+  .center{ text-align:center; }
+  .logo{ height:44px; vertical-align:middle; margin-right:12px; }
+  .tiny{ font-size:12px; color:#666; }
+
+  /* Certificate styles (will be captured into PDF) */
+  .cert-wrap { width: 100%; display:flex; justify-content:center; padding:18px 0; }
+  .certificate {
+    width: 1000px; /* designed larger for better PDF resolution */
+    height: 612px; /* Letter landscape ratio */
+    padding: 32px;
+    box-sizing: border-box;
+    position: relative;
+    color: white;
+    overflow: hidden;
+    border: 12px solid #003366;
+  }
+  .cert-bg-left { position:absolute; left:0; top:0; bottom:0; width:60%; background: linear-gradient(135deg,#167ac4,#12c2e9); z-index:1; }
+  .cert-bg-right { position:absolute; right:0; top:0; bottom:0; width:40%; background: linear-gradient(135deg,#c471ed,#f64f59); z-index:1; opacity:0.95; }
+  .cert-inner {
+    position:relative; z-index:3; height:100%; padding:36px; display:flex; flex-direction:column; justify-content:space-between;
+    background: linear-gradient(rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+  }
+  .cert-title { font-family:Cinzel, serif; font-size:44px; letter-spacing:2px; color:#fff; border-bottom:2px solid rgba(255,255,255,0.12); display:inline-block; padding-bottom:6px; }
+  .cert-sub { margin-top:14px; font-size:16px; text-transform:uppercase; color:rgba(255,255,255,0.9); }
+  .cert-name { font-family:'Pinyon Script', cursive; font-size:56px; margin:10px 0; color:#fff; }
+  .cert-course { font-size:20px; margin-top:6px; color:#fff; font-weight:600; }
+  .cert-stats { margin-top:12px; color:#fff; font-size:16px; }
+  .cert-foot { font-size:12px; color:rgba(255,255,255,0.9); margin-top:8px; }
+  .cert-id { margin-top:8px; font-weight:700; color:#fff; background:rgba(0,0,0,0.08); display:inline-block; padding:6px 10px; border-radius:6px; }
+
+  .cert-bottom { display:flex; justify-content:space-between; align-items:flex-end; margin-top:12px; }
+  .seal {
+    width:120px; height:120px; border-radius:60px; background: radial-gradient(circle,#f9d976,#f39c12); display:flex; align-items:center; justify-content:center; color:#7d5a00; font-weight:700; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.2); border:3px dashed rgba(125,90,0,0.75);
+  }
+  .signature { text-align:center; color:#fff; }
+  .signature .sig-name { font-family:'Pinyon Script', cursive; font-size:22px; margin-bottom:-6px; }
+  .signature .sig-line { border-top:1px solid rgba(255,255,255,0.45); padding-top:6px; font-weight:700; }
+
+  /* Controls for certificate export (top-left) */
+  .controls { position: fixed; top: 18px; left: 18px; display:flex; gap:10px; z-index:9999; }
+  .btn { padding:10px 14px; border-radius:8px; border:none; cursor:pointer; color:white; font-weight:600; box-shadow:0 10px 26px rgba(0,0,0,0.25); }
+  .btn.primary { background:linear-gradient(135deg,#0077cc,#00aaff); }
+  .btn.secondary{ background:linear-gradient(135deg,#ff6b6b,#ff3d7f); }
+
+  @media print {
+    .controls { display:none; }
+  }
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="header-row">
-    <img id="orgLogo" class="logo" src="" alt="" style="display:none;">
-    <h1 id="orgName" class="brand-name">🎯 Skill Assessment Portal</h1>
+  <div class="controls" id="globalControls" style="display:none">
+    <button id="downloadBtnTop" class="btn primary">Download Certificate (PDF)</button>
+    <button id="printBtnTop" class="btn secondary" onclick="window.print()">Print</button>
   </div>
 
-  <div id="login" class="card" aria-live="polite">
-    <h2>Enter Your Details</h2>
-    <label for="username" class="muted">Full Name</label><br>
-    <input id="username" type="text" placeholder="Your Name" autocomplete="name"><br><br>
-    <label for="email" class="muted">Email</label><br>
-    <input id="email" type="email" placeholder="your@email.com" autocomplete="email"><br><br>
-    <button type="button" onclick="login()">Next</button>
-    <p class="tiny">This demo stores sessions locally in your browser (localStorage). No server required.</p>
-  </div>
-
-  <div id="stream" class="card" style="display:none">
-    <h2>Select Your Stream/Skill (15 questions)</h2>
-    <div>
-      <button type="button" onclick="startTest('Excel')">Excel</button>
-      <button type="button" onclick="startTest('Advanced Excel')">Advanced Excel</button>
-      <button type="button" onclick="startTest('SQL')">SQL</button>
-      <button type="button" onclick="startTest('Power BI')">Power BI</button>
-      <button type="button" onclick="startTest('Python')">Python</button>
+  <div class="container">
+    <div style="display:flex;align-items:center;">
+      <img id="orgLogo" class="logo" src="" alt="" style="display:none;">
+      <h1 id="orgName">🎯 NITI Skill Assessment Portal</h1>
     </div>
-    <p class="muted">Each test picks 15 random questions from a large pool. Retakes try to avoid repeating the same 15 questions.</p>
-  </div>
 
-  <div id="timer" class="tiny"></div>
-  <div id="quiz" class="card" style="display:none"></div>
-  <div id="result" class="card" style="display:none"></div>
-</div>
+    <!-- LOGIN -->
+    <div id="login" class="card" aria-live="polite">
+      <h2>Enter Your Details</h2>
+      <label for="username" class="muted">Full Name</label><br>
+      <input id="username" type="text" placeholder="Your Name" autocomplete="name"><br><br>
+      <label for="email" class="muted">Email</label><br>
+      <input id="email" type="email" placeholder="your@email.com" autocomplete="email"><br><br>
+      <button type="button" onclick="login()">Next</button>
+      <p class="tiny">This demo runs locally (localStorage). To use a real backend set GAS_WEB_APP_URL in the code.</p>
+    </div>
+
+    <!-- STREAM SELECT -->
+    <div id="stream" class="card" style="display:none">
+      <h2>Select Your Stream/Skill (15 questions)</h2>
+      <div>
+        <button type="button" onclick="startTest('Excel')">Excel</button>
+        <button type="button" onclick="startTest('Advanced Excel')">Advanced Excel</button>
+        <button type="button" onclick="startTest('SQL')">SQL</button>
+        <button type="button" onclick="startTest('Power BI')">Power BI</button>
+        <button type="button" onclick="startTest('Python')">Python</button>
+      </div>
+      <p class="muted">Each attempt picks 15 random questions from a large pool (configurable). Retakes try to avoid repeating the same 15 questions for the same email + segment.</p>
+    </div>
+
+    <div id="timer" class="tiny"></div>
+    <div id="quiz" class="card" style="display:none"></div>
+    <div id="result" class="card" style="display:none"></div>
+  </div>
 
 <script>
 /* ===========================
-   CONFIG
-   If you deploy Apps Script and want real backend, set that URL here.
+   CONFIG — demo/local mode. Set GAS_WEB_APP_URL to use server.
    =========================== */
-const GAS_WEB_APP_URL = ""; // empty => demo/mock mode
-
-/* Demo pool size per segment (set between 100..200 as you asked) */
-const POOL_SIZE_PER_SEGMENT = 120; // you can change this to 100-200
+const GAS_WEB_APP_URL = ""; // empty => demo local
+const POOL_SIZE_PER_SEGMENT = 120; // 100-200 recommended
+const QUESTIONS_PER_TEST = 15;
+const AUTOSAVE_INTERVAL_MS = 15000;
 
 /* Branding */
-let ORG_NAME = "Skill Test Portal";
+let ORG_NAME = "NITI Skill Portal";
 let ORG_LOGO = "";
 let THEME_COLOR = "#ff7043";
 
-/* ===== Globals ===== */
+/* State */
 let user = "", email = "", skill = "", sessionId = null, startTime = null;
 let test = [], answers = [], index = 0, score = 0, timer = null, timeLeft = 900;
 let proctor = { tabSwitchCount:0, fullscreenExitCount:0, devtoolsDetected:0, idleTimeSecs:0, lastActivityTs: Date.now(), idleStart: null };
 let autoSaveIntervalId = null;
-const QUESTIONS_PER_TEST = 15;
-const AUTOSAVE_INTERVAL_MS = 15000; // 15s
 
-/* ===== Utility ===== */
-function randInt(max){ return Math.floor(Math.random()*max); }
-function shuffle(arr){
-  const a = arr.slice();
-  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
-  return a;
-}
-function sample(arr, k){
-  if(k >= arr.length) return arr.slice();
-  const out = [], used = new Set();
-  while(out.length < k){
-    const i = Math.floor(Math.random()*arr.length);
-    if(!used.has(i)){ used.add(i); out.push(arr[i]); }
-  }
-  return out;
-}
-function escapeHtml(str){ return String(str||"").replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;'); }
+/* Utilities */
 function nowISO(){ return new Date().toISOString(); }
-function computeLevel(score, total){ const pct = (score/total)*100; if(pct >= 80) return "Advanced"; if(pct >= 50) return "Intermediate"; return "Beginner"; }
-function genId(prefix='NITI-CERT'){ return prefix + '-' + Math.random().toString(36).substring(2,10).toUpperCase(); }
+function escapeHtml(s){ return String(s||"").replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;'); }
+function shuffle(arr){ const a = arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function sample(arr,k){ if(k>=arr.length) return arr.slice(); const out=[], used=new Set(); while(out.length<k){ const i=Math.floor(Math.random()*arr.length); if(!used.has(i)){ used.add(i); out.push(arr[i]); } } return out; }
+function computeLevel(score, total){ const pct=(score/total)*100; if(pct>=80) return "Advanced"; if(pct>=50) return "Intermediate"; return "Beginner"; }
+function genCertId(){ return 'NITI-' + Math.random().toString(36).substring(2,10).toUpperCase(); }
 
-/* ===== Anti-cheat & proctoring hooks ===== */
-document.addEventListener('visibilitychange', ()=>{
-  if(document.hidden){ proctor.tabSwitchCount++; sendProctorEvent('tab_switch'); }
-  else sendProctorEvent('tab_resume');
-});
-document.addEventListener('fullscreenchange', ()=>{
-  if(!document.fullscreenElement){ proctor.fullscreenExitCount++; sendProctorEvent('fullscreen_exit'); }
-  else sendProctorEvent('fullscreen_enter');
-});
-(function devtoolsDetector(){ let threshold = 160; setInterval(()=>{ try{ if(window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold){ proctor.devtoolsDetected++; sendProctorEvent('devtools_suspected'); } }catch(e){} }, 2000); })();
-['mousemove','keydown','scroll','touchstart'].forEach(ev=>document.addEventListener(ev, ()=>{ proctor.lastActivityTs = Date.now(); if(proctor.idleStart){ proctor.idleTimeSecs += Math.round((Date.now()-proctor.idleStart)/1000); proctor.idleStart = null; sendProctorEvent('resume_from_idle'); } }));
-setInterval(()=>{ const idleLimitMs = 30000; if(Date.now() - proctor.lastActivityTs > idleLimitMs && !proctor.idleStart){ proctor.idleStart = Date.now(); sendProctorEvent('idle_start'); } }, 2000);
-function sendProctorEvent(type){ if(!sessionId) return; const payload = { action:'proctor_log', sessionId, eventType:type, timestamp:nowISO(), proctorSummary:proctor, ua:navigator.userAgent, screen:{width:screen.width,height:screen.height} }; if(GAS_WEB_APP_URL){ fetch(GAS_WEB_APP_URL, { method:'POST', headers:{'Content-Type':'application/json'}, mode:'cors', body:JSON.stringify(payload) }).catch(()=>{}); } else { const key = `demo_proctor_${sessionId||'no_session'}`; const arr = JSON.parse(localStorage.getItem(key) || "[]"); arr.push(payload); localStorage.setItem(key, JSON.stringify(arr)); } }
+/* Proctor hooks */
+document.addEventListener('visibilitychange', ()=>{ if(document.hidden){ proctor.tabSwitchCount++; sendProctorEvent('tab_switch'); } else sendProctorEvent('tab_resume'); });
+document.addEventListener('fullscreenchange', ()=>{ if(!document.fullscreenElement){ proctor.fullscreenExitCount++; sendProctorEvent('fullscreen_exit'); } else sendProctorEvent('fullscreen_enter'); });
+(function devtoolsDetector(){ let threshold=160; setInterval(()=>{ try{ if(window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold){ proctor.devtoolsDetected++; sendProctorEvent('devtools_suspected'); } }catch(e){} },2000); })();
+['mousemove','keydown','scroll','touchstart'].forEach(ev=>document.addEventListener(ev, ()=>{ proctor.lastActivityTs=Date.now(); if(proctor.idleStart){ proctor.idleTimeSecs += Math.round((Date.now()-proctor.idleStart)/1000); proctor.idleStart=null; sendProctorEvent('resume_from_idle'); } }));
+setInterval(()=>{ const idleLimitMs = 30000; if(Date.now() - proctor.lastActivityTs > idleLimitMs && !proctor.idleStart){ proctor.idleStart = Date.now(); sendProctorEvent('idle_start'); } },2000);
+function sendProctorEvent(type){ if(!sessionId) return; const payload = { action:'proctor_log', sessionId, eventType:type, timestamp: nowISO(), proctorSummary: proctor, ua: navigator.userAgent, screen: { width: screen.width, height: screen.height } }; if(GAS_WEB_APP_URL){ fetch(GAS_WEB_APP_URL, { method:'POST', headers:{'Content-Type':'application/json'}, mode:'cors', body: JSON.stringify(payload) }).catch(()=>{}); } else { const key = `demo_proctor_${sessionId||'no_session'}`; const arr = JSON.parse(localStorage.getItem(key) || "[]"); arr.push(payload); localStorage.setItem(key, JSON.stringify(arr)); } }
 
-/* ===== Login & Resume detection ===== */
+/* ===== Login & Resume ===== */
 function login(){
-  user = document.getElementById("username").value.trim();
-  email = document.getElementById("email").value.trim();
-  if(!user){ alert("Please enter your name."); return; }
-  if(!email){ alert("Please enter your email."); return; }
+  user = document.getElementById('username').value.trim();
+  email = document.getElementById('email').value.trim();
+  if(!user){ alert('Please enter your name.'); return; }
+  if(!email){ alert('Please enter your email.'); return; }
 
   const saved = JSON.parse(localStorage.getItem('skill_test_session') || "null");
   if(saved && saved.sessionId){
-    if(confirm("A previous session was found in this browser. Resume?")){
-      sessionId = saved.sessionId;
-      loadAndResume(sessionId);
-      return;
-    } else {
-      localStorage.removeItem('skill_test_session');
-    }
+    if(confirm('A previous session was found in this browser. Resume?')){ sessionId = saved.sessionId; loadAndResume(sessionId); return; } else { localStorage.removeItem('skill_test_session'); }
   }
-  document.getElementById("login").style.display = "none";
-  document.getElementById("stream").style.display = "block";
+  document.getElementById('login').style.display='none';
+  document.getElementById('stream').style.display='block';
 }
 
-/* ===== Server comms helper (demo if GAS_WEB_APP_URL empty) ===== */
+/* ===== Server comms helper (mock when GAS_WEB_APP_URL empty) ===== */
 async function callServer(payload){
   if(!GAS_WEB_APP_URL) return mockServer(payload);
   const res = await fetch(GAS_WEB_APP_URL, { method:'POST', mode:'cors', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
   return res.json();
 }
 
-/* ===== Test start - requests 15 questions ===== */
+/* ===== Start Test ===== */
 async function startTest(s){
   skill = s;
-  document.getElementById("stream").style.display = "none";
-  document.getElementById("quiz").style.display = "block";
-
-  const payload = { action: 'create_session', name: user, email: email, skill: skill, requestedQuestions: QUESTIONS_PER_TEST, clientInfo:{ ua:navigator.userAgent, screen:{width:screen.width,height:screen.height} } };
+  document.getElementById('stream').style.display='none';
+  document.getElementById('quiz').style.display='block';
+  const payload = { action:'create_session', name:user, email:email, skill:skill, requestedQuestions: QUESTIONS_PER_TEST, clientInfo: { ua: navigator.userAgent, screen: { width: screen.width, height: screen.height } } };
   try{
     const res = await callServer(payload);
-    if(!res || !res.success){ alert("Unable to start test: " + (res && res.message ? res.message : "server error")); document.getElementById("quiz").style.display = "none"; document.getElementById("stream").style.display = "block"; return; }
-    sessionId = res.sessionId;
-    test = res.questions;
-    answers = new Array(test.length);
-    index = 0;
-    startTime = res.startTime;
-    if(res.branding){ ORG_NAME = res.branding.name || ORG_NAME; ORG_LOGO = res.branding.logo || ""; THEME_COLOR = res.branding.color || THEME_COLOR; applyBranding(); }
+    if(!res || !res.success){ alert('Unable to start test: ' + (res && res.message ? res.message : 'server error')); document.getElementById('quiz').style.display='none'; document.getElementById('stream').style.display='block'; return; }
+    sessionId = res.sessionId; test = res.questions; answers = new Array(test.length); index = 0; startTime = res.startTime;
+    if(res.branding){ ORG_NAME = res.branding.name || ORG_NAME; ORG_LOGO = res.branding.logo || ORG_LOGO; THEME_COLOR = res.branding.color || THEME_COLOR; applyBranding(); }
     localStorage.setItem('skill_test_session', JSON.stringify({ sessionId, skill, startTime }));
     timeLeft = res.timeLimitSecs || 900;
-    startTimer();
-    showQ();
+    startTimer(); showQ();
     if(autoSaveIntervalId) clearInterval(autoSaveIntervalId);
     autoSaveIntervalId = setInterval(()=>autosave(), AUTOSAVE_INTERVAL_MS);
-  }catch(err){ console.error(err); alert("Network or server error starting test."); document.getElementById("quiz").style.display = "none"; document.getElementById("stream").style.display = "block"; }
+  }catch(err){ console.error(err); alert('Network or server error starting test.'); document.getElementById('quiz').style.display='none'; document.getElementById('stream').style.display='block'; }
 }
 
-/* ===== Resume restore ===== */
-async function loadAndResume(sessionIdToLoad){
+/* ===== Resume ===== */
+async function loadAndResume(sid){
   try{
-    const res = await callServer({ action:'load_session', sessionId: sessionIdToLoad });
-    if(!res || !res.success){ alert("Could not load session. Starting fresh."); localStorage.removeItem('skill_test_session'); return; }
+    const res = await callServer({ action:'load_session', sessionId: sid });
+    if(!res || !res.success){ alert('Could not load session. Starting fresh.'); localStorage.removeItem('skill_test_session'); return; }
     const data = res.data;
-    if(data.Completed === "TRUE"){ alert("This session has already been submitted. You cannot resume it."); localStorage.removeItem('skill_test_session'); return; }
+    if(data.Completed === "TRUE"){ alert('This session has already been submitted. You cannot resume it.'); localStorage.removeItem('skill_test_session'); return; }
     if(res.SessionData){
       const sd = res.SessionData;
-      test = sd.questions || [];
-      answers = sd.answers || new Array(test.length);
-      index = sd.currentIndex || 0;
-      startTime = sd.startTime || data.StartTime;
-      sessionId = data.SessionID;
-      skill = data.Skill || sd.skill;
-      user = data.Name || user;
-      email = data.Email || email;
-      document.getElementById("login").style.display = "none";
-      document.getElementById("stream").style.display = "none";
-      document.getElementById("quiz").style.display = "block";
-      timeLeft = sd.timeLimitSecs || 900;
-      startTimer();
-      showQ();
-      if(autoSaveIntervalId) clearInterval(autoSaveIntervalId);
-      autoSaveIntervalId = setInterval(()=>autosave(), AUTOSAVE_INTERVAL_MS);
+      test = sd.questions || []; answers = sd.answers || new Array(test.length); index = sd.currentIndex || 0; startTime = sd.startTime || data.StartTime; sessionId = data.SessionID; skill = data.Skill || sd.skill; user = data.Name || user; email = data.Email || email;
+      document.getElementById('login').style.display='none'; document.getElementById('stream').style.display='none'; document.getElementById('quiz').style.display='block';
+      timeLeft = sd.timeLimitSecs || 900; startTimer(); showQ();
+      if(autoSaveIntervalId) clearInterval(autoSaveIntervalId); autoSaveIntervalId = setInterval(()=>autosave(), AUTOSAVE_INTERVAL_MS);
     } else {
-      document.getElementById("login").style.display = "none";
-      document.getElementById("stream").style.display = "block";
+      document.getElementById('login').style.display='none'; document.getElementById('stream').style.display='block';
     }
-    document.getElementById('username').value = user;
-    document.getElementById('email').value = email;
-  }catch(err){ console.error(err); alert("Failed to resume session."); }
+    document.getElementById('username').value = user; document.getElementById('email').value = email;
+  }catch(err){ console.error(err); alert('Failed to resume session.'); }
 }
 
 /* ===== Timer ===== */
-function startTimer(){ const timerDiv = document.getElementById("timer"); timerDiv.style.display = "block"; clearInterval(timer); timer = setInterval(()=>{ if(timeLeft <= 0){ clearInterval(timer); submit(); return; } timeLeft--; const m=Math.floor(timeLeft/60), s=timeLeft%60; timerDiv.textContent = `⏱ Time Left: ${m}:${s<10?"0"+s:s}`; }, 1000); }
+function startTimer(){ const timerDiv = document.getElementById('timer'); timerDiv.style.display='block'; clearInterval(timer); timer = setInterval(()=>{ if(timeLeft <= 0){ clearInterval(timer); submit(); return; } timeLeft--; const m = Math.floor(timeLeft/60), s = timeLeft%60; timerDiv.textContent = `⏱ Time Left: ${m}:${s<10?"0"+s:s}`; },1000); }
 
-/* ===== Show question UI ===== */
+/* ===== Show Question UI ===== */
 function showQ(){
   const q = test[index];
-  const quiz = document.getElementById("quiz");
+  const quiz = document.getElementById('quiz');
   const total = test.length;
   const optsHtml = (q.options || []).map((o,i)=> {
     const id = `opt-${index}-${i}`;
     const checked = answers[index] === i ? "checked" : "";
     return `<label class="option"><input id="${id}" type="radio" name="opt" value="${i}" ${checked}> ${String.fromCharCode(65+i)}. ${escapeHtml(o)}</label>`;
-  }).join("");
+  }).join('');
   quiz.innerHTML = `
     <div>
       <h3 style="color:${THEME_COLOR}">Question ${index+1}/${total} <small class="muted">(${q.difficulty || 'medium'})</small></h3>
@@ -230,15 +240,14 @@ function showQ(){
   if(firstOpt) firstOpt.focus();
 }
 
-/* ===== Answers & navigation ===== */
+/* ===== Answer Save & Navigation ===== */
 function saveAnswer(){ const sel = document.querySelector('input[name="opt"]:checked'); if(sel) answers[index] = Number(sel.value); }
-function nextQ(){ saveAnswer(); if(answers[index]===undefined){ if(!confirm("You haven't selected an answer for this question. Move to next?")) return; } adaptiveAdjust(); if(index < test.length-1){ index++; showQ(); } }
+function nextQ(){ saveAnswer(); if(answers[index]===undefined){ if(!confirm("You haven't selected an answer for this question. Move to next?")) return; } if(index < test.length-1){ index++; showQ(); } }
 function prevQ(){ saveAnswer(); if(index>0){ index--; showQ(); } }
 function countUnanswered(){ let c=0; for(let i=0;i<test.length;i++) if(answers[i]===undefined) c++; return c; }
-function adaptiveAdjust(){ /* Placeholder for later - server-side adaptive is recommended */ }
 
 /* ===== Autosave ===== */
-async function autosave(){ saveAnswer(); if(!sessionId) return; const payload = { action:'autosave', sessionId, answers, currentIndex: index, proctorSummary: proctor, clientInfo:{ ua:navigator.userAgent, screen:{width:screen.width,height:screen.height} }, lastSavedAt: nowISO() }; try{ await callServer(payload); }catch(err){ console.warn("Autosave failed", err); } }
+async function autosave(){ saveAnswer(); if(!sessionId) return; const payload = { action:'autosave', sessionId, answers, currentIndex: index, proctorSummary: proctor, clientInfo: { ua: navigator.userAgent, screen: { width: screen.width, height: screen.height } }, lastSavedAt: nowISO() }; try{ await callServer(payload); }catch(err){ console.warn('Autosave failed', err); } }
 
 /* ===== Submit ===== */
 async function submit(){
@@ -246,92 +255,139 @@ async function submit(){
   saveAnswer();
   const unanswered = countUnanswered();
   if(unanswered > 0){ if(!confirm(`There are ${unanswered} unanswered question(s). Submit anyway?`)){ startTimer(); return; } }
-  const payload = { action: 'submit', sessionId, clientInfo:{ ua:navigator.userAgent }, answers };
+  const payload = { action:'submit', sessionId, clientInfo:{ ua: navigator.userAgent, screen:{ width: screen.width, height: screen.height } }, answers };
   try{
     const res = await callServer(payload);
-    if(!res || !res.success){ alert("Submit failed: " + (res && res.message ? res.message : "server error")); return; }
-    score = res.score;
-    const total = res.totalQuestions || test.length;
-    const level = res.level || computeLevel(score, total);
-    // store result record list
+    if(!res || !res.success){ alert('Submit failed: ' + (res && res.message ? res.message : 'server error')); return; }
+    score = res.score; const total = res.totalQuestions || test.length; const level = res.level || computeLevel(score, total);
+    // save result record
     const results = JSON.parse(localStorage.getItem('demo_results') || "[]");
-    results.push({ name: user, email, timestamp: nowISO(), segment: skill, score, total, grade: level, certificateId: res.certificateId || '' });
+    const rec = { name: user, email, timestamp: nowISO(), segment: skill, score, total, grade: level, certificateId: res.certificateId || '' };
+    results.push(rec);
     localStorage.setItem('demo_results', JSON.stringify(results));
     localStorage.removeItem('skill_test_session');
-    document.getElementById("quiz").style.display = "none";
-    document.getElementById("timer").style.display = "none";
+    document.getElementById('quiz').style.display='none'; document.getElementById('timer').style.display='none';
     if(autoSaveIntervalId) clearInterval(autoSaveIntervalId);
-    showCertificate(user, skill, score, total, level, res.certificateId);
-  }catch(err){ console.error(err); alert("Network error submitting test."); }
+    showCertificate(user, skill, score, total, level, res.certificateId || '');
+  }catch(err){ console.error(err); alert('Network error submitting test.'); }
 }
 
-/* ===== Certificate UI & Download (Landscape Letter) ===== */
+/* ===== Certificate display & export ===== */
 function showCertificate(name, skill, score, total, level, certificateId){
-  const resultDiv = document.getElementById("result");
-  resultDiv.style.display = "block";
-  resultDiv.innerHTML = "";
-  const wrapper = document.createElement("div");
-  wrapper.style.border = `6px solid ${THEME_COLOR}`;
-  wrapper.style.padding = "28px";
-  wrapper.style.textAlign = "center";
-  wrapper.style.background = "linear-gradient(135deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02))";
-  const h1 = document.createElement("h1"); h1.innerHTML = `<span style="background:linear-gradient(90deg,#12c2e9,#c471ed,#f64f59); -webkit-background-clip:text; color:transparent;">🏆 Certificate of Completion</span>`; wrapper.appendChild(h1);
-  const h3a = document.createElement("h3"); h3a.textContent = "This is to certify that"; wrapper.appendChild(h3a);
-  const h2user = document.createElement("h2"); h2user.textContent = name; wrapper.appendChild(h2user);
-  const h3b = document.createElement("h3"); h3b.textContent = "has successfully completed the"; wrapper.appendChild(h3b);
-  const h2skill = document.createElement("h2"); h2skill.innerHTML = `<b style="color:${THEME_COLOR}">${escapeHtml(skill)} Test</b>`; wrapper.appendChild(h2skill);
-  const pScore = document.createElement("p"); pScore.innerHTML = `<b>Score:</b> ${score}/${total}`; wrapper.appendChild(pScore);
-  const pLevel = document.createElement("p"); pLevel.innerHTML = `<b>Grade:</b> ${level}`; wrapper.appendChild(pLevel);
-  const pDate = document.createElement("p"); pDate.textContent = `Date: ${new Date().toDateString()}`; wrapper.appendChild(pDate);
-  const pThanks = document.createElement("p"); pThanks.innerHTML = `Thanks for visiting our page — <a href="https://nitishbharti04-nb.github.io/Nitishbharti/" target="_blank">https://nitishbharti04-nb.github.io/Nitishbharti/</a>`; wrapper.appendChild(pThanks);
-  const idLine = document.createElement("p");
-  if(certificateId) idLine.innerHTML = `<b style="background:linear-gradient(90deg,#12c2e9,#c471ed,#f64f59); -webkit-background-clip:text; color:transparent;">NITI CERT - ${escapeHtml(certificateId)}</b>`;
-  wrapper.appendChild(idLine);
-  const btnDownload = document.createElement("button"); btnDownload.type="button"; btnDownload.textContent="Download PDF (Landscape Letter)"; btnDownload.onclick = () => downloadCertificatePDF(name, skill, score, total, level, certificateId); wrapper.appendChild(btnDownload);
-  const btnRestart = document.createElement("button"); btnRestart.type="button"; btnRestart.textContent="Restart / Take Another Test"; btnRestart.onclick = () => location.reload(); wrapper.appendChild(btnRestart);
-  resultDiv.appendChild(wrapper);
-  btnDownload.focus();
-}
+  const resultDiv = document.getElementById('result');
+  resultDiv.style.display='block';
+  resultDiv.innerHTML = '';
 
-function downloadCertificatePDF(name, skill, score, total, level, certificateId){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'pt', format: 'letter', orientation: 'landscape' });
-  const w = doc.internal.pageSize.getWidth(), h = doc.internal.pageSize.getHeight();
-  // background: colorful PPT-like diagonal shapes
-  doc.setFillColor(22, 122, 196); doc.rect(0,0,w*0.6,h, 'F');
-  doc.setFillColor(234, 76, 137); doc.rect(w*0.58,0,w*0.42,h*0.45, 'F');
-  doc.setFillColor(255, 197, 66); doc.rect(w*0.58,h*0.55,w*0.4,h*0.45, 'F');
-  // translucent overlay shapes
-  doc.setFillColor(255,255,255,0.06); doc.rect(40,40,w-80,h-80,'F');
-  // certificate content
-  doc.setFontSize(40); doc.setTextColor(255,255,255); doc.setFont(undefined,'bold');
-  doc.text("Certificate of Completion", 60, 110);
-  doc.setFontSize(14); doc.setTextColor(255,255,255,0.95); doc.setFont(undefined,'normal');
-  doc.text("This is to certify that", 60, 150);
-  doc.setFontSize(28); doc.setTextColor(255,255,255); doc.setFont(undefined,'bold');
-  doc.text(name, 60, 200);
-  doc.setFontSize(20); doc.setTextColor(245,245,245); doc.setFont(undefined,'normal');
-  doc.text(`${skill} Test`, 60, 235);
-  doc.setFontSize(14); doc.setTextColor(240,240,240);
-  doc.text(`Score: ${score}/${total}   •   Grade: ${level}`, 60, 260);
-  if(certificateId){
-    doc.setFontSize(12); doc.setTextColor(255,255,255);
-    doc.text(`NITI CERT - ${certificateId}`, 60, 285);
+  // wrap certificate HTML (landscape letter design)
+  const certHtml = `
+    <div class="cert-wrap">
+      <div class="certificate" id="certificateCard" style="position:relative;">
+        <div class="cert-bg-left"></div>
+        <div class="cert-bg-right"></div>
+        <div class="cert-inner">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div class="cert-title">Certificate of Completion</div>
+                <div class="cert-sub">This is to certify that</div>
+                <div class="cert-name">${escapeHtml(name)}</div>
+                <div class="cert-course">has successfully completed the <strong>${escapeHtml(skill)} Test</strong></div>
+                <div class="cert-stats"><strong>Score:</strong> ${score}/${total} &nbsp;&nbsp; <strong>Grade:</strong> ${level} &nbsp;&nbsp; <strong>Date:</strong> ${new Date().toDateString()}</div>
+                <div class="cert-foot">Thanks for visiting our page — <a href="https://nitishbharti04-nb.github.io/Nitishbharti/" style="color:rgba(255,255,255,0.95)">${'https://nitishbharti04-nb.github.io/Nitishbharti/'}</a></div>
+                <div style="margin-top:10px;"><span class="cert-id">NITI CERT - ${escapeHtml(certificateId || genCertId())}</span></div>
+              </div>
+              <div style="text-align:center; color:white;">
+                <div style="font-weight:700; font-size:18px; opacity:0.92">NITI</div>
+                <div style="font-size:12px; opacity:0.9">Official Certificate</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cert-bottom">
+            <div class="seal">OFFICIAL<br>GRADUATE</div>
+            <div class="signature">
+              <div class="sig-name">Program Director</div>
+              <div class="sig-line">Signature</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  resultDiv.innerHTML = certHtml + `
+    <div style="margin-top:12px; display:flex; gap:8px;">
+      <button id="downloadCertBtn" class="btn primary">Download Certificate (PDF)</button>
+      <button id="printCertBtn" class="btn secondary" onclick="printCertificate()">Print Certificate</button>
+      <button class="btn" onclick="location.reload()">Restart / Take Another Test</button>
+    </div>
+  `;
+
+  // show top controls for convenience
+  document.getElementById('globalControls').style.display = 'flex';
+  document.getElementById('downloadBtnTop').onclick = () => triggerDownloadPDF();
+  document.getElementById('downloadCertBtn').onclick = () => triggerDownloadPDF();
+
+  // Download functionality uses html2canvas + jsPDF
+  async function triggerDownloadPDF(){
+    const certificateNode = document.getElementById('certificateCard');
+    if(!certificateNode){ alert('Certificate element not found'); return; }
+    const origBtn = document.activeElement;
+    const downloadButtons = document.querySelectorAll('#downloadCertBtn, #downloadBtnTop');
+    downloadButtons.forEach(b=>{ b.disabled = true; b.textContent = 'Preparing PDF...'; });
+
+    try{
+      // use a larger scale for better quality
+      const canvas = await html2canvas(certificateNode, { scale: 2, useCORS:true, backgroundColor: null });
+      const imgData = canvas.toDataURL('image/png');
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'letter' });
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+
+      // compute image fit
+      const imgW = canvas.width;
+      const imgH = canvas.height;
+      const ratio = Math.min(pageW / imgW, pageH / imgH);
+      const renderW = imgW * ratio;
+      const renderH = imgH * ratio;
+      const marginX = (pageW - renderW) / 2;
+      const marginY = (pageH - renderH) / 2;
+
+      doc.addImage(imgData, 'PNG', marginX, marginY, renderW, renderH, undefined, 'FAST');
+
+      const filename = (user || 'certificate').replace(/\s+/g,'_').replace(/[^\w\-\.]/g,'') + '_NITI_CERT.pdf';
+      doc.save(filename);
+    }catch(err){ console.error('PDF generation failed', err); alert('Failed to generate PDF. See console for details.'); }
+    finally{
+      downloadButtons.forEach(b=>{ b.disabled=false; b.textContent = 'Download Certificate (PDF)'; });
+      if(origBtn) origBtn.focus();
+    }
   }
-  // right side signature and date box
-  doc.setDrawColor(255,255,255); doc.setLineWidth(1);
-  const boxW = 300, boxH = 120;
-  doc.setFillColor(255,255,255,0.1); doc.rect(w - boxW - 60, h - boxH - 60, boxW, boxH, 'F');
-  doc.setFontSize(12); doc.setTextColor(255,255,255); doc.text("Authorized By", w - boxW - 40, h - boxH - 30);
-  doc.setFontSize(18); doc.setTextColor(255,255,255); doc.text("NITI CERT Team", w - boxW - 40, h - boxH + 5);
-  doc.setFontSize(10); doc.setTextColor(230,230,230); doc.textWithLink("https://nitishbharti04-nb.github.io/Nitishbharti/", w - boxW - 40, h - boxH + 30, { url: "https://nitishbharti04-nb.github.io/Nitishbharti/" });
-  // footer small text
-  doc.setFontSize(10); doc.setTextColor(255,255,255,0.8);
-  doc.text(`Issued: ${new Date().toDateString()}`, 60, h - 40);
-  doc.save(`${(name||'certificate').replace(/\s+/g,'_')}_NITI_CERT.pdf`);
+
+  // Expose print helper
+  window.printCertificate = function(){
+    // open a new window with the certificate HTML only to print cleanly
+    const certEl = document.getElementById('certificateCard');
+    if(!certEl) return alert('Certificate not found');
+    const w = window.open('', '_blank', 'noopener');
+    const styles = `
+      <style>
+        @page { size: letter landscape; margin: 0; }
+        body { margin:0; display:flex; align-items:center; justify-content:center; height:100vh; background:#fff; }
+        .certificate { width:1000px; height:612px; border:12px solid #003366; box-sizing:border-box; }
+      </style>
+    `;
+    w.document.write('<!doctype html><html><head><title>Print Certificate</title>' + styles + '</head><body>' + certEl.outerHTML + '</body></html>');
+    w.document.close();
+    w.focus();
+    // slight delay for resources
+    setTimeout(()=>{ w.print(); }, 600);
+  };
 }
 
-/* ===== Demo/mock server implementation (localStorage) ===== */
+/* ===== Mock server & pool generation (localStorage) ===== */
 function ensurePool(segment){
   const key = `demo_pool_${segment}`;
   const raw = localStorage.getItem(key);
@@ -340,53 +396,49 @@ function ensurePool(segment){
   localStorage.setItem(key, JSON.stringify(pool));
   return pool;
 }
-
 function generatePool(segment, size){
-  // Programmatically generate 'size' questions for the segment.
-  // We'll include some real-seeming phrasing for each skill and randomized options.
-  const q = [];
   const templates = {
     "Excel": [
-      "Which function in Excel returns the current date?",
-      "Which Excel feature is used to remove duplicate rows?",
-      "Which function would you use to count numbers in a range?",
-      "What does VLOOKUP do in Excel?",
-      "Which keyboard shortcut copies selected cells?"
+      "Which function returns the current date?",
+      "Which feature removes duplicate rows?",
+      "Which function counts numbers in a range?",
+      "What does VLOOKUP primarily do?",
+      "Which shortcut copies selected cells?"
     ],
     "Advanced Excel": [
-      "Which Excel feature allows dynamic arrays in newer versions?",
-      "Which formula returns the nth largest value in a range?",
-      "Which function helps perform conditional aggregation across ranges?",
-      "Which tool is used for scenario analysis?",
-      "What does INDEX-MATCH typically replace?"
+      "Which feature allows dynamic arrays?",
+      "Which formula returns the nth largest value?",
+      "Which function aggregates conditionally?",
+      "Which tool performs scenario analysis?",
+      "What does INDEX-MATCH replace?"
     ],
     "SQL": [
-      "Which clause filters rows in SQL?",
-      "Which SQL statement adds rows to a table?",
-      "Which keyword removes duplicate rows in a SELECT?",
-      "Which JOIN returns all rows from the left table?",
-      "What does GROUP BY do?"
+      "Which clause filters rows?",
+      "Which statement inserts rows?",
+      "Which keyword removes duplicates in SELECT?",
+      "Which JOIN returns all left rows?",
+      "What is GROUP BY used for?"
     ],
     "Power BI": [
-      "Which Power BI component handles data transformations?",
-      "Which language is used for measures in Power BI?",
-      "Which visual is best for time trends in Power BI?",
+      "Which component handles data transformations?",
+      "Which language is used for measures?",
+      "Which visual is best for time trends?",
       "What does Power Query do?",
       "Which file extension stores a Power BI project?"
     ],
     "Python": [
-      "Which keyword defines a function in Python?",
-      "Which statement is used to iterate over a sequence?",
+      "Which keyword defines a function?",
+      "Which statement iterates over a sequence?",
       "Which data type is immutable: list or tuple?",
-      "How do you write a comment in Python?",
-      "What does 'len()' return?"
+      "How do you write a comment?",
+      "What does len() return?"
     ]
   };
   const base = templates[segment] || ["Sample question for " + segment];
+  const q = [];
   for(let i=0;i<size;i++){
     const t = base[i % base.length];
     const qtext = `${segment} — Q${i+1}: ${t} (variant ${Math.floor(i/base.length)+1})`;
-    // simple option generation with one correct chosen deterministically
     const correct = i % 4;
     const opts = [
       `Option A for ${i+1}`,
@@ -394,24 +446,21 @@ function generatePool(segment, size){
       `Option C for ${i+1}`,
       `Option D for ${i+1}`
     ];
-    // occasionally replace one option with a realistic short answer
     if(i % base.length === 0) opts[correct] = (t.split(" ")[0] || "Answer") + " (correct)";
     q.push({ id: `${segment}-${i+1}`, q: qtext, options: opts, difficulty: (i%3===0?'easy':(i%3===1?'medium':'hard')), _answerIndex: correct });
   }
   return q;
 }
 
-/* create_session: pick QUESTIONS_PER_TEST out of large pool, try to avoid overlap with last sample for same user+segment */
 function pickQuestionsNoRepeat(pool, prevIds, k){
   const maxAttempts = 30;
   for(let attempt=0; attempt<maxAttempts; attempt++){
-    const sampleSet = sample(pool, k);
-    const ids = sampleSet.map(s=>s.id);
-    const overlap = ids.filter(id=> prevIds && prevIds.includes(id)).length;
-    if(!prevIds || overlap === 0) return sampleSet;
+    const s = sample(pool, k);
+    const ids = s.map(x=>x.id);
+    const overlap = prevIds ? ids.filter(id=>prevIds.includes(id)).length : 0;
+    if(!prevIds || overlap === 0) return s;
   }
-  // fallback: return any sample
-  return sample(pool, k);
+  return sample(pool,k);
 }
 
 function mockServer(payload){
@@ -421,55 +470,37 @@ function mockServer(payload){
     const skill = payload.skill || 'General';
     const requested = payload.requestedQuestions || QUESTIONS_PER_TEST;
     const pool = ensurePool(skill);
-    // find previous sample for this email+skill
     const lastSamplesKey = `demo_lastsample_${(payload.email||'').toLowerCase()}_${skill}`;
     const prev = JSON.parse(localStorage.getItem(lastSamplesKey) || "null");
     const prevIds = prev ? prev.ids : null;
     const selected = pickQuestionsNoRepeat(pool, prevIds, requested);
-    // store last sample mapping for avoiding repeats next time
     localStorage.setItem(lastSamplesKey, JSON.stringify({ ids: selected.map(s=>s.id), time: nowISO() }));
     const start = nowISO();
-    const sessionObj = {
-      SessionID: sid,
-      Name: payload.name,
-      Email: payload.email,
-      Skill: skill,
-      StartTime: start,
-      Questions: selected,
-      TimeLimitSecs: 900,
-      Completed: "FALSE"
-    };
+    const sessionObj = { SessionID: sid, Name: payload.name, Email: payload.email, Skill: skill, StartTime: start, Questions: selected, TimeLimitSecs: 900, Completed: "FALSE" };
     localStorage.setItem(`demo_session_${sid}`, JSON.stringify(sessionObj));
-    return Promise.resolve({ success: true, sessionId: sid, questions: selected, startTime: start, timeLimitSecs: 900, branding: { name: "NITI Skill Portal", logo: "", color: THEME_COLOR } });
+    return Promise.resolve({ success:true, sessionId: sid, questions: selected, startTime: start, timeLimitSecs:900, branding:{ name: "NITI Skill Portal", logo:"", color: THEME_COLOR } });
   }
 
   if(action === 'load_session'){
     const sid = payload.sessionId;
     const raw = localStorage.getItem(`demo_session_${sid}`);
-    if(!raw) return Promise.resolve({ success: false, message: "Not found" });
+    if(!raw) return Promise.resolve({ success:false, message:'Not found' });
     const sessionObj = JSON.parse(raw);
     const saved = JSON.parse(localStorage.getItem(`demo_saved_${sid}`) || "null");
-    return Promise.resolve({ success: true, data: sessionObj, SessionData: saved, SessionID: sid });
+    return Promise.resolve({ success:true, data: sessionObj, SessionData: saved, SessionID: sid });
   }
 
   if(action === 'autosave'){
     const sid = payload.sessionId;
-    const saved = {
-      answers: payload.answers || [],
-      currentIndex: payload.currentIndex || 0,
-      proctorSummary: payload.proctorSummary || {},
-      startTime: nowISO(),
-      questions: JSON.parse(localStorage.getItem(`demo_session_${sid}`) || "{}").Questions || [],
-      timeLimitSecs: 900
-    };
+    const saved = { answers: payload.answers || [], currentIndex: payload.currentIndex || 0, proctorSummary: payload.proctorSummary || {}, startTime: nowISO(), questions: JSON.parse(localStorage.getItem(`demo_session_${sid}`) || "{}").Questions || [], timeLimitSecs: 900 };
     localStorage.setItem(`demo_saved_${sid}`, JSON.stringify(saved));
-    return Promise.resolve({ success: true });
+    return Promise.resolve({ success:true });
   }
 
   if(action === 'submit'){
     const sid = payload.sessionId;
     const sessionRaw = localStorage.getItem(`demo_session_${sid}`);
-    if(!sessionRaw) return Promise.resolve({ success: false, message: "Session not found" });
+    if(!sessionRaw) return Promise.resolve({ success:false, message:'Session not found' });
     const sessionObj = JSON.parse(sessionRaw);
     const qlist = sessionObj.Questions || [];
     const given = payload.answers || [];
@@ -480,33 +511,30 @@ function mockServer(payload){
     }
     sessionObj.Completed = "TRUE";
     localStorage.setItem(`demo_session_${sid}`, JSON.stringify(sessionObj));
-    const certId = genId('NITI');
-    return Promise.resolve({ success: true, score: sc, totalQuestions: qlist.length, level: computeLevel(sc, qlist.length), certificateId: certId });
+    const certId = genCertId();
+    return Promise.resolve({ success:true, score: sc, totalQuestions: qlist.length, level: computeLevel(sc, qlist.length), certificateId: certId });
   }
 
-  return Promise.resolve({ success: false, message: "Unknown action in demo mode" });
+  return Promise.resolve({ success:false, message:'Unknown action in demo mode' });
 }
 
-/* ===== Branding apply ===== */
-function applyBranding(){ try{ if(ORG_LOGO){ const img = document.getElementById('orgLogo'); img.src = ORG_LOGO; img.style.display = 'inline-block'; } document.getElementById('orgName').textContent = ORG_NAME; }catch(e){} }
+/* ===== Branding apply (simple) ===== */
+function applyBranding(){ try{ if(ORG_LOGO){ const img = document.getElementById('orgLogo'); img.src = ORG_LOGO; img.style.display='inline-block'; } document.getElementById('orgName').textContent = ORG_NAME; }catch(e){} }
 
 /* ===== Keyboard navigation ===== */
 document.addEventListener('keydown',(e)=>{
   if(document.getElementById('quiz').style.display === 'block'){
-    if(e.key === 'ArrowLeft') { e.preventDefault(); if(index>0) prevQ(); }
-    if(e.key === 'ArrowRight') { e.preventDefault(); if(index<test.length-1) nextQ(); }
-    if(e.key === 'Enter') {
+    if(e.key === 'ArrowLeft'){ e.preventDefault(); if(index>0) prevQ(); }
+    if(e.key === 'ArrowRight'){ e.preventDefault(); if(index<test.length-1) nextQ(); }
+    if(e.key === 'Enter'){
       const focused = document.activeElement;
-      if(focused && focused.matches('input[name="opt"]')){
-        saveAnswer();
-        if(index < test.length - 1) nextQ();
-      }
+      if(focused && focused.matches('input[name="opt"]')){ saveAnswer(); if(index < test.length - 1) nextQ(); }
     }
   }
 });
 
-/* ===== On unload, attempt save ===== */
-window.addEventListener('beforeunload', (e)=>{
+/* ===== Before unload attempt save ===== */
+window.addEventListener('beforeunload',(e)=>{
   if(sessionId){
     if(GAS_WEB_APP_URL){ navigator.sendBeacon && navigator.sendBeacon(GAS_WEB_APP_URL, JSON.stringify({ action:'autosave', sessionId, answers, currentIndex: index, proctorSummary: proctor })); }
     else { localStorage.setItem(`demo_saved_${sessionId}`, JSON.stringify({ answers, currentIndex: index, proctorSummary: proctor, startTime: nowISO(), questions: test })); }
