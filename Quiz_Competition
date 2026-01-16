@@ -1,1 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>NITI Certificate</title>
 
+    <!-- Google fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Pinyon+Script&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg,#f6f8fb,#e8eef8);
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* Certificate Main Container */
+        .certificate-container {
+            width: 850px;
+            height: 550px;
+            padding: 20px;
+            background-color: #fff;
+            position: relative;
+            border: 15px solid #003366; /* Deep Blue Border */
+            box-shadow: 0 0 20px rgba(0,0,0,0.15);
+            box-sizing: border-box;
+        }
+
+        /* Inner Decorative Border */
+        .inner-border {
+            border: 2px solid #c5a059; /* Gold Line */
+            height: 100%;
+            width: 100%;
+            padding: 30px;
+            box-sizing: border-box;
+            text-align: center;
+            position: relative;
+        }
+
+        /* Ornate Corners */
+        .inner-border::before {
+            content: "⚜";
+            position: absolute;
+            top: 8px; left: 8px;
+            color: #c5a059;
+            font-size: 22px;
+        }
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 42px;
+            margin: 0;
+            color: #1a1a1a;
+            letter-spacing: 2px;
+            border-bottom: 2px solid #c5a059;
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+
+        .subtitle {
+            margin-top: 20px;
+            font-size: 18px;
+            text-transform: uppercase;
+            color: #555;
+        }
+
+        .student-name {
+            font-family: 'Pinyon Script', cursive;
+            font-size: 55px;
+            margin: 15px 0;
+            color: #003366;
+        }
+
+        .course-info {
+            font-size: 20px;
+            margin: 10px 0;
+        }
+
+        .course-name {
+            font-weight: bold;
+            font-size: 26px;
+            display: block;
+            margin-top: 5px;
+        }
+
+        .stats {
+            margin-top: 20px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .footer-info {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .footer-info a {
+            color: #003366;
+            text-decoration: none;
+        }
+
+        .cert-id {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        /* Bottom: seal & signature */
+        .bottom-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 20px;
+            padding: 0 40px;
+        }
+
+        /* Golden Seal */
+        .seal {
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #f9d976, #f39c12);
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 11px;
+            text-align: center;
+            color: #7d5a00;
+            border: 2px dashed #7d5a00;
+        }
+
+        .seal::after, .seal::before {
+            content: "";
+            position: absolute;
+            bottom: -20px;
+            width: 30px;
+            height: 50px;
+            background: #f39c12;
+            clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+            z-index: -1;
+        }
+        .seal::after { left: 20px; transform: rotate(10deg); }
+        .seal::before { right: 20px; transform: rotate(-10deg); }
+
+        .signature-area {
+            text-align: center;
+            width: 200px;
+        }
+
+        .signature-line {
+            border-top: 1px solid #000;
+            padding-top: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .actual-signature {
+            font-family: 'Pinyon Script', cursive;
+            font-size: 24px;
+            margin-bottom: -5px;
+        }
+
+        /* Buttons */
+        .controls {
+            position: fixed;
+            top: 18px;
+            left: 18px;
+            display: flex;
+            gap: 10px;
+            z-index: 9999;
+        }
+        .btn {
+            padding: 10px 16px;
+            background: linear-gradient(135deg,#0077cc,#00aaff);
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 6px;
+            box-shadow: 0 6px 18px rgba(0,118,204,0.18);
+            font-weight: 600;
+        }
+        .btn.secondary {
+            background: linear-gradient(135deg,#ff6b6b,#ff3d7f);
+        }
+
+        /* Print settings */
+        @media print {
+            body { background: none; }
+            .controls { display: none; }
+            .certificate-container { box-shadow: none; border: 10px solid #003366 !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <button id="btnDownload" class="btn">Download Certificate (PDF)</button>
+        <button id="btnPrint" class="btn secondary" onclick="window.print()">Print</button>
+    </div>
+
+    <div class="certificate-container" id="certificate">
+        <div class="inner-border">
+            <h1>Certificate of Completion</h1>
+            <p class="subtitle">This is to certify that</p>
+
+            <div class="student-name" id="studentName">Nitish Kumar Bharti</div>
+
+            <p class="course-info">has successfully completed the <br>
+            <span class="course-name" id="courseName">Excel Test</span></p>
+
+            <div class="stats">
+                <strong>Score:</strong> <span id="scoreValue">6</span>/<span id="scoreTotal">15</span> <br>
+                <strong>Grade:</strong> <span id="gradeValue">Beginner</span> <br>
+                <strong>Date:</strong> <span id="dateValue">Fri Jan 16 2026</span>
+            </div>
+
+            <div class="footer-info">
+                Thanks for visiting our page — <a href="https://nitishbharti04-nb.github.io/Nitishbharti/" target="_blank">https://nitishbharti04-nb.github.io/Nitishbharti/</a>
+                <div class="cert-id" id="certId">NITI CERT - NITI-A08KCF5Y</div>
+            </div>
+
+            <div class="bottom-section">
+                <div class="seal">
+                    OFFICIAL<br>GRADUATE
+                </div>
+                <div class="signature-area">
+                    <div class="actual-signature">Program Director</div>
+                    <div class="signature-line">Signature</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jsPDF and html2canvas (to export the styled certificate) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        // Utility to generate a sample NITI CERT id if not present
+        function generateNitiId() {
+            const rand = Math.random().toString(36).substr(2,8).toUpperCase();
+            return 'NITI-' + rand;
+        }
+
+        // Fill dynamic values (optional — you can replace these with real values before download)
+        document.addEventListener('DOMContentLoaded', () => {
+            // If values already set in the HTML, we keep them. Otherwise set defaults:
+            const nameEl = document.getElementById('studentName');
+            const courseEl = document.getElementById('courseName');
+            const scoreEl = document.getElementById('scoreValue');
+            const totalEl = document.getElementById('scoreTotal');
+            const gradeEl = document.getElementById('gradeValue');
+            const dateEl = document.getElementById('dateValue');
+            const idEl = document.getElementById('certId');
+
+            // Example: if certificate id is not customized, generate one
+            if (!idEl.textContent.trim() || idEl.textContent.indexOf('NITI CERT') === -1) {
+                idEl.textContent = 'NITI CERT - ' + generateNitiId();
+            }
+
+            // Set today's date if date in template looks like a placeholder
+            if (!dateEl.textContent.trim() || dateEl.textContent.match(/Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec/) === null) {
+                dateEl.textContent = new Date().toDateString();
+            }
+
+            // You can programmatically set name/course/score/grade here if integrating with your app:
+            // nameEl.textContent = 'Candidate Name';
+            // courseEl.textContent = 'Python Test';
+            // scoreEl.textContent = '14'; totalEl.textContent = '15';
+            // gradeEl.textContent = 'Advanced';
+        });
+
+        // Download handler: capture the certificate container and export as PDF (Landscape Letter)
+        document.getElementById('btnDownload').addEventListener('click', async () => {
+            const certificateNode = document.getElementById('certificate');
+
+            // Increase scale for better quality in PDF
+            const scale = 2;
+            const opts = {
+                scale: scale,
+                useCORS: true,
+                logging: false,
+                backgroundColor: null
+            };
+
+            // Show a small temporary overlay or change button state to indicate processing (optional)
+            const origText = document.getElementById('btnDownload').textContent;
+            document.getElementById('btnDownload').textContent = 'Preparing PDF...';
+            document.getElementById('btnDownload').disabled = true;
+
+            try {
+                const canvas = await html2canvas(certificateNode, opts);
+
+                // Get image data from canvas
+                const imgData = canvas.toDataURL('image/png');
+
+                // Create a jsPDF instance for letter landscape (units: pt)
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({
+                    orientation: 'landscape',
+                    unit: 'pt',
+                    format: 'letter'
+                });
+
+                // Page size in points
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+
+                // Calculate image dims to fit the page while preserving aspect ratio
+                const imgWidth = canvas.width;
+                const imgHeight = canvas.height;
+                const ratio = Math.min(pageWidth / imgWidth, pageHeight / imgHeight);
+                const renderWidth = imgWidth * ratio;
+                const renderHeight = imgHeight * ratio;
+                const marginX = (pageWidth - renderWidth) / 2;
+                const marginY = (pageHeight - renderHeight) / 2;
+
+                // Add the image to the PDF
+                doc.addImage(imgData, 'PNG', marginX, marginY, renderWidth, renderHeight, undefined, 'FAST');
+
+                // Save PDF using student's name if available
+                const name = document.getElementById('studentName').textContent.trim() || 'certificate';
+                const safeName = name.replace(/\s+/g, '_').replace(/[^\w\-\.]/g, '');
+                doc.save(`${safeName}_NITI_CERT.pdf`);
+            } catch (err) {
+                console.error('PDF generation failed', err);
+                alert('Failed to generate PDF. See console for details.');
+            } finally {
+                document.getElementById('btnDownload').textContent = origText;
+                document.getElementById('btnDownload').disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
