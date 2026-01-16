@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>NITI Professional Assessment — Final</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NITI Professional Assessment</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Pinyon+Script&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 
@@ -11,526 +11,198 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-  body { margin:0; font-family:'Montserrat', sans-serif; background:#0e0f12; color:white; }
-  .container { max-width:1000px; margin:36px auto; padding:18px; }
-  .card { background:#fff; color:#222; padding:22px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.45); }
-  .btn { background:linear-gradient(135deg,#003366,#00509d); color:white; border:none; padding:10px 16px; border-radius:6px; cursor:pointer; font-weight:700; }
-  .btn.secondary { background:#666; }
-  input[type="text"], input[type="email"] { width:100%; padding:10px; margin:8px 0; border:1px solid #ccc; border-radius:6px; box-sizing:border-box; font-size:15px; }
-  .option { display:block; background:#f8f8f8; padding:12px; margin:10px 0; border-radius:8px; color:#222; border:1px solid #eee; cursor:pointer; }
-  .muted { color:#666; font-size:13px; }
-  #timer { font-weight:700; color:#ffcc00; text-align:center; margin-bottom:12px; }
-  /* Certificate */
-  .cert-container { width:1000px; height:650px; padding:20px; background:#003366; position:relative; margin:20px auto; box-sizing:border-box; }
-  .cert-inner-frame { background:#fff; background-image: radial-gradient(#fff, #fdfbf2); height:100%; width:100%; border:4px solid #c5a059; padding:36px; box-sizing:border-box; position:relative; text-align:center; }
-  .cert-title { font-family:Cinzel, serif; font-size:40px; color:#1a1a1a; margin:0; border-bottom:3px solid #c5a059; display:inline-block; padding-bottom:6px; }
-  .cert-subtext { text-transform:uppercase; font-size:14px; color:#555; margin-top:18px; }
-  .cert-name { font-family:Pinyon Script, cursive; font-size:64px; color:#003366; margin:16px 0; }
-  .cert-course-line { font-size:20px; color:#333; }
-  .cert-stats { margin-top:18px; font-size:16px; color:#444; }
-  .cert-footer-link { font-size:13px; color:#777; margin-top:20px; }
-  .niti-label { font-family:Cinzel, serif; font-size:18px; color:#003366; font-weight:700; margin-top:18px; }
-  .cert-id-tag { display:inline-block; margin-top:8px; padding:6px 12px; background:#f0f0f0; border-radius:6px; font-weight:700; color:#000; border:1px solid #ddd; }
-  .cert-bottom { display:flex; justify-content:space-between; align-items:flex-end; position:absolute; bottom:40px; left:40px; right:40px; }
-  .seal-box { width:120px; height:120px; background: radial-gradient(circle,#f9d976,#f39c12); border-radius:50%; border:3px dashed #7d5a00; display:flex; align-items:center; justify-content:center; color:#7d5a00; font-weight:700; text-align:center; box-shadow:0 5px 15px rgba(0,0,0,0.2); }
-  .sig-area { text-align:center; width:220px; }
-  .sig-name { font-family:Pinyon Script, cursive; font-size:28px; color:#000; margin-bottom:-8px; }
-  .sig-line { border-top:2px solid #333; padding-top:6px; font-weight:700; font-size:14px; color:#000; }
-
-  /* Admin button */
-  #admin-launch { position:fixed; right:18px; bottom:18px; z-index:9999; border-radius:8px; padding:10px 12px; background:#222; color:white; border:none; cursor:pointer; }
-  /* Admin modal */
-  #admin-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:10000; }
-  #admin-panel { width:90%; max-width:1100px; max-height:90%; overflow:auto; background:#fff; color:#222; border-radius:8px; padding:16px; box-sizing:border-box; }
-  table { width:100%; border-collapse:collapse; font-size:13px; }
-  th, td { padding:8px; border:1px solid #eaeaea; text-align:left; }
-  thead tr { background:#f6f6f6; }
-  @media (max-width:900px){ .cert-container { width:100%; height:auto; } .cert-inner-frame { padding:16px; } }
+body { margin:0; font-family:'Montserrat', sans-serif; background:#0e0f12; color:white; }
+.container { max-width:1000px; margin:36px auto; padding:18px; }
+.card { background:#fff; color:#222; padding:22px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.45); }
+.btn { background:linear-gradient(135deg,#003366,#00509d); color:white; border:none; padding:10px 16px; border-radius:6px; cursor:pointer; font-weight:700; }
+.btn.secondary { background:#666; }
+.option { display:block; background:#f8f8f8; padding:12px; margin:10px 0; border-radius:8px; color:#222; border:1px solid #eee; cursor:pointer; }
+.muted { color:#666; font-size:13px; }
+#timer { font-weight:700; color:#ffcc00; text-align:center; margin-bottom:12px; }
 </style>
 </head>
 <body>
-  <div class="container">
-    <!-- Landing -->
-    <div id="landing" class="card" style="text-align:center;">
-      <h1 style="color:#003366">NITI Professional Assessment</h1>
-      <p class="muted">Click Start to enter your details and choose a segment.</p>
-      <button class="btn" onclick="showLogin()">Start</button>
-    </div>
+<div class="container">
 
-    <!-- Login -->
-    <div id="login" class="card" style="display:none;">
-      <h2 style="color:#003366">Your Details</h2>
-      <input id="inputName" type="text" placeholder="Full name (for certificate)">
-      <input id="inputEmail" type="email" placeholder="Email address">
-      <div style="display:flex; gap:10px; margin-top:8px;">
-        <button class="btn" onclick="continueToSubject()">Continue</button>
-        <button class="btn secondary" onclick="backToLanding()">Back</button>
-      </div>
-      <p class="muted" style="margin-top:12px;">Data is saved locally in your browser (demo). For a server backend I can help integrate later.</p>
-    </div>
-
-    <!-- Subject -->
-    <div id="subject" class="card" style="display:none;">
-      <h2 style="color:#003366">Choose Segment</h2>
-      <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-top:12px;">
-        <button class="btn" onclick="startIfReady('Excel')">Excel</button>
-        <button class="btn" onclick="startIfReady('Advanced Excel')">Advanced Excel</button>
-        <button class="btn" onclick="startIfReady('SQL')">SQL</button>
-        <button class="btn" onclick="startIfReady('Power BI')">Power BI</button>
-        <button class="btn" onclick="startIfReady('Python')">Python</button>
-      </div>
-      <p class="muted" style="margin-top:12px;">Each test: 15 hard questions randomized from a large pool. Retakes attempt to avoid repeating your previous set.</p>
-    </div>
-
-    <!-- Quiz -->
-    <div id="quiz" style="display:none;">
-      <div id="timer" class="muted"></div>
-      <div id="questionCard" class="card"></div>
-    </div>
-
-    <!-- Result -->
-    <div id="result" style="display:none;">
-      <div id="certWrap">
-        <div class="cert-container">
-          <div class="cert-inner-frame" id="certificateFrame">
-            <div class="cert-title">Certificate of Completion</div>
-            <div class="cert-subtext">This is to certify that</div>
-            <div id="certName" class="cert-name">Candidate Name</div>
-            <div class="cert-course-line">has successfully completed the <strong id="certSkill">Skill Test</strong></div>
-
-            <div class="cert-stats">
-              <strong>Score:</strong> <span id="certScore">0/15</span> &nbsp; | &nbsp;
-              <strong>Grade:</strong> <span id="certGrade">Beginner</span> <br>
-              <strong>Date:</strong> <span id="certDate"></span>
-            </div>
-
-            <div class="cert-footer-link">Thanks for visiting our page — <u>https://nitishbharti04-nb.github.io/Nitishbharti/</u></div>
-
-            <div class="niti-label">NITI</div>
-            <div id="certId" class="cert-id-tag">NITI CERT - XXXX</div>
-
-            <div class="cert-bottom">
-              <div class="seal-box">OFFICIAL<br>GRADUATE</div>
-              <div class="sig-area">
-                <div class="sig-name">Program Director</div>
-                <div class="sig-line">Signature</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div style="display:flex; gap:12px; justify-content:center; margin-top:12px;">
-        <button class="btn" onclick="downloadCertificate()">Download Official PDF Certificate</button>
-        <button class="btn secondary" onclick="location.reload()">Take Another Test</button>
-      </div>
-    </div>
+<!-- ===== Landing Page ===== -->
+<div id="landing">
+  <div class="card">
+    <h2>Welcome to NITI Assessment</h2>
+    <button class="btn" onclick="showLogin()">Start</button>
   </div>
+</div>
 
-  <button id="admin-launch" title="Admin: View results">Admin: View Results</button>
-
-  <!-- Admin modal -->
-  <div id="admin-modal">
-    <div id="admin-panel">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h3 style="margin:0">NITI — Assessment Results</h3>
-        <div style="display:flex; gap:8px;">
-          <button class="btn" id="exportCSV">Export CSV</button>
-          <button class="btn secondary" id="clearData">Clear All</button>
-          <button class="btn secondary" id="closeAdmin">Close</button>
-        </div>
-      </div>
-      <div id="summary" style="margin-top:12px; display:flex; gap:12px; flex-wrap:wrap;"></div>
-      <div style="margin-top:12px; overflow:auto;">
-        <table>
-          <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Segment</th><th>Score</th><th>Total</th><th>Grade</th><th>Cert ID</th><th>Timestamp</th></tr></thead>
-          <tbody id="admin-tbody"></tbody>
-        </table>
-      </div>
-    </div>
+<!-- ===== Login Page ===== -->
+<div id="login" style="display:none">
+  <div class="card">
+    <h2>Enter Your Details</h2>
+    <label>Name:<br><input type="text" id="inputName"></label><br><br>
+    <label>Email:<br><input type="email" id="inputEmail"></label><br><br>
+    <button class="btn" onclick="continueToSubject()">Continue</button>
+    <button class="btn secondary" onclick="backToLanding()">Back</button>
   </div>
+</div>
+
+<!-- ===== Subject Selection ===== -->
+<div id="subject" style="display:none">
+  <div class="card">
+    <h2>Select Skill</h2>
+    <button class="btn" onclick="startIfReady('Excel')">Excel</button>
+    <button class="btn" onclick="startIfReady('Advanced Excel')">Advanced Excel</button>
+    <button class="btn" onclick="startIfReady('SQL')">SQL</button>
+    <button class="btn" onclick="startIfReady('Power BI')">Power BI</button>
+    <button class="btn" onclick="startIfReady('Python')">Python</button>
+  </div>
+</div>
+
+<!-- ===== Quiz Page ===== -->
+<div id="quiz" style="display:none">
+  <div class="card">
+    <div id="timer">Time Left: 20:00</div>
+    <div id="questionCard"></div>
+  </div>
+</div>
+
+<!-- ===== Result / Certificate Page ===== -->
+<div id="result" style="display:none">
+  <div class="card">
+    <h2>Certificate</h2>
+    <p>Name: <span id="certName"></span></p>
+    <p>Skill: <span id="certSkill"></span></p>
+    <p>Score: <span id="certScore"></span></p>
+    <p>Grade: <span id="certGrade"></span></p>
+    <p>Date: <span id="certDate"></span></p>
+    <p>Certificate ID: <span id="certId"></span></p>
+    <button class="btn" onclick="window.location.reload()">Restart</button>
+  </div>
+</div>
 
 <script>
-/* ====== Config & state ====== */
-const POOL_SIZE = 140;            // 100-200 recommended
+/* ===== CONFIG ===== */
+const API_URL = "https://YOUR-SERVER.com/api/questions"; // 🔴 Change this
 const Q_PER_TEST = 15;
-const TIME_LIMIT_S = 20 * 60;     // 20 minutes
+const TIME_LIMIT_S = 20*60;
 
-let userName = '', userEmail = '';
-let currentSegment = '';
-let poolCache = {};
-let currentTest = [];             // question objects for this attempt
-let userResponses = [];           // indices or null
-let currentIndex = 0;
-let remainingSeconds = TIME_LIMIT_S;
-let timerInterval = null;
+/* ===== STATE ===== */
+let userName='', userEmail='';
+let currentSegment='';
+let currentTest=[];
+let userResponses=[];
+let currentIndex=0;
+let remainingSeconds=TIME_LIMIT_S;
+let timerInterval=null;
 
-/* ====== Utilities ====== */
-function show(id){ document.getElementById(id).style.display = ''; }
-function hide(id){ document.getElementById(id).style.display = 'none'; }
+/* ===== UTILITIES ===== */
+function show(id){ document.getElementById(id).style.display=''; }
+function hide(id){ document.getElementById(id).style.display='none'; }
 function nowISO(){ return new Date().toISOString(); }
 function genCertId(){ return 'NITI-' + Math.random().toString(36).substring(2,10).toUpperCase(); }
-function shuffle(arr){ const a = arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
-function sample(arr,k){ if(k>=arr.length) return arr.slice(); const out=[], used=new Set(); while(out.length<k){ const i=Math.floor(Math.random()*arr.length); if(!used.has(i)){ used.add(i); out.push(arr[i]); }} return out; }
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
 function escapeHtml(s){ return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#39;"); }
 
-/* ====== Navigation flow ====== */
+/* ===== NAVIGATION ===== */
 function showLogin(){ hide('landing'); show('login'); }
 function backToLanding(){ hide('login'); show('landing'); }
 function continueToSubject(){
-  const n = document.getElementById('inputName').value.trim();
-  const e = document.getElementById('inputEmail').value.trim().toLowerCase();
-  if(!n) return alert('Enter your full name.');
-  if(!e) return alert('Enter an email.');
-  userName = n; userEmail = e;
+  const n=document.getElementById('inputName').value.trim();
+  const e=document.getElementById('inputEmail').value.trim().toLowerCase();
+  if(!n || !e) return alert('Enter name and email');
+  userName=n; userEmail=e;
   hide('login'); show('subject');
 }
 
-/* ====== Pool generation (explicit correct text) ====== */
-function getOrMakePool(segment){
-  if(poolCache[segment]) return poolCache[segment];
-  const key = `niti_pool_${segment}`;
-  const saved = localStorage.getItem(key);
-  if(saved){ poolCache[segment] = JSON.parse(saved); return poolCache[segment]; }
-  const pool = makePool(segment, POOL_SIZE);
-  poolCache[segment] = pool;
-  localStorage.setItem(key, JSON.stringify(pool));
-  return pool;
+/* ===== FETCH QUESTIONS ===== */
+async function fetchQuestionPoolFromServer(segment){
+  const res = await fetch(`${API_URL}?segment=${encodeURIComponent(segment)}`);
+  if(!res.ok) throw new Error("API failed");
+  const data = await res.json();
+  if(!Array.isArray(data) || data.length < Q_PER_TEST) throw new Error("Not enough questions from server");
+  return data.map(q=>{
+    if(!q.options.includes(q.correct)) throw new Error("Invalid question: correct not in options");
+    const shuffled = shuffle(q.options);
+    return {
+      id: q.id,
+      q: `${segment} — ${q.question}`,
+      options: shuffled,
+      _answerIndex: shuffled.indexOf(q.correct),
+      correct: q.correct,
+      difficulty: q.difficulty||'hard'
+    };
+  });
 }
 
-function makePool(segment, size){
-  const templates = {
-    Excel:[
-      {q:"Which function returns current date and time?",a:"NOW()"},
-      {q:"Which function counts numeric entries?",a:"COUNT()"},
-      {q:"Which function looks up values vertically?",a:"VLOOKUP()"},
-      {q:"Which function returns position of value in range?",a:"MATCH()"},
-      {q:"Which feature removes duplicate rows?",a:"REMOVE DUPLICATES"}
-    ],
-    "Advanced Excel":[
-      {q:"Which function replaces VLOOKUP?",a:"XLOOKUP()"},
-      {q:"Which function creates reusable functions?",a:"LAMBDA()"},
-      {q:"Which tool performs ETL in Excel?",a:"Power Query"},
-      {q:"Which language is used in Power Pivot?",a:"DAX"},
-      {q:"Which function supports dynamic arrays?",a:"FILTER()"}
-    ],
-    SQL:[
-      {q:"Which clause filters rows?",a:"WHERE"},
-      {q:"Which keyword removes duplicates?",a:"DISTINCT"},
-      {q:"Which clause groups rows?",a:"GROUP BY"},
-      {q:"Which join returns all left rows?",a:"LEFT JOIN"},
-      {q:"Which command inserts rows?",a:"INSERT INTO"}
-    ],
-    "Power BI":[
-      {q:"Which tool transforms data?",a:"Power Query"},
-      {q:"Which language creates measures?",a:"DAX"},
-      {q:"Which feature restricts data per user?",a:"Row-level security"},
-      {q:"Which visual shows trends?",a:"Line chart"},
-      {q:"Which refreshes cloud data?",a:"Gateway"}
-    ],
-    Python:[
-      {q:"Which keyword defines a function?",a:"def"},
-      {q:"Which type is immutable?",a:"tuple"},
-      {q:"Which function returns length?",a:"len()"},
-      {q:"Which keyword handles exceptions?",a:"try/except"},
-      {q:"Which creates a generator?",a:"yield"}
-    ]
-  };
-
-  const banks = {
-    Excel:["NOW()","TODAY()","COUNT()","SUM()","AVERAGE()","VLOOKUP()","MATCH()","INDEX()","ROUND()","RANDBETWEEN()","REMOVE DUPLICATES"],
-    "Advanced Excel":["XLOOKUP()","LAMBDA()","FILTER()","Power Query","DAX","CALCULATE()","OFFSET()"],
-    SQL:["SELECT","WHERE","GROUP BY","ORDER BY","DISTINCT","LEFT JOIN","INSERT INTO","UPDATE"],
-    "Power BI":["Power Query","DAX","Line chart","Gateway","Row-level security","Slicer"],
-    Python:["def","tuple","list","len()","yield","lambda","try/except"]
-  };
-
-  const base = templates[segment];
-  const bank = banks[segment];
-
-  const pool = [];
-
-  let counter = 1;
-  while(pool.length < size){
-    base.forEach(tmpl => {
-      if(pool.length >= size) return;
-
-      const correctText = tmpl.a;
-
-      const distractors = shuffle(
-        bank.filter(b => b !== correctText)
-      ).slice(0,3);
-
-      const options = shuffle([correctText, ...distractors]);
-
-      pool.push({
-        id: `${segment}-${counter++}`,
-        q: `${segment} — ${tmpl.q}`,
-        options,
-        _answerIndex: options.indexOf(correctText),
-        correct: correctText,
-        difficulty: 'hard'
-      });
-    });
-  }
-
-  return shuffle(pool);
-}
-
-
-/* ====== select questions avoiding immediate previous set for same email+segment ====== */
-function selectQuestions(segment, email, k){
-  const pool = getOrMakePool(segment);
-  const lastKey = `niti_last_${email}_${segment}`;
-  const prev = JSON.parse(localStorage.getItem(lastKey) || 'null');
-  const prevIds = prev ? prev.ids : null;
-  for(let attempt=0; attempt<60; attempt++){
-    const sampleQs = sample(pool, k);
-    const ids = sampleQs.map(q => q.id);
-    const overlap = prevIds ? ids.filter(id => prevIds.includes(id)).length : 0;
-    if(!prevIds || overlap === 0){
-      const prepared = sampleQs.map(q => shuffleOptionsUsingCorrect(q));
-      localStorage.setItem(lastKey, JSON.stringify({ ids: prepared.map(p=>p.id), time: nowISO() }));
-      return prepared;
-    }
-  }
-  return sample(pool, k).map(q => shuffleOptionsUsingCorrect(q));
-}
-
-/* Shuffle options but compute correct index using explicit correct text */
-function shuffleOptionsUsingCorrect(q){
-  const correctText = q.correct !== undefined ? q.correct : q.options[q._answerIndex];
-  const opts = q.options.slice();
-  const shuffled = shuffle(opts);
-  const newIndex = shuffled.indexOf(correctText);
-  return { id: q.id, q: q.q, options: shuffled, _answerIndex: newIndex, correct: correctText, difficulty: q.difficulty };
-}
-
-/* ====== Start test flow ====== */
-function startIfReady(segment){
-  if(!userName || !userEmail){
-    alert('Please enter name & email first.');
-    hide('landing'); show('login');
-    return;
-  }
-  currentSegment = segment;
+/* ===== START TEST ===== */
+async function startIfReady(segment){
+  if(!userName || !userEmail){ alert('Enter name & email first'); return; }
+  currentSegment=segment;
   hide('subject'); show('quiz');
-  currentTest = selectQuestions(segment, userEmail, Q_PER_TEST);
-  userResponses = new Array(currentTest.length).fill(null);
-  currentIndex = 0;
-  remainingSeconds = TIME_LIMIT_S;
-  renderQuestion();
-  startTimer();
+  try{
+    const pool = await fetchQuestionPoolFromServer(segment);
+    currentTest = shuffle(pool).slice(0,Q_PER_TEST);
+  }catch(err){ alert("Failed to load questions"); console.error(err); location.reload(); return; }
+  userResponses=new Array(currentTest.length).fill(null);
+  currentIndex=0; remainingSeconds=TIME_LIMIT_S;
+  renderQuestion(); startTimer();
 }
 
-/* ====== Timer & rendering ====== */
+/* ===== TIMER ===== */
 function startTimer(){
-  document.getElementById('timer').textContent = `Time Left: ${formatTime(remainingSeconds)}`;
-  if(timerInterval) clearInterval(timerInterval);
+  clearInterval(timerInterval);
   timerInterval = setInterval(()=>{
     remainingSeconds--;
-    document.getElementById('timer').textContent = `Time Left: ${formatTime(remainingSeconds)}`;
-    if(remainingSeconds <= 0){ clearInterval(timerInterval); finishTest(); }
-  }, 1000);
+    document.getElementById('timer').textContent =
+      `Time Left: ${Math.floor(remainingSeconds/60)}:${String(remainingSeconds%60).padStart(2,'0')}`;
+    if(remainingSeconds<=0){ clearInterval(timerInterval); finishTest(); }
+  },1000);
 }
-function formatTime(s){ const m=Math.floor(s/60), sec=s%60; return `${m}:${sec<10?'0'+sec:sec}`; }
 
+/* ===== QUIZ RENDER ===== */
 function renderQuestion(){
-  const card = document.getElementById('questionCard');
-  const q = currentTest[currentIndex];
-  const optsHtml = q.options.map((opt,i) => {
-    const checked = userResponses[currentIndex] === i ? 'checked' : '';
-    return `<label class="option"><input type="radio" name="opt" value="${i}" ${checked}> ${escapeHtml(opt)}</label>`;
-  }).join('');
-  const prevBtn = currentIndex > 0 ? `<button class="btn secondary" onclick="prevQ()">Previous</button>` : '';
-  const nextBtn = currentIndex < currentTest.length - 1 ? `<button class="btn" onclick="nextQ()">Next</button>` : `<button class="btn" onclick="finishTest()">Finish Test</button>`;
-  card.innerHTML = `
-    <h3 style="color:#003366">Question ${currentIndex+1} / ${currentTest.length} <small class="muted">(${q.difficulty})</small></h3>
-    <p style="font-weight:700; font-size:18px;">${escapeHtml(q.q)}</p>
-    <div style="margin-top:8px;">${optsHtml}</div>
-    <div style="margin-top:16px; display:flex; gap:10px; justify-content:center;">${prevBtn} ${nextBtn}</div>
-    <p class="muted" style="margin-top:12px;">Answered: ${userResponses.filter(x=>x!==null).length} • Unanswered: ${userResponses.filter(x=>x===null).length}</p>
+  const q=currentTest[currentIndex];
+  const card=document.getElementById('questionCard');
+  card.innerHTML=`
+    <h3>Question ${currentIndex+1}/${currentTest.length}</h3>
+    <p><strong>${escapeHtml(q.q)}</strong></p>
+    ${q.options.map((o,i)=>`
+      <label class="option">
+        <input type="radio" name="opt" value="${i}" ${userResponses[currentIndex]===i?'checked':''}>
+        ${escapeHtml(o)}
+      </label>
+    `).join('')}
+    <div style="margin-top:12px;text-align:center">
+      ${currentIndex>0?'<button class="btn secondary" onclick="prevQ()">Previous</button>':''}
+      <button class="btn" onclick="nextQ()">${currentIndex===currentTest.length-1?'Finish':'Next'}</button>
+    </div>
   `;
-  setTimeout(()=>{ const first = card.querySelector('input[name="opt"]'); if(first) first.focus(); },40);
 }
-
 function saveAnswer(){
-  const sel = document.querySelector('input[name="opt"]:checked');
-  if(sel) userResponses[currentIndex] = parseInt(sel.value);
+  const sel=document.querySelector('input[name="opt"]:checked');
+  if(sel) userResponses[currentIndex]=Number(sel.value);
 }
-function nextQ(){ saveAnswer(); if(currentIndex < currentTest.length - 1){ currentIndex++; renderQuestion(); } }
-function prevQ(){ saveAnswer(); if(currentIndex > 0){ currentIndex--; renderQuestion(); } }
+function nextQ(){ saveAnswer(); if(currentIndex<currentTest.length-1){ currentIndex++; renderQuestion(); } else finishTest(); }
+function prevQ(){ saveAnswer(); if(currentIndex>0){ currentIndex--; renderQuestion(); } }
 
-/* ====== Finish, score, persist and certificate ====== */
+/* ===== FINISH TEST ===== */
 function finishTest(){
-  saveAnswer();
-  if(timerInterval) clearInterval(timerInterval);
-
-  let score = 0;
-  const debug = [];
-  for(let i=0;i<currentTest.length;i++){
-    const q = currentTest[i];
-    const chosen = userResponses[i];
-    const chosenText = (typeof chosen === 'number') ? q.options[chosen] : null;
-    const correctText = q.correct;
-    const correctIndex = q._answerIndex;
-    const ok = (typeof chosen === 'number' && chosen === correctIndex);
-    if(ok) score++;
-    debug.push({ i:i+1, q: q.q, chosenIndex: chosen, chosenText, correctIndex, correctText, ok });
-  }
-
-  // log debug to console
-  console.group('Test debug (chosen vs correct)');
-  debug.forEach(r => {
-    console.log(`Q${r.i}: ${r.q}`);
-    console.log(`  chosen: [${r.chosenIndex}] ${r.chosenText}`);
-    console.log(`  correct: [${r.correctIndex}] ${r.correctText}`);
-    console.log(`  ${r.ok ? 'OK' : 'WRONG'}`);
-  });
-  console.groupEnd();
-
-  const grade = score >= 12 ? 'Excellent' : (score >= 8 ? 'Advanced' : 'Beginner');
+  saveAnswer(); clearInterval(timerInterval);
+  let score=0;
+  currentTest.forEach((q,i)=>{ if(userResponses[i]===q._answerIndex) score++; });
+  const grade = score>=12?'Excellent':score>=8?'Advanced':'Beginner';
   const certId = genCertId();
-
-  // persist record
-  const recKey = 'niti_results';
-  const recs = JSON.parse(localStorage.getItem(recKey) || '[]');
-  const rec = { name: userName, email: userEmail, segment: currentSegment, score, total: currentTest.length, grade, certId, ts: nowISO() };
-  recs.push(rec);
-  localStorage.setItem(recKey, JSON.stringify(recs));
-
-  // show certificate
-  document.getElementById('certName').textContent = userName;
-  document.getElementById('certSkill').textContent = currentSegment + ' Test';
-  document.getElementById('certScore').textContent = `${score}/${currentTest.length}`;
-  document.getElementById('certGrade').textContent = grade;
-  document.getElementById('certDate').textContent = new Date().toDateString();
-  document.getElementById('certId').textContent = `NITI CERT - ${certId}`;
-
-  hide('quiz');
-  show('result');
-}
-
-/* ====== Certificate PDF ====== */
-async function downloadCertificate(){
-  const el = document.getElementById('certificateFrame');
-  if(!el) return alert('Certificate not found');
-  const canvas = await html2canvas(el, { scale: 2, useCORS:true, backgroundColor: null });
-  const imgData = canvas.toDataURL('image/png');
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF({ orientation:'landscape', unit:'pt', format:'letter' });
-  const pageW = pdf.internal.pageSize.getWidth(), pageH = pdf.internal.pageSize.getHeight();
-  const imgW = canvas.width, imgH = canvas.height;
-  const ratio = Math.min(pageW/imgW, pageH/imgH);
-  const renderW = imgW * ratio, renderH = imgH * ratio;
-  const marginX = (pageW - renderW) / 2, marginY = (pageH - renderH) / 2;
-  pdf.addImage(imgData, 'PNG', marginX, marginY, renderW, renderH, undefined, 'FAST');
-  const safe = (userName || 'certificate').replace(/\s+/g,'_').replace(/[^\w\-\.]/g,'');
-  pdf.save(`${safe}_NITI_CERT.pdf`);
-}
-
-/* ====== Admin dashboard ====== */
-const adminLaunch = document.getElementById('admin-launch');
-const adminModal = document.getElementById('admin-modal');
-const adminPanel = document.getElementById('admin-panel');
-adminLaunch.addEventListener('click', ()=>{ adminModal.style.display = 'flex'; renderAdmin(); });
-
-document.getElementById('closeAdmin').addEventListener('click', ()=>{ adminModal.style.display = 'none'; });
-
-function getResults(){ return JSON.parse(localStorage.getItem('niti_results') || '[]'); }
-
-function renderAdmin(){
-  const results = getResults();
-  const summaryDiv = document.getElementById('summary');
-  summaryDiv.innerHTML = '';
-  const totalAssess = results.length;
-  const uniqueUsers = new Set(results.map(r => (r.email||'').toLowerCase())).size;
-  summaryDiv.appendChild(makeSummaryCard('Total assessments', totalAssess));
-  summaryDiv.appendChild(makeSummaryCard('Unique users', uniqueUsers));
-  const bySeg = {};
-  results.forEach(r => {
-    bySeg[r.segment] = bySeg[r.segment] || { count:0, sum:0, sumTotal:0 };
-    bySeg[r.segment].count++;
-    bySeg[r.segment].sum += Number(r.score || 0);
-    bySeg[r.segment].sumTotal += Number(r.total || 0);
+  const recs = JSON.parse(localStorage.getItem('niti_results')||'[]');
+  recs.push({
+    name:userName,email:userEmail,segment:currentSegment,
+    score,total:currentTest.length,grade,certId,ts:nowISO()
   });
-  for(const seg in bySeg){
-    const meta = bySeg[seg];
-    const avg = meta.count ? (meta.sum / meta.count).toFixed(1) : '0';
-    const pct = meta.sumTotal ? ((meta.sum / meta.sumTotal) * 100).toFixed(1) : '0';
-    summaryDiv.appendChild(makeSummaryCard(`${seg} attempts`, `${meta.count} (avg ${avg}, ${pct}%)`));
-  }
-
-  const tbody = document.getElementById('admin-tbody');
-  tbody.innerHTML = '';
-  results.slice().reverse().forEach((r, idx) => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${results.length - idx}</td>
-      <td>${escapeHtml(r.name||'')}</td>
-      <td>${escapeHtml(r.email||'')}</td>
-      <td>${escapeHtml(r.segment||'')}</td>
-      <td>${escapeHtml(String(r.score||''))}</td>
-      <td>${escapeHtml(String(r.total||''))}</td>
-      <td>${escapeHtml(r.grade||'')}</td>
-      <td>${escapeHtml(r.certId||'')}</td>
-      <td>${escapeHtml(r.ts||'')}</td>`;
-    tbody.appendChild(tr);
-  });
+  localStorage.setItem('niti_results',JSON.stringify(recs));
+  document.getElementById('certName').textContent=userName;
+  document.getElementById('certSkill').textContent=currentSegment+' Test';
+  document.getElementById('certScore').textContent=`${score}/${currentTest.length}`;
+  document.getElementById('certGrade').textContent=grade;
+  document.getElementById('certDate').textContent=new Date().toDateString();
+  document.getElementById('certId').textContent=`NITI CERT - ${certId}`;
+  hide('quiz'); show('result');
 }
-function makeSummaryCard(title, value){
-  const d = document.createElement('div');
-  d.style.minWidth = '200px';
-  d.style.padding = '10px';
-  d.style.border = '1px solid #eee';
-  d.style.borderRadius = '8px';
-  d.style.background = '#fafafa';
-  d.innerHTML = `<div style="font-size:13px;color:#666">${title}</div><div style="font-weight:700;font-size:18px;margin-top:6px">${value}</div>`;
-  return d;
-}
-
-document.getElementById('exportCSV').addEventListener('click', ()=>{
-  const results = getResults();
-  if(!results.length) return alert('No data');
-  const headers = ['name','email','segment','score','total','grade','certId','timestamp'];
-  const rows = results.map(r => [r.name||'', r.email||'', r.segment||'', r.score||'', r.total||'', r.grade||'', r.certId||'', r.ts||'']);
-  const csv = [headers.join(',')].concat(rows.map(row => row.map(cell => {
-    if(cell === null || cell === undefined) return '';
-    const s = String(cell).replaceAll('"','""');
-    return (s.includes(',')||s.includes('"')||s.includes('\n')) ? `"${s}"` : s;
-  }).join(','))).join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `niti_results_${new Date().toISOString().slice(0,10)}.csv`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-});
-
-document.getElementById('clearData').addEventListener('click', ()=>{
-  if(!confirm('Clear ALL results stored in this browser?')) return;
-  localStorage.removeItem('niti_results');
-  renderAdmin();
-  alert('Cleared.');
-});
-
-/* ====== Escape (for admin) ====== */
-function escapeHtml(s){ return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;'); }
-
-/* ====== Expose functions used by inline handlers ====== */
-window.showLogin = showLogin;
-window.backToLanding = backToLanding;
-window.continueToSubject = continueToSubject;
-window.startIfReady = startIfReady;
-window.nextQ = nextQ;
-window.prevQ = prevQ;
-window.finishTest = finishTest;
-window.downloadCertificate = downloadCertificate;
-
-/* ====== console hint ====== */
-console.info('NITI Assessment ready — open Admin (bottom-right) to view results.');
 </script>
 </body>
 </html>
