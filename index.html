@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Skill Test Portal (Google Sheets Backend)</title>
+<meta charset="utf-8">
+<title>Skill Test Portal (Demo)</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   body { margin:0; font-family:Segoe UI, system-ui, -apple-system, "Segoe UI Emoji"; background:linear-gradient(135deg,#141e30,#243b55); color:white;}
@@ -54,10 +54,12 @@
 
 <script>
 /* ===========================
-   CONFIG — replace with your deployed Apps Script Web App URL
-   Deploy Apps Script as: Execute as -> Me, Who has access -> Anyone, even anonymous
+   CONFIG
+   If you deploy Apps Script and want real backend, set that URL here.
+   Example:
+   const GAS_WEB_APP_URL = "https://script.google.com/macros/s/REPLACE_WITH_ID/exec";
    =========================== */
-const GAS_WEB_APP_URL = "https://script.google.com/macros/s/YOUR_DEPLOYED_WEBAPP_ID/exec";
+const GAS_WEB_APP_URL = ""; // empty => demo/mock mode
 
 /* Branding (set by server response on session create/load) */
 let ORG_NAME = "Skill Test Portal";
@@ -134,7 +136,16 @@ function sendProctorEvent(type){
     ua: navigator.userAgent,
     screen: { width: screen.width, height: screen.height }
   };
-  fetch(GAS_WEB_APP_URL, { method:'POST', headers:{'Content-Type':'application/json'}, mode:'cors', body: JSON.stringify(payload) }).catch(()=>{/* ignore */});
+  // best-effort - not critical in demo
+  if(GAS_WEB_APP_URL){
+    fetch(GAS_WEB_APP_URL, { method:'POST', headers:{'Content-Type':'application/json'}, mode:'cors', body: JSON.stringify(payload) }).catch(()=>{/* ignore */});
+  } else {
+    // in demo mode we store proctor events locally (not required)
+    const key = `demo_proctor_${sessionId||'no_session'}`;
+    const arr = JSON.parse(localStorage.getItem(key) || "[]");
+    arr.push(payload);
+    localStorage.setItem(key, JSON.stringify(arr));
+  }
 }
 
 /* ===== Login & Resume detection ===== */
@@ -144,20 +155,15 @@ function login(){
   if(!user){ alert("Please enter your name."); return; }
   if(!email){ alert("Please enter your email."); return; }
 
-  const saved = localStorage.getItem('skill_test_session');
-  if(saved){
-    try{
-      const obj = JSON.parse(saved);
-      if(obj && obj.sessionId){
-        if(confirm("A previous session was found in this browser. Resume?")){
-          sessionId = obj.sessionId;
-          loadAndResume(sessionId);
-          return;
-        } else {
-          localStorage.removeItem('skill_test_session');
-        }
-      }
-    }catch(e){}
+  const saved = JSON.parse(localStorage.getItem('skill_test_session') || "null");
+  if(saved && saved.sessionId){
+    if(confirm("A previous session was found in this browser. Resume?")){
+      sessionId = saved.sessionId;
+      loadAndResume(sessionId);
+      return;
+    } else {
+      localStorage.removeItem('skill_test_session');
+    }
   }
 
   document.getElementById("login").style.display = "none";
@@ -399,10 +405,11 @@ function downloadPDFStyled(name, skill, score, total, level, certificateId){
   doc.save(`${(name || 'certificate').replace(/\s+/g,'_')}_Certificate.pdf`);
 }
 
-/* ===== Server comms helper ===== */
+/* ===== Server comms helper (uses a demo/mock server when GAS_WEB_APP_URL is empty) ===== */
 async function callServer(payload){
-  if(!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("YOUR_DEPLOYED_WEBAPP_ID")){
-    throw new Error("GAS_WEB_APP_URL not set - replace with your deployed Apps Script URL.");
+  if(!GAS_WEB_APP_URL){
+    // demo/mock server implementation
+    return mockServer(payload);
   }
   const res = await fetch(GAS_WEB_APP_URL, {
     method: 'POST',
@@ -411,6 +418,91 @@ async function callServer(payload){
     body: JSON.stringify(payload)
   });
   return res.json();
+}
+
+/* ===== Demo/mock server (local-only) ===== */
+function mockServer(payload){
+  const action = payload.action;
+  // use localStorage for session persistence in demo
+  if(action === 'create_session'){
+    const sid = 'demo-' + Date.now();
+    const requested = payload.requestedQuestions || 5;
+    // sample question bank (extend as needed)
+    const bank = [
+      { q: "What does SQL stand for?", options: ["Structured Query Language","Simple Query Language","Sequential Query Language","Server Query Language"], answerIndex: 0, difficulty: "easy" },
+      { q: "In Excel, which function returns the current date?", options: ["NOW()", "TODAY()", "CURRENT()", "DATE()"], answerIndex: 1, difficulty: "easy" },
+      { q: "Which Python keyword is used to create a function?", options: ["func", "def", "function", "lambda"], answerIndex: 1, difficulty: "easy" },
+      { q: "Which chart is best for showing trends over time?", options: ["Pie chart","Line chart","Bar chart","Scatter plot"], answerIndex: 1, difficulty: "medium" },
+      { q: "Which SQL clause is used to filter rows?", options: ["GROUP BY","ORDER BY","WHERE","HAVING"], answerIndex: 2, difficulty: "medium" },
+      { q: "In Power BI, which feature transforms raw data?", options: ["Power Query","Power Pivot","Power View","Power Map"], answerIndex: 0, difficulty: "medium" },
+      { q: "Which Excel feature helps remove duplicate rows?", options: ["Remove Duplicates","Data Cleanse","Unique Filter","Trim"], answerIndex: 0, difficulty: "easy" },
+      { q: "What is the output of 2 + 3 * 4 in most programming languages?", options: ["20","14","24","10"], answerIndex: 1, difficulty: "easy" },
+      { q: "Which of these is a NoSQL database?", options: ["MySQL","PostgreSQL","MongoDB","SQLite"], answerIndex: 2, difficulty: "medium" },
+      { q: "What operator is used for equality in Python?", options: ["=","==",":=","==="], answerIndex: 1, difficulty: "easy" }
+    ];
+    // create questions by shuffling bank and picking requested
+    const qset = shuffle(bank).slice(0, Math.min(requested, bank.length)).map(q=>{
+      return { q: q.q, options: q.options.slice(), difficulty: q.difficulty, _answerIndex: q.answerIndex };
+    });
+    const start = nowISO();
+    const sessionObj = {
+      SessionID: sid,
+      Name: payload.name,
+      Email: payload.email,
+      Skill: payload.skill,
+      StartTime: start,
+      Questions: qset,
+      TimeLimitSecs: 300,
+      Completed: "FALSE"
+    };
+    localStorage.setItem(`demo_session_${sid}`, JSON.stringify(sessionObj));
+    return Promise.resolve({ success: true, sessionId: sid, questions: qset, startTime: start, timeLimitSecs: 300, branding: { name: "Demo Skill Portal", logo: "", color: "#764ba2" } });
+  }
+
+  if(action === 'load_session'){
+    const sid = payload.sessionId;
+    const raw = localStorage.getItem(`demo_session_${sid}`);
+    if(!raw) return Promise.resolve({ success: false, message: "Not found" });
+    const sessionObj = JSON.parse(raw);
+    const saved = JSON.parse(localStorage.getItem(`demo_saved_${sid}`) || "null");
+    return Promise.resolve({ success: true, data: sessionObj, SessionData: saved, SessionID: sid });
+  }
+
+  if(action === 'autosave'){
+    const sid = payload.sessionId;
+    const saved = {
+      answers: payload.answers || [],
+      currentIndex: payload.currentIndex || 0,
+      proctorSummary: payload.proctorSummary || {},
+      startTime: nowISO(),
+      questions: JSON.parse(localStorage.getItem(`demo_session_${sid}`) || "{}").Questions || [],
+      timeLimitSecs: 300
+    };
+    localStorage.setItem(`demo_saved_${sid}`, JSON.stringify(saved));
+    return Promise.resolve({ success: true });
+  }
+
+  if(action === 'submit'){
+    const sid = payload.sessionId;
+    const sessionRaw = localStorage.getItem(`demo_session_${sid}`);
+    if(!sessionRaw) return Promise.resolve({ success: false, message: "Session not found" });
+    const sessionObj = JSON.parse(sessionRaw);
+    const qlist = sessionObj.Questions || [];
+    const given = payload.answers || [];
+    let sc = 0;
+    for(let i=0;i<qlist.length;i++){
+      const qi = qlist[i];
+      // the correct index is in _answerIndex in demo
+      if(typeof qi._answerIndex !== 'undefined' && given[i] === qi._answerIndex) sc++;
+    }
+    sessionObj.Completed = "TRUE";
+    localStorage.setItem(`demo_session_${sid}`, JSON.stringify(sessionObj));
+    const certId = 'DEMO-CERT-' + Math.random().toString(36).substring(2,10).toUpperCase();
+    return Promise.resolve({ success: true, score: sc, totalQuestions: qlist.length, level: computeLevel(sc, qlist.length), certificateId: certId });
+  }
+
+  // default: not implemented
+  return Promise.resolve({ success: false, message: "Unknown action in demo mode" });
 }
 
 /* ===== Branding apply ===== */
@@ -443,7 +535,13 @@ document.addEventListener('keydown',(e)=>{
 /* ===== On unload, attempt save ===== */
 window.addEventListener('beforeunload', (e)=>{
   if(sessionId){
-    navigator.sendBeacon && navigator.sendBeacon(GAS_WEB_APP_URL, JSON.stringify({ action:'autosave', sessionId: sessionId, answers: answers, currentIndex: index, proctorSummary: proctor }));
+    // best-effort save in demo
+    if(GAS_WEB_APP_URL){
+      navigator.sendBeacon && navigator.sendBeacon(GAS_WEB_APP_URL, JSON.stringify({ action:'autosave', sessionId: sessionId, answers: answers, currentIndex: index, proctorSummary: proctor }));
+    } else {
+      // save locally in demo
+      localStorage.setItem(`demo_saved_${sessionId}`, JSON.stringify({ answers, currentIndex: index, proctorSummary: proctor, startTime: nowISO(), questions: test }));
+    }
   }
 });
 </script>
