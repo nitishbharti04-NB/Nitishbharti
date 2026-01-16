@@ -1,343 +1,472 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>NITI Professional Assessment — Final</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Pinyon+Script&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Quiz with Certificate</title>
 <style>
-body{margin:0;font-family:'Montserrat',sans-serif;background:#0e0f12;color:white;}
-.container{max-width:1000px;margin:36px auto;padding:18px;}
-.card{background:#fff;color:#222;padding:22px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.45);}
-.btn{background:linear-gradient(135deg,#003366,#00509d);color:white;border:none;padding:10px 16px;border-radius:6px;cursor:pointer;font-weight:700;}
-.btn.secondary{background:#666;}
-input[type="text"],input[type="email"]{width:100%;padding:10px;margin:8px 0;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;font-size:15px;}
-.option{display:block;background:#f8f8f8;padding:12px;margin:10px 0;border-radius:8px;color:#222;border:1px solid #eee;cursor:pointer;}
-.muted{color:#666;font-size:13px;}
-#timer{font-weight:700;color:#ffcc00;text-align:center;margin-bottom:12px;}
-.cert-container{width:1000px;height:650px;padding:20px;background:#003366;position:relative;margin:20px auto;box-sizing:border-box;}
-.cert-inner-frame{background:#fff;background-image: radial-gradient(#fff, #fdfbf2);height:100%;width:100%;border:4px solid #c5a059;padding:36px;box-sizing:border-box;position:relative;text-align:center;}
-.cert-title{font-family:Cinzel,serif;font-size:40px;color:#1a1a1a;margin:0;border-bottom:3px solid #c5a059;display:inline-block;padding-bottom:6px;}
-.cert-subtext{text-transform:uppercase;font-size:14px;color:#555;margin-top:18px;}
-.cert-name{font-family:Pinyon Script,cursive;font-size:64px;color:#003366;margin:16px 0;}
-.cert-course-line{font-size:20px;color:#333;}
-.cert-stats{margin-top:18px;font-size:16px;color:#444;}
-.cert-footer-link{font-size:13px;color:#777;margin-top:20px;}
-.niti-label{font-family:Cinzel,serif;font-size:18px;color:#003366;font-weight:700;margin-top:18px;}
-.cert-id-tag{display:inline-block;margin-top:8px;padding:6px 12px;background:#f0f0f0;border-radius:6px;font-weight:700;color:#000;border:1px solid #ddd;}
-.cert-bottom{display:flex;justify-content:space-between;align-items:flex-end;position:absolute;bottom:40px;left:40px;right:40px;}
-.seal-box{width:120px;height:120px;background: radial-gradient(circle,#f9d976,#f39c12);border-radius:50%;border:3px dashed #7d5a00;display:flex;align-items:center;justify-content:center;color:#7d5a00;font-weight:700;text-align:center;box-shadow:0 5px 15px rgba(0,0,0,0.2);}
-.sig-area{text-align:center;width:220px;}
-.sig-name{font-family:Pinyon Script,cursive;font-size:28px;color:#000;margin-bottom:-8px;}
-.sig-line{border-top:2px solid #333;padding-top:6px;font-weight:700;font-size:14px;color:#000;}
-#admin-launch{position:fixed;right:18px;bottom:18px;z-index:9999;border-radius:8px;padding:10px 12px;background:#222;color:white;border:none;cursor:pointer;}
-#admin-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:10000;}
-#admin-panel{width:90%;max-width:1100px;max-height:90%;overflow:auto;background:#fff;color:#222;border-radius:8px;padding:16px;box-sizing:border-box;}
-table{width:100%;border-collapse:collapse;font-size:13px;}
-th,td{padding:8px;border:1px solid #eaeaea;text-align:left;}
-thead tr{background:#f6f6f6;}
-@media (max-width:900px){.cert-container{width:100%;height:auto;}.cert-inner-frame{padding:16px;}}
+  body { background:#121212; color:#eee; font-family: Arial, sans-serif; margin:0; padding:20px;}
+  .container { max-width:600px; margin:auto; background:#222; border-radius:8px; padding:20px; }
+  h2 { color:#ffcc00; }
+  button { cursor:pointer; border:none; padding:8px 16px; border-radius:4px; }
+  button:disabled { background:#555; cursor:not-allowed; }
+  .btn-primary { background:#0044cc; color:#fff; }
+  .btn-secondary { background:#666; color:#fff; }
+  .options label { display:block; background:#333; margin:6px 0; padding:10px; border-radius:4px; cursor:pointer; }
+  .options input[type="radio"] { margin-right:8px; }
+  #timer { color:#ffcc00; margin-bottom:10px; font-weight:bold; }
+  #certificateFrame { border: 3px solid #ffcc00; padding: 20px; border-radius: 10px; margin-top: 20px; background: #111; color:#eee; }
+  #certificateFrame h2 { margin-top:0; color:#ffcc00; }
+  #admin-modal { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8); color:#eee; padding:20px; overflow:auto; }
+  #admin-modal table { width:100%; border-collapse: collapse; }
+  #admin-modal th, #admin-modal td { border:1px solid #555; padding:8px; text-align:left; }
+  #admin-modal th { background:#333; }
+  #admin-modal button { margin:5px; }
 </style>
 </head>
 <body>
-<div class="container">
-<!-- Landing -->
-<div id="landing" class="card" style="text-align:center;">
-<h1 style="color:#003366">NITI Professional Assessment</h1>
-<p class="muted">Click Start to enter your details and choose a segment.</p>
-<button class="btn" onclick="showLogin()">Start</button>
+
+<div class="container" id="landing">
+  <h2>Welcome to NITI Quiz</h2>
+  <button onclick="showLogin()">Start Test</button>
+  <button id="admin-launch">Admin Panel</button>
 </div>
-<!-- Login -->
-<div id="login" class="card" style="display:none;">
-<h2 style="color:#003366">Your Details</h2>
-<input id="inputName" type="text" placeholder="Full name (for certificate)">
-<input id="inputEmail" type="email" placeholder="Email address">
-<div style="display:flex; gap:10px; margin-top:8px;">
-<button class="btn" onclick="continueToSubject()">Continue</button>
-<button class="btn secondary" onclick="backToLanding()">Back</button>
+
+<div class="container" id="login" style="display:none;">
+  <h2>Enter Your Details</h2>
+  <input type="text" id="inputName" placeholder="Full Name" style="width:100%;padding:10px;margin-bottom:10px;" />
+  <input type="email" id="inputEmail" placeholder="Email" style="width:100%;padding:10px;margin-bottom:10px;" />
+  <button class="btn-primary" onclick="continueToSubject()">Continue</button>
+  <button class="btn-secondary" onclick="backToLanding()">Back</button>
 </div>
-<p class="muted" style="margin-top:12px;">Data is saved locally in your browser (demo).</p>
+
+<div class="container" id="subject" style="display:none;">
+  <h2>Select Subject</h2>
+  <select id="segmentSelect" style="width:100%;padding:10px;margin-bottom:10px;">
+    <option value="">-- Choose --</option>
+    <option value="Excel">Excel</option>
+    <option value="Advanced Excel">Advanced Excel</option>
+    <option value="SQL">SQL</option>
+    <option value="Power BI">Power BI</option>
+    <option value="Python">Python</option>
+  </select>
+  <button class="btn-primary" onclick="startTest()">Start Test</button>
+  <button class="btn-secondary" onclick="backToLogin()">Back</button>
 </div>
-<!-- Subject -->
-<div id="subject" class="card" style="display:none;">
-<h2 style="color:#003366">Choose Segment</h2>
-<div style="display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-top:12px;">
-<button class="btn" onclick="startIfReady('Excel')">Excel</button>
-<button class="btn" onclick="startIfReady('Advanced Excel')">Advanced Excel</button>
-<button class="btn" onclick="startIfReady('SQL')">SQL</button>
-<button class="btn" onclick="startIfReady('Power BI')">Power BI</button>
-<button class="btn" onclick="startIfReady('Python')">Python</button>
+
+<div class="container" id="quiz" style="display:none;">
+  <div id="timer">Time Left: 20:00</div>
+  <div id="questionCard"></div>
+  <button class="btn-secondary" onclick="prevQ()" id="prevBtn" disabled>Previous</button>
+  <button class="btn-primary" onclick="nextQ()" id="nextBtn">Next</button>
+  <button class="btn-primary" onclick="finishTest()" id="finishBtn" style="display:none;">Finish</button>
 </div>
-<p class="muted" style="margin-top:12px;">Each test: 15 hard questions randomized from a large pool. Retakes avoid repeating your previous set.</p>
+
+<div class="container" id="result" style="display:none;">
+  <h2>Test Completed</h2>
+  <div id="scoreText"></div>
+  <div id="certificateFrame">
+    <h2>Certificate of Completion</h2>
+    <p><strong>Name:</strong> <span id="certName"></span></p>
+    <p><strong>Subject:</strong> <span id="certSkill"></span></p>
+    <p><strong>Score:</strong> <span id="certScore"></span></p>
+    <p><strong>Grade:</strong> <span id="certGrade"></span></p>
+    <p><strong>Date:</strong> <span id="certDate"></span></p>
+    <p><strong>Certificate ID:</strong> <span id="certId"></span></p>
+  </div>
+  <button class="btn-primary" onclick="downloadCertificate()">Download Certificate (PDF)</button>
+  <button class="btn-secondary" onclick="restartTest()">Restart Test</button>
 </div>
-<!-- Quiz -->
-<div id="quiz" style="display:none;">
-<div id="timer" class="muted"></div>
-<div id="questionCard" class="card"></div>
-</div>
-<!-- Result -->
-<div id="result" style="display:none;">
-<div id="certWrap">
-<div class="cert-container">
-<div class="cert-inner-frame" id="certificateFrame">
-<div class="cert-title">Certificate of Completion</div>
-<div class="cert-subtext">This is to certify that</div>
-<div id="certName" class="cert-name">Candidate Name</div>
-<div class="cert-course-line">has successfully completed the <strong id="certSkill">Skill Test</strong></div>
-<div class="cert-stats">
-<strong>Score:</strong> <span id="certScore">0/15</span> &nbsp; | &nbsp;
-<strong>Grade:</strong> <span id="certGrade">Beginner</span> <br>
-<strong>Date:</strong> <span id="certDate"></span>
-</div>
-<div class="cert-footer-link">Thanks for visiting our page — <u>https://nitishbharti04-nb.github.io/Nitishbharti/</u></div>
-<div class="niti-label">NITI</div>
-<div id="certId" class="cert-id-tag">NITI CERT - XXXX</div>
-<div class="cert-bottom">
-<div class="seal-box">OFFICIAL<br>GRADUATE</div>
-<div class="sig-area">
-<div class="sig-name">Program Director</div>
-<div class="sig-line">Signature</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div style="display:flex; gap:12px; justify-content:center; margin-top:12px;">
-<button class="btn" onclick="downloadCertificate()">Download Official PDF Certificate</button>
-<button class="btn secondary" onclick="restartTest()">Take Another Test</button>
-</div>
-</div>
-</div>
-<button id="admin-launch" title="Admin: View results">Admin: View Results</button>
-<!-- Admin modal -->
+
+<!-- Admin Panel -->
 <div id="admin-modal">
-<div id="admin-panel">
-<div style="display:flex; justify-content:space-between; align-items:center;">
-<h3 style="margin:0">NITI — Assessment Results</h3>
-<div style="display:flex; gap:8px;">
-<button class="btn" id="exportCSV">Export CSV</button>
-<button class="btn secondary" id="clearData">Clear All</button>
-<button class="btn secondary" id="closeAdmin">Close</button>
+  <h2>Admin Panel - Test Results</h2>
+  <button onclick="closeAdmin()">Close</button>
+  <button onclick="clearData()">Clear All Data</button>
+  <button onclick="exportCSV()">Export CSV</button>
+  <table>
+    <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Subject</th><th>Score</th><th>Total</th><th>Grade</th><th>Certificate ID</th><th>Time</th></tr></thead>
+    <tbody id="admin-tbody"></tbody>
+  </table>
+  <div id="summary" style="margin-top:10px;"></div>
 </div>
-</div>
-<div id="summary" style="margin-top:12px; display:flex; gap:12px; flex-wrap:wrap;"></div>
-<div style="margin-top:12px; overflow:auto;">
-<table>
-<thead><tr><th>#</th><th>Name</th><th>Email</th><th>Segment</th><th>Score</th><th>Total</th><th>Grade</th><th>Cert ID</th><th>Timestamp</th></tr></thead>
-<tbody id="admin-tbody"></tbody>
-</table>
-</div>
-</div>
-</div>
+
+<!-- Include html2canvas and jsPDF from CDN for certificate download -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
-/* ===== Config ===== */
-const POOL_SIZE=1000, Q_PER_TEST=15, TIME_LIMIT_S=20*60;
-let userName='', userEmail='', currentSegment='';
-let poolCache={}, currentTest=[], userResponses=[], currentIndex=0, remainingSeconds=TIME_LIMIT_S, timerInterval=null;
+const POOL_SIZE = 1000;
+const Q_PER_TEST = 15;
+const TIME_LIMIT_S = 20 * 60;
 
-/* ===== Navigation ===== */
-function show(id){document.getElementById(id).style.display='';}
-function hide(id){document.getElementById(id).style.display='none';}
-function showLogin(){hide('landing'); show('login');}
-function backToLanding(){hide('login'); show('landing');}
-function continueToSubject(){
-  const n=document.getElementById('inputName').value.trim();
-  const e=document.getElementById('inputEmail').value.trim().toLowerCase();
-  if(!n)return alert('Enter your full name.');
-  if(!e)return alert('Enter email.');
-  userName=n; userEmail=e;
-  hide('login'); show('subject');
+let userName = '', userEmail = '';
+let currentSegment = '';
+let currentTest = [];
+let userResponses = [];
+let currentIndex = 0;
+let remainingSeconds = TIME_LIMIT_S;
+let timerInterval = null;
+
+/* === Helpers === */
+function show(id){ document.getElementById(id).style.display = ''; }
+function hide(id){ document.getElementById(id).style.display = 'none'; }
+function pad(n){return n<10?'0'+n:n;}
+function formatTime(s){ return `${pad(Math.floor(s/60))}:${pad(s%60)}`; }
+
+// Clean trailing numbers/spaces from string for matching
+function cleanText(s) {
+  return String(s).replace(/\s*\d+$/, '').trim();
 }
 
-/* ===== Pool generation ===== */
-function getOrMakePool(segment){
-  if(poolCache[segment]) return poolCache[segment];
-  const key=`niti_pool_${segment}`;
-  const saved=localStorage.getItem(key);
-  if(saved){ poolCache[segment]=JSON.parse(saved); return poolCache[segment]; }
-  const pool=makePool(segment,POOL_SIZE);
-  poolCache[segment]=pool;
-  localStorage.setItem(key,JSON.stringify(pool));
-  return pool;
-}
-
-/* Base questions for simulation */
-const BASE_Q={
-Excel:[
-  {q:"Function to get current date?",a:"TODAY()"},
-  {q:"Function to count numbers?",a:"COUNT()"},
-  {q:"Function for vertical lookup?",a:"VLOOKUP()"},
-  {q:"Function returns position?",a:"MATCH()"},
-  {q:"Remove duplicates feature?",a:"REMOVE DUPLICATES"}
-],
-"Advanced Excel":[
-  {q:"Function replaces VLOOKUP?",a:"XLOOKUP()"},
-  {q:"Reusable function?",a:"LAMBDA()"},
-  {q:"Dynamic arrays function?",a:"FILTER()"},
-  {q:"ETL tool in Excel?",a:"Power Query"},
-  {q:"Power Pivot language?",a:"DAX"}
-],
-SQL:[
-  {q:"Clause to filter rows?",a:"WHERE"},
-  {q:"Remove duplicates keyword?",a:"DISTINCT"},
-  {q:"Clause to group rows?",a:"GROUP BY"},
-  {q:"Left join returns?",a:"LEFT JOIN"},
-  {q:"Command to insert rows?",a:"INSERT INTO"}
-],
-"Power BI":[
-  {q:"Tool to transform data?",a:"Power Query"},
-  {q:"Language to create measures?",a:"DAX"},
-  {q:"Restrict data per user?",a:"Row-level security"},
-  {q:"Visual to show trends?",a:"Line chart"},
-  {q:"Refresh cloud data?",a:"Gateway"}
-],
-Python:[
-  {q:"Keyword to define function?",a:"def"},
-  {q:"Immutable type?",a:"tuple"},
-  {q:"Length function?",a:"len()"},
-  {q:"Exception handling?",a:"try/except"},
-  {q:"Creates a generator?",a:"yield"}
-]
-};
-
-const BANK={
-Excel:["TODAY()","NOW()","COUNT()","SUM()","AVERAGE()","VLOOKUP()","MATCH()","INDEX()","ROUND()","RANDBETWEEN()","REMOVE DUPLICATES"],
-"Advanced Excel":["XLOOKUP()","LAMBDA()","FILTER()","Power Query","DAX","CALCULATE()","OFFSET()"],
-SQL:["SELECT","WHERE","GROUP BY","ORDER BY","DISTINCT","LEFT JOIN","INSERT INTO","UPDATE"],
-"Power BI":["Power Query","DAX","Line chart","Gateway","Row-level security","Slicer"],
-Python:["def","tuple","list","len()","yield","lambda","try/except"]
-};
-
-function shuffle(a){const arr=a.slice();for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
-function sample(arr,k){if(k>=arr.length)return arr.slice();const out=[],used=new Set();while(out.length<k){const i=Math.floor(Math.random()*arr.length);if(!used.has(i)){used.add(i); out.push(arr[i]);}}return out;}
-
-function makePool(segment,size){
-  const base=BASE_Q[segment], bank=BANK[segment], pool=[];
-  let counter=1;
-  while(pool.length<size){
-    base.forEach(tmpl=>{
-      if(pool.length>=size)return;
-      const correctText=tmpl.a;
-      const distractors=shuffle(bank.filter(b=>b!==correctText)).slice(0,3);
-      const options=shuffle([correctText,...distractors]);
-      pool.push({id:`${segment}-${counter++}`,q:`${segment} — ${tmpl.q}`,options,_answerIndex:options.indexOf(correctText),correct:correctText,difficulty:'hard'});
-    });
+// Shuffle array copy
+function shuffle(arr){ 
+  const a = arr.slice();
+  for(let i=a.length-1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i], a[j]] = [a[j], a[i]];
   }
+  return a;
+}
+
+// Sample k elements from array without replacement
+function sample(arr, k){
+  if(k >= arr.length) return arr.slice();
+  const out = [], used = new Set();
+  while(out.length < k){
+    const i = Math.floor(Math.random()*arr.length);
+    if(!used.has(i)){
+      used.add(i);
+      out.push(arr[i]);
+    }
+  }
+  return out;
+}
+
+/* === Base question templates for each segment === */
+const baseQuestions = {
+  Excel:[
+    {q:"Which function returns current date and time?", correct:"NOW()"},
+    {q:"Which function counts numeric entries?", correct:"COUNT()"},
+    {q:"Which function looks up values vertically?", correct:"VLOOKUP()"},
+    {q:"Which function returns position of value in range?", correct:"MATCH()"},
+    {q:"Which feature removes duplicate rows?", correct:"REMOVE DUPLICATES"},
+    {q:"Which function concatenates strings?", correct:"CONCAT()"},
+    {q:"Which function rounds a number?", correct:"ROUND()"},
+    {q:"Which function generates random integers?", correct:"RANDBETWEEN()"},
+    {q:"Which function returns today's date?", correct:"TODAY()"},
+    {q:"Which function returns average of numbers?", correct:"AVERAGE()"}
+  ],
+  "Advanced Excel":[
+    {q:"Which function replaces VLOOKUP?", correct:"XLOOKUP()"},
+    {q:"Which function creates reusable functions?", correct:"LAMBDA()"},
+    {q:"Which tool performs ETL in Excel?", correct:"Power Query"},
+    {q:"Which language is used in Power Pivot?", correct:"DAX"},
+    {q:"Which function supports dynamic arrays?", correct:"FILTER()"},
+    {q:"Which function calculates values?", correct:"CALCULATE()"},
+    {q:"Which function offsets a range?", correct:"OFFSET()"}
+  ],
+  SQL:[
+    {q:"Which clause filters rows?", correct:"WHERE"},
+    {q:"Which keyword removes duplicates?", correct:"DISTINCT"},
+    {q:"Which clause groups rows?", correct:"GROUP BY"},
+    {q:"Which join returns all left rows?", correct:"LEFT JOIN"},
+    {q:"Which command inserts rows?", correct:"INSERT INTO"},
+    {q:"Which command updates rows?", correct:"UPDATE"},
+    {q:"Which clause orders rows?", correct:"ORDER BY"}
+  ],
+  "Power BI":[
+    {q:"Which tool transforms data?", correct:"Power Query"},
+    {q:"Which language creates measures?", correct:"DAX"},
+    {q:"Which feature restricts data per user?", correct:"Row-level security"},
+    {q:"Which visual shows trends?", correct:"Line chart"},
+    {q:"Which refreshes cloud data?", correct:"Gateway"},
+    {q:"Which feature filters reports?", correct:"Slicer"}
+  ],
+  Python:[
+    {q:"Which keyword defines a function?", correct:"def"},
+    {q:"Which type is immutable?", correct:"tuple"},
+    {q:"Which function returns length?", correct:"len()"},
+    {q:"Which keyword handles exceptions?", correct:"try/except"},
+    {q:"Which creates a generator?", correct:"yield"},
+    {q:"Which keyword creates anonymous functions?", correct:"lambda"},
+    {q:"Which data structure stores key-value pairs?", correct:"dict"}
+  ]
+};
+
+/* === Banks of distractors for options === */
+const banks = {
+  Excel:["NOW()","TODAY()","COUNT()","SUM()","AVERAGE()","VLOOKUP()","MATCH()","INDEX()","ROUND()","RANDBETWEEN()","REMOVE DUPLICATES","CONCAT()"],
+  "Advanced Excel":["XLOOKUP()","LAMBDA()","FILTER()","Power Query","DAX","CALCULATE()","OFFSET()"],
+  SQL:["SELECT","WHERE","GROUP BY","ORDER BY","DISTINCT","LEFT JOIN","INSERT INTO","UPDATE"],
+  "Power BI":["Power Query","DAX","Line chart","Gateway","Row-level security","Slicer"],
+  Python:["def","tuple","list","len()","yield","lambda","try/except","dict"]
+};
+
+/* === Generate a large pool of questions by repeating and adding variant numbers === */
+function makePool(segment, size){
+  const base = baseQuestions[segment];
+  const bank = banks[segment];
+
+  if(!base) return [];
+
+  const pool = [];
+  let counter = 1;
+
+  while(pool.length < size){
+    for(const tmpl of base){
+      if(pool.length >= size) break;
+
+      const correctText = tmpl.correct;
+
+      // Distractors excluding the correct
+      const distractors = shuffle(
+        bank.filter(b => b !== correctText)
+      ).slice(0, 3);
+
+      // Compose options and shuffle
+      const optionsRaw = shuffle([correctText, ...distractors]);
+
+      // Add variant number suffix for uniqueness
+      const variantNum = Math.floor(Math.random()*10)+1;
+      const options = optionsRaw.map(opt => opt + (opt === correctText ? '' : ' ' + variantNum));
+
+      // Clean texts for matching correct index
+      const cleanCorrect = cleanText(correctText);
+      const cleanedOptions = options.map(opt => cleanText(opt));
+      const correctIndex = cleanedOptions.indexOf(cleanCorrect);
+
+      pool.push({
+        id: `${segment}-${counter++}`,
+        q: `${segment} — ${tmpl.q} (variant ${variantNum})`,
+        options,
+        _answerIndex: correctIndex,
+        correct: correctText,
+        difficulty: 'hard'
+      });
+    }
+  }
+
   return shuffle(pool);
 }
 
-/* ===== Select questions avoiding immediate previous attempt ===== */
-function selectQuestions(segment,email,k){
-  const pool=getOrMakePool(segment);
-  const lastKey=`niti_last_${email}_${segment}`;
-  const prev=JSON.parse(localStorage.getItem(lastKey)||'null');
-  const prevIds=prev?prev.ids:null;
-  for(let attempt=0;attempt<60;attempt++){
-    const sampleQs=sample(pool,k);
-    const ids=sampleQs.map(q=>q.id);
-    const overlap=prevIds?ids.filter(id=>prevIds.includes(id)).length:0;
-    if(!prevIds||overlap===0){
-      const prepared=sampleQs.map(q=>shuffleOptions(q));
-      localStorage.setItem(lastKey,JSON.stringify({ids:prepared.map(p=>p.id),time:new Date().toISOString()}));
-      return prepared;
-    }
-  }
-  return sample(pool,k).map(q=>shuffleOptions(q));
-}
+/* === Start test === */
+function startTest(){
+  const sel = document.getElementById('segmentSelect').value;
+  if(!sel) return alert('Please select a subject');
+  currentSegment = sel;
+  currentTest = makePool(currentSegment, POOL_SIZE);
+  currentTest = sample(currentTest, Q_PER_TEST);
+  userResponses = Array(Q_PER_TEST).fill(null);
+  currentIndex = 0;
+  remainingSeconds = TIME_LIMIT_S;
 
-function shuffleOptions(q){
-  const correctText=q.correct!==undefined?q.correct:q.options[q._answerIndex];
-  const opts=q.options.slice();
-  const shuffled=shuffle(opts);
-  const newIndex=shuffled.indexOf(correctText);
-  return {id:q.id,q:q.q,options:shuffled,_answerIndex:newIndex,correct:correctText,difficulty:q.difficulty};
-}
-
-/* ===== Start Test ===== */
-function startIfReady(segment){
-  if(!userName||!userEmail){alert('Enter name & email first.'); hide('landing'); show('login'); return;}
-  currentSegment=segment;
-  hide('subject'); show('quiz');
-  currentTest=selectQuestions(segment,userEmail,Q_PER_TEST);
-  userResponses=new Array(currentTest.length).fill(null);
-  currentIndex=0;
-  remainingSeconds=TIME_LIMIT_S;
+  hide('subject');
+  show('quiz');
   renderQuestion();
   startTimer();
 }
 
-/* ===== Timer & Rendering ===== */
-function startTimer(){
-  document.getElementById('timer').textContent=`Time Left: ${formatTime(remainingSeconds)}`;
-  if(timerInterval)clearInterval(timerInterval);
-  timerInterval=setInterval(()=>{
-    remainingSeconds--;
-    document.getElementById('timer').textContent=`Time Left: ${formatTime(remainingSeconds)}`;
-    if(remainingSeconds<=0){clearInterval(timerInterval); finishTest();}
-  },1000);
-}
-function formatTime(s){const m=Math.floor(s/60), sec=s%60;return `${m}:${sec<10?'0'+sec:sec}`;}
+/* === Render current question === */
 function renderQuestion(){
-  const card=document.getElementById('questionCard');
-  const q=currentTest[currentIndex];
-  const optsHtml=q.options.map((opt,i)=>`<label class="option"><input type="radio" name="opt" value="${i}" ${userResponses[currentIndex]===i?'checked':''}> ${opt}</label>`).join('');
-  const prevBtn=currentIndex>0?`<button class="btn secondary" onclick="prevQ()">Previous</button>`:'';
-  const nextBtn=currentIndex<currentTest.length-1?`<button class="btn" onclick="nextQ()">Next</button>`:`<button class="btn" onclick="finishTest()">Finish Test</button>`;
-  card.innerHTML=`
-  <h3 style="color:#003366">Question ${currentIndex+1} / ${currentTest.length}</h3>
-  <p>${q.q}</p>
-  ${optsHtml}
-  <div style="margin-top:12px;display:flex;gap:8px;">${prevBtn}${nextBtn}</div>`;
-}
-function prevQ(){saveResponse(); if(currentIndex>0){currentIndex--; renderQuestion();}}
-function nextQ(){saveResponse(); if(currentIndex<currentTest.length-1){currentIndex++; renderQuestion();}}
-function saveResponse(){const sel=document.querySelector('input[name="opt"]:checked');userResponses[currentIndex]=sel?parseInt(sel.value):null;}
+  const q = currentTest[currentIndex];
+  const optsHtml = q.options.map((opt,i)=>`
+    <label>
+      <input type="radio" name="opt" value="${i}" ${userResponses[currentIndex]===i?'checked':''}/>
+      ${opt}
+    </label>`).join('');
 
-/* ===== Finish & Certificate ===== */
-function finishTest(){saveResponse(); clearInterval(timerInterval); hide('quiz'); show('result');
-const score=userResponses.reduce((acc,v,i)=>v===currentTest[i]._answerIndex?acc+1:acc,0);
-const grade=score>=13?'Expert':score>=10?'Proficient':score>=7?'Intermediate':'Beginner';
-const date=new Date().toLocaleDateString();
-document.getElementById('certName').textContent=userName;
-document.getElementById('certSkill').textContent=currentSegment;
-document.getElementById('certScore').textContent=`${score}/${currentTest.length}`;
-document.getElementById('certGrade').textContent=grade;
-document.getElementById('certDate').textContent=date;
-document.getElementById('certId').textContent='NITI-'+Math.random().toString(36).substring(2,10).toUpperCase();
-/* Save result for admin */
-const stored=JSON.parse(localStorage.getItem('niti_results')||'[]');
-stored.push({name:userName,email:userEmail,segment:currentSegment,score:score,total:currentTest.length,grade,certId:document.getElementById('certId').textContent,time:new Date().toISOString()});
-localStorage.setItem('niti_results',JSON.stringify(stored));
+  document.getElementById('questionCard').innerHTML = `
+    <h3>Question ${currentIndex+1} / ${currentTest.length}</h3>
+    <p>${q.q}</p>
+    <div class="options">${optsHtml}</div>
+  `;
+
+  document.getElementById('prevBtn').disabled = currentIndex === 0;
+  document.getElementById('nextBtn').style.display = currentIndex === currentTest.length -1 ? 'none' : '';
+  document.getElementById('finishBtn').style.display = currentIndex === currentTest.length -1 ? '' : 'none';
 }
 
-/* ===== Download Certificate ===== */
+/* === Navigation === */
+function prevQ(){
+  saveResponse();
+  if(currentIndex > 0){
+    currentIndex--;
+    renderQuestion();
+  }
+}
+function nextQ(){
+  saveResponse();
+  if(currentIndex < currentTest.length - 1){
+    currentIndex++;
+    renderQuestion();
+  }
+}
+function saveResponse(){
+  const sel = document.querySelector('input[name="opt"]:checked');
+  userResponses[currentIndex] = sel ? +sel.value : null;
+}
+
+/* === Timer === */
+function startTimer(){
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    remainingSeconds--;
+    if(remainingSeconds <= 0){
+      finishTest();
+      return;
+    }
+    document.getElementById('timer').textContent = 'Time Left: ' + formatTime(remainingSeconds);
+  }, 1000);
+}
+
+/* === Finish and show certificate === */
+function finishTest(){
+  saveResponse();
+  clearInterval(timerInterval);
+  hide('quiz');
+  show('result');
+
+  const score = userResponses.reduce((acc,v,i) => (v === currentTest[i]._answerIndex ? acc + 1 : acc), 0);
+  const grade = score >= 13 ? 'Expert' : score >= 10 ? 'Proficient' : score >= 7 ? 'Intermediate' : 'Beginner';
+  const date = new Date().toLocaleDateString();
+
+  document.getElementById('certName').textContent = userName;
+  document.getElementById('certSkill').textContent = currentSegment;
+  document.getElementById('certScore').textContent = `${score} / ${currentTest.length}`;
+  document.getElementById('certGrade').textContent = grade;
+  document.getElementById('certDate').textContent = date;
+  document.getElementById('certId').textContent = 'NITI-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+
+  // Save result
+  const stored = JSON.parse(localStorage.getItem('niti_results') || '[]');
+  stored.push({
+    name: userName,
+    email: userEmail,
+    segment: currentSegment,
+    score,
+    total: currentTest.length,
+    grade,
+    certId: document.getElementById('certId').textContent,
+    time: new Date().toISOString()
+  });
+  localStorage.setItem('niti_results', JSON.stringify(stored));
+
+  document.getElementById('scoreText').textContent = `You scored ${score} out of ${currentTest.length} (${grade})`;
+}
+
+/* === Download certificate as PDF === */
 async function downloadCertificate(){
-  const el=document.getElementById('certificateFrame');
-  const canvas=await html2canvas(el,{scale:2});
-  const img=canvas.toDataURL('image/png');
+  const el = document.getElementById('certificateFrame');
+  const canvas = await html2canvas(el, {scale: 2});
+  const img = canvas.toDataURL('image/png');
   const { jsPDF } = window.jspdf;
-  const pdf=new jsPDF({orientation:'landscape',unit:'px',format:[canvas.width,canvas.height]});
-  pdf.addImage(img,'PNG',0,0,canvas.width,canvas.height);
+  const pdf = new jsPDF({
+    orientation: 'landscape',
+    unit: 'px',
+    format: [canvas.width, canvas.height]
+  });
+  pdf.addImage(img, 'PNG', 0, 0, canvas.width, canvas.height);
   pdf.save('NITI_Certificate.pdf');
 }
 
-/* ===== Restart ===== */
-function restartTest(){hide('result'); show('subject'); currentSegment=''; currentTest=[]; userResponses=[]; currentIndex=0;}
-
-/* ===== Admin ===== */
-document.getElementById('admin-launch').onclick=()=>{document.getElementById('admin-modal').style.display='flex'; loadAdmin();}
-document.getElementById('closeAdmin').onclick=()=>{document.getElementById('admin-modal').style.display='none';}
-document.getElementById('clearData').onclick=()=>{if(confirm('Clear all results?')){localStorage.removeItem('niti_results'); loadAdmin();}}
-document.getElementById('exportCSV').onclick=()=>{const rows=JSON.parse(localStorage.getItem('niti_results')||'[]'); if(!rows.length){alert('No data'); return;} let csv='Name,Email,Segment,Score,Total,Grade,CertID,Time\n'+rows.map(r=>[r.name,r.email,r.segment,r.score,r.total,r.grade,r.certId,r.time].join(',')).join('\n'); const blob=new Blob([csv],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='niti_results.csv'; a.click();}
-function loadAdmin(){
-  const rows=JSON.parse(localStorage.getItem('niti_results')||'[]');
-  const tbody=document.getElementById('admin-tbody'); tbody.innerHTML='';
-  rows.forEach((r,i)=>{tbody.innerHTML+=`<tr><td>${i+1}</td><td>${r.name}</td><td>${r.email}</td><td>${r.segment}</td><td>${r.score}</td><td>${r.total}</td><td>${r.grade}</td><td>${r.certId}</td><td>${r.time}</td></tr>`;});
-  document.getElementById('summary').innerHTML=`<div>Total Attempts: ${rows.length}</div>`;
+/* === Restart test === */
+function restartTest(){
+  hide('result');
+  show('subject');
+  currentSegment = '';
+  currentTest = [];
+  userResponses = [];
+  currentIndex = 0;
+  document.getElementById('segmentSelect').value = '';
 }
+
+/* === Navigation helpers === */
+function showLogin(){
+  hide('landing');
+  show('login');
+}
+function backToLanding(){
+  hide('login');
+  show('landing');
+}
+function continueToSubject(){
+  const n = document.getElementById('inputName').value.trim();
+  const e = document.getElementById('inputEmail').value.trim().toLowerCase();
+  if(!n) return alert('Enter your full name.');
+  if(!e) return alert('Enter your email.');
+  userName = n;
+  userEmail = e;
+  hide('login');
+  show('subject');
+}
+function backToLogin(){
+  hide('subject');
+  show('login');
+}
+
+/* === Admin Panel === */
+document.getElementById('admin-launch').onclick = () => {
+  const data = JSON.parse(localStorage.getItem('niti_results') || '[]');
+  const tbody = document.getElementById('admin-tbody');
+  tbody.innerHTML = '';
+  data.forEach((r,i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${i+1}</td>
+      <td>${r.name}</td>
+      <td>${r.email}</td>
+      <td>${r.segment}</td>
+      <td>${r.score}</td>
+      <td>${r.total}</td>
+      <td>${r.grade}</td>
+      <td>${r.certId}</td>
+      <td>${new Date(r.time).toLocaleString()}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('summary').textContent = `Total attempts: ${data.length}`;
+  show('admin-modal');
+};
+function closeAdmin(){ hide('admin-modal'); }
+function clearData(){
+  if(confirm('Clear all stored test results?')){
+    localStorage.removeItem('niti_results');
+    closeAdmin();
+  }
+}
+function exportCSV(){
+  const data = JSON.parse(localStorage.getItem('niti_results') || '[]');
+  if(data.length === 0){
+    alert('No data to export');
+    return;
+  }
+  const csvRows = [
+    ['Name','Email','Subject','Score','Total','Grade','Certificate ID','Date']
+  ];
+  data.forEach(r => {
+    csvRows.push([
+      `"${r.name}"`,
+      `"${r.email}"`,
+      `"${r.segment}"`,
+      r.score,
+      r.total,
+      `"${r.grade}"`,
+      `"${r.certId}"`,
+      `"${new Date(r.time).toLocaleString()}"`
+    ].join(','));
+  });
+  const csvString = csvRows.join('\n');
+  const blob = new Blob([csvString], {type: 'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'niti_results.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 </script>
+
 </body>
 </html>
