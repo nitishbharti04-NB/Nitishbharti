@@ -199,79 +199,84 @@ function getOrMakePool(segment){
 }
 
 function makePool(segment, size){
-  // banks & templates for variety
   const templates = {
-Excel:[
-{q:"Which function returns current date and time?",a:"NOW()"},
-{q:"Which function counts numeric entries?",a:"COUNT()"},
-{q:"Which function looks up values vertically?",a:"VLOOKUP()"},
-{q:"Which function returns position of value in range?",a:"MATCH()"},
-{q:"Which feature removes duplicate rows?",a:"REMOVE DUPLICATES"}
-],
-"Advanced Excel":[
-{q:"Which function replaces VLOOKUP?",a:"XLOOKUP()"},
-{q:"Which function creates reusable functions?",a:"LAMBDA()"},
-{q:"Which tool performs ETL in Excel?",a:"Power Query"},
-{q:"Which language is used in Power Pivot?",a:"DAX"},
-{q:"Which function supports dynamic arrays?",a:"FILTER()"}
-],
-SQL:[
-{q:"Which clause filters rows?",a:"WHERE"},
-{q:"Which keyword removes duplicates?",a:"DISTINCT"},
-{q:"Which clause groups rows?",a:"GROUP BY"},
-{q:"Which join returns all left rows?",a:"LEFT JOIN"},
-{q:"Which command inserts rows?",a:"INSERT INTO"}
-],
-"Power BI":[
-{q:"Which tool transforms data?",a:"Power Query"},
-{q:"Which language creates measures?",a:"DAX"},
-{q:"Which feature restricts data per user?",a:"Row-level security"},
-{q:"Which visual shows trends?",a:"Line chart"},
-{q:"Which refreshes cloud data?",a:"Gateway"}
-],
-Python:[
-{q:"Which keyword defines a function?",a:"def"},
-{q:"Which type is immutable?",a:"tuple"},
-{q:"Which function returns length?",a:"len()"},
-{q:"Which keyword handles exceptions?",a:"try/except"},
-{q:"Which creates a generator?",a:"yield"}
-]
-};
+    Excel:[
+      {q:"Which function returns current date and time?",a:"NOW()"},
+      {q:"Which function counts numeric entries?",a:"COUNT()"},
+      {q:"Which function looks up values vertically?",a:"VLOOKUP()"},
+      {q:"Which function returns position of value in range?",a:"MATCH()"},
+      {q:"Which feature removes duplicate rows?",a:"REMOVE DUPLICATES"}
+    ],
+    "Advanced Excel":[
+      {q:"Which function replaces VLOOKUP?",a:"XLOOKUP()"},
+      {q:"Which function creates reusable functions?",a:"LAMBDA()"},
+      {q:"Which tool performs ETL in Excel?",a:"Power Query"},
+      {q:"Which language is used in Power Pivot?",a:"DAX"},
+      {q:"Which function supports dynamic arrays?",a:"FILTER()"}
+    ],
+    SQL:[
+      {q:"Which clause filters rows?",a:"WHERE"},
+      {q:"Which keyword removes duplicates?",a:"DISTINCT"},
+      {q:"Which clause groups rows?",a:"GROUP BY"},
+      {q:"Which join returns all left rows?",a:"LEFT JOIN"},
+      {q:"Which command inserts rows?",a:"INSERT INTO"}
+    ],
+    "Power BI":[
+      {q:"Which tool transforms data?",a:"Power Query"},
+      {q:"Which language creates measures?",a:"DAX"},
+      {q:"Which feature restricts data per user?",a:"Row-level security"},
+      {q:"Which visual shows trends?",a:"Line chart"},
+      {q:"Which refreshes cloud data?",a:"Gateway"}
+    ],
+    Python:[
+      {q:"Which keyword defines a function?",a:"def"},
+      {q:"Which type is immutable?",a:"tuple"},
+      {q:"Which function returns length?",a:"len()"},
+      {q:"Which keyword handles exceptions?",a:"try/except"},
+      {q:"Which creates a generator?",a:"yield"}
+    ]
+  };
 
-const banks = {
-Excel:["NOW()","TODAY()","COUNT()","SUM()","AVERAGE()","VLOOKUP()","MATCH()","INDEX()","ROUND()","RANDBETWEEN()","REMOVE DUPLICATES"],
-"Advanced Excel":["XLOOKUP()","LAMBDA()","FILTER()","Power Query","DAX","CALCULATE()","OFFSET()"],
-SQL:["SELECT","WHERE","GROUP BY","ORDER BY","DISTINCT","LEFT JOIN","INSERT INTO","UPDATE"],
-"Power BI":["Power Query","DAX","Line chart","Gateway","Row-level security","Slicer"],
-Python:["def","tuple","list","len()","yield","lambda","try/except"]
-};
+  const banks = {
+    Excel:["NOW()","TODAY()","COUNT()","SUM()","AVERAGE()","VLOOKUP()","MATCH()","INDEX()","ROUND()","RANDBETWEEN()","REMOVE DUPLICATES"],
+    "Advanced Excel":["XLOOKUP()","LAMBDA()","FILTER()","Power Query","DAX","CALCULATE()","OFFSET()"],
+    SQL:["SELECT","WHERE","GROUP BY","ORDER BY","DISTINCT","LEFT JOIN","INSERT INTO","UPDATE"],
+    "Power BI":["Power Query","DAX","Line chart","Gateway","Row-level security","Slicer"],
+    Python:["def","tuple","list","len()","yield","lambda","try/except"]
+  };
 
-  const bank = banks[segment] || banks["Excel"];
-  const base = templates[segment] || templates["Excel"];
-
-  // extend bank to ensure many distractors
-  let ext = bank.slice();
-  while(ext.length < 80) ext = ext.concat(bank.map((b,i)=> b + ' ' + ((i%10)+1)));
+  const base = templates[segment];
+  const bank = banks[segment];
 
   const pool = [];
-  for(let i=0;i<size;i++){
-    const tmpl = base[i % base.length];
-    const variant = Math.floor(i / base.length) + 1;
-    const qtext = `${segment} — Q${i+1}: ${tmpl} (variant ${variant})`;
-    const correctText = ext[(i * 11) % ext.length];
-    const distractors = [];
-    let attempts = 0;
-    while(distractors.length < 3 && attempts < 200){
-      const cand = ext[Math.floor(Math.random()*ext.length)];
-      if(cand !== correctText && distractors.indexOf(cand) === -1) distractors.push(cand);
-      attempts++;
-    }
-    const opts = shuffle([correctText, ...distractors]);
-    const correctIndex = opts.indexOf(correctText);
-    pool.push({ id: `${segment}-${i+1}`, q: qtext, options: opts, _answerIndex: correctIndex, correct: correctText, difficulty: 'hard' });
+
+  let counter = 1;
+  while(pool.length < size){
+    base.forEach(tmpl => {
+      if(pool.length >= size) return;
+
+      const correctText = tmpl.a;
+
+      const distractors = shuffle(
+        bank.filter(b => b !== correctText)
+      ).slice(0,3);
+
+      const options = shuffle([correctText, ...distractors]);
+
+      pool.push({
+        id: `${segment}-${counter++}`,
+        q: `${segment} — ${tmpl.q}`,
+        options,
+        _answerIndex: options.indexOf(correctText),
+        correct: correctText,
+        difficulty: 'hard'
+      });
+    });
   }
-  return pool;
+
+  return shuffle(pool);
 }
+
 
 /* ====== select questions avoiding immediate previous set for same email+segment ====== */
 function selectQuestions(segment, email, k){
