@@ -1,344 +1,255 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>NITI Certificate</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>NITI Advanced Portal</title>
 
-    <!-- Google fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Pinyon+Script&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: linear-gradient(135deg,#f6f8fb,#e8eef8);
-            margin: 0;
-            font-family: 'Montserrat', sans-serif;
+        body { margin:0; font-family:'Montserrat', sans-serif; background:#0b132b; color:white; overflow-x:hidden; }
+        .container { max-width:900px; margin:40px auto; padding:20px; }
+        .card { background:white; color:#333; padding:30px; border-radius:15px; box-shadow:0 15px 50px rgba(0,0,0,0.5); }
+        
+        /* Buttons & Inputs */
+        input { width:100%; padding:15px; margin:10px 0; border:1px solid #ccc; border-radius:8px; font-size:16px; box-sizing:border-box; }
+        button { background:linear-gradient(135deg,#003366,#800000); color:white; border:none; padding:15px 30px; border-radius:8px; cursor:pointer; font-weight:700; font-size:16px; width:100%; margin-top:10px; transition:0.3s; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .option { display:block; background:#f4f7f6; padding:15px; margin:10px 0; border-radius:8px; cursor:pointer; border:1px solid #ddd; transition:0.2s; }
+        .option:hover { background: #e9ecef; border-color: #800000; }
+
+        /* =========================================
+           CERTIFICATE DESIGN (100% MATCH)
+           ========================================= */
+        #cert-wrapper { padding: 20px; background: #eee; display: inline-block; }
+        .certificate {
+            width: 1000px; height: 630px; position: relative; background: white;
+            padding: 10px; box-sizing: border-box; color: #333; overflow: hidden;
+            border: 2px solid #c5a059;
+        }
+        
+        /* The Two-Tone Thick Border */
+        .cert-border {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            border: 20px solid transparent;
+            border-image: linear-gradient(to right, #1a3a5a 50%, #5a0a1a 50%) 1;
+            z-index: 1;
         }
 
-        /* Certificate Main Container */
-        .certificate-container {
-            width: 850px;
-            height: 550px;
-            padding: 20px;
-            background-color: #fff;
-            position: relative;
-            border: 15px solid #003366; /* Deep Blue Border */
-            box-shadow: 0 0 20px rgba(0,0,0,0.15);
-            box-sizing: border-box;
-        }
-
-        /* Inner Decorative Border */
-        .inner-border {
-            border: 2px solid #c5a059; /* Gold Line */
-            height: 100%;
-            width: 100%;
-            padding: 30px;
-            box-sizing: border-box;
+        /* Gold Inner Frame with Flourishes */
+        .cert-inner {
+            position: relative; height: 100%; width: 100%; z-index: 2;
+            border: 5px double #c5a059; padding: 40px; box-sizing: border-box;
+            background: radial-gradient(circle, #ffffff, #fffdf0);
             text-align: center;
-            position: relative;
         }
 
-        /* Ornate Corners */
-        .inner-border::before {
-            content: "⚜";
-            position: absolute;
-            top: 8px; left: 8px;
-            color: #c5a059;
-            font-size: 22px;
-        }
+        .cert-title { font-family: 'Cinzel', serif; font-size: 52px; font-weight: 700; color: #1a1a1a; margin-top: 10px; }
+        .cert-sub { text-transform: uppercase; letter-spacing: 3px; font-size: 16px; margin-top: 15px; color: #444; }
+        .cert-name { font-family: 'Pinyon Script', cursive; font-size: 75px; color: #000; margin: 10px 0; }
+        .cert-msg { font-size: 18px; color: #333; }
+        
+        /* Ornament around Course */
+        .course-wrap { font-family: 'Cinzel', serif; font-size: 35px; font-weight: 700; margin: 15px 0; display:flex; align-items:center; justify-content:center; }
+        .course-wrap::before, .course-wrap::after { content: "❧"; font-size: 40px; color: #c5a059; margin: 0 20px; }
 
-        h1 {
-            font-family: 'Cinzel', serif;
-            font-size: 42px;
-            margin: 0;
-            color: #1a1a1a;
-            letter-spacing: 2px;
-            border-bottom: 2px solid #c5a059;
-            display: inline-block;
-            padding-bottom: 5px;
-        }
+        .cert-data { font-size: 18px; font-weight: 600; line-height: 1.6; }
+        .cert-link { font-size: 14px; color: #555; margin-top: 20px; }
 
-        .subtitle {
-            margin-top: 20px;
-            font-size: 18px;
-            text-transform: uppercase;
-            color: #555;
-        }
+        /* Seals (NITI Logo) */
+        .seal-main { position: absolute; bottom: 30px; left: 30px; width: 150px; }
+        .seal-side { position: absolute; top: 120px; right: 40px; width: 80px; }
 
-        .student-name {
-            font-family: 'Pinyon Script', cursive;
-            font-size: 55px;
-            margin: 15px 0;
-            color: #003366;
-        }
+        /* Signature Area */
+        .sig-block { position: absolute; bottom: 40px; right: 60px; text-align: center; }
+        .sig-img { font-family: 'Pinyon Script', cursive; font-size: 30px; margin-bottom: -5px; }
+        .sig-line { border-top: 2px solid #333; width: 200px; padding-top: 5px; font-weight: 700; font-size: 14px; }
 
-        .course-info {
-            font-size: 20px;
-            margin: 10px 0;
-        }
+        /* ID Tag */
+        .id-tag { font-family: 'Montserrat', sans-serif; font-weight: 700; margin-top: 15px; font-size: 16px; }
 
-        .course-name {
-            font-weight: bold;
-            font-size: 26px;
-            display: block;
-            margin-top: 5px;
-        }
-
-        .stats {
-            margin-top: 20px;
-            font-size: 16px;
-            line-height: 1.6;
-        }
-
-        .footer-info {
-            margin-top: 30px;
-            font-size: 12px;
-            color: #666;
-        }
-
-        .footer-info a {
-            color: #003366;
-            text-decoration: none;
-        }
-
-        .cert-id {
-            margin-top: 15px;
-            font-weight: bold;
-            color: #000;
-        }
-
-        /* Bottom: seal & signature */
-        .bottom-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-top: 20px;
-            padding: 0 40px;
-        }
-
-        /* Golden Seal */
-        .seal {
-            width: 100px;
-            height: 100px;
-            background: radial-gradient(circle, #f9d976, #f39c12);
-            border-radius: 50%;
-            position: relative;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            font-size: 11px;
-            text-align: center;
-            color: #7d5a00;
-            border: 2px dashed #7d5a00;
-        }
-
-        .seal::after, .seal::before {
-            content: "";
-            position: absolute;
-            bottom: -20px;
-            width: 30px;
-            height: 50px;
-            background: #f39c12;
-            clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
-            z-index: -1;
-        }
-        .seal::after { left: 20px; transform: rotate(10deg); }
-        .seal::before { right: 20px; transform: rotate(-10deg); }
-
-        .signature-area {
-            text-align: center;
-            width: 200px;
-        }
-
-        .signature-line {
-            border-top: 1px solid #000;
-            padding-top: 5px;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .actual-signature {
-            font-family: 'Pinyon Script', cursive;
-            font-size: 24px;
-            margin-bottom: -5px;
-        }
-
-        /* Buttons */
-        .controls {
-            position: fixed;
-            top: 18px;
-            left: 18px;
-            display: flex;
-            gap: 10px;
-            z-index: 9999;
-        }
-        .btn {
-            padding: 10px 16px;
-            background: linear-gradient(135deg,#0077cc,#00aaff);
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 6px;
-            box-shadow: 0 6px 18px rgba(0,118,204,0.18);
-            font-weight: 600;
-        }
-        .btn.secondary {
-            background: linear-gradient(135deg,#ff6b6b,#ff3d7f);
-        }
-
-        /* Print settings */
-        @media print {
-            body { background: none; }
-            .controls { display: none; }
-            .certificate-container { box-shadow: none; border: 10px solid #003366 !important; }
-        }
+        @media print { .no-print { display: none; } }
     </style>
 </head>
 <body>
 
-    <div class="controls">
-        <button id="btnDownload" class="btn">Download Certificate (PDF)</button>
-        <button id="btnPrint" class="btn secondary" onclick="window.print()">Print</button>
+<div class="container no-print">
+    <div id="login-box" class="card">
+        <h1 style="text-align:center; color:#003366">NITI Skill Portal</h1>
+        <p>Please enter your details to start the 15-question hard assessment.</p>
+        <input id="userName" type="text" placeholder="Enter Full Name">
+        <input id="userEmail" type="email" placeholder="Enter Email">
+        <button onclick="showSubjects()">Next</button>
     </div>
 
-    <div class="certificate-container" id="certificate">
-        <div class="inner-border">
-            <h1>Certificate of Completion</h1>
-            <p class="subtitle">This is to certify that</p>
+    <div id="subject-box" class="card" style="display:none">
+        <h2>Choose Your Test</h2>
+        <button onclick="startQuiz('Excel')">Advanced Excel (15 Qs)</button>
+        <button onclick="startQuiz('SQL')">Complex SQL (15 Qs)</button>
+        <button onclick="startQuiz('Python')">Python Expert (15 Qs)</button>
+    </div>
 
-            <div class="student-name" id="studentName">Nitish Kumar Bharti</div>
+    <div id="quiz-box" style="display:none">
+        <div id="timer" style="text-align:center; font-size:24px; color:#ffcc00; margin-bottom:10px; font-weight:bold;">Time: 20:00</div>
+        <div id="q-card" class="card"></div>
+    </div>
+</div>
 
-            <p class="course-info">has successfully completed the <br>
-            <span class="course-name" id="courseName">Excel Test</span></p>
-
-            <div class="stats">
-                <strong>Score:</strong> <span id="scoreValue">6</span>/<span id="scoreTotal">15</span> <br>
-                <strong>Grade:</strong> <span id="gradeValue">Beginner</span> <br>
-                <strong>Date:</strong> <span id="dateValue">Fri Jan 16 2026</span>
-            </div>
-
-            <div class="footer-info">
-                Thanks for visiting our page — <a href="https://nitishbharti04-nb.github.io/Nitishbharti/" target="_blank">https://nitishbharti04-nb.github.io/Nitishbharti/</a>
-                <div class="cert-id" id="certId">NITI CERT - NITI-A08KCF5Y</div>
-            </div>
-
-            <div class="bottom-section">
-                <div class="seal">
-                    OFFICIAL<br>GRADUATE
+<div id="result-box" style="display:none; text-align:center; padding-bottom:50px;">
+    <div id="cert-wrapper">
+        <div class="certificate" id="cert-pdf">
+            <div class="cert-border"></div>
+            <div class="cert-inner">
+                <div class="cert-title">CERTIFICATE OF COMPLETION</div>
+                <div class="cert-sub">This is to certify that</div>
+                <div class="cert-name" id="out-name">Nitish Kumar Bharti</div>
+                <div class="cert-msg">has successfully completed the</div>
+                <div class="course-wrap" id="out-skill">Excel Test</div>
+                
+                <div class="cert-data">
+                    Score: <span id="out-score">0/15</span> <br>
+                    Grade: <span id="out-grade">Beginner</span> <br>
+                    Date: <span id="out-date">Fri Jan 16 2026</span>
                 </div>
-                <div class="signature-area">
-                    <div class="actual-signature">Program Director</div>
-                    <div class="signature-line">Signature</div>
+
+                <div class="cert-link">
+                    Thanks for visiting our page — <u>https://nitishbharti04-nb.github.io/Nitishbharti/</u>
+                </div>
+
+                <div class="id-tag">
+                    NITI CERT - <span id="out-id">NITI-XXXXXX</span>
+                </div>
+
+                <img src="https://i.ibb.co/L6V2M9v/seal-gold.png" class="seal-main" alt="Seal">
+                <img src="https://i.ibb.co/L6V2M9v/seal-gold.png" class="seal-side" alt="Seal Small">
+
+                <div class="sig-block">
+                    <div class="sig-img">Signature</div>
+                    <div class="sig-line">Program Director</div>
                 </div>
             </div>
         </div>
     </div>
+    <br>
+    <button class="no-print" style="width:300px" onclick="downloadPDF()">Download PDF (Landscape)</button>
+    <button class="no-print" style="width:300px; background:#444" onclick="location.reload()">Restart Test</button>
+</div>
 
-    <!-- jsPDF and html2canvas (to export the styled certificate) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+let userName="", userEmail="", userSkill="", currentTest=[], answers=[], qIndex=0, timer=null, timeLeft=1200;
 
-    <script>
-        // Utility to generate a sample NITI CERT id if not present
-        function generateNitiId() {
-            const rand = Math.random().toString(36).substr(2,8).toUpperCase();
-            return 'NITI-' + rand;
-        }
+function showSubjects() {
+    userName = document.getElementById('userName').value.trim();
+    if(!userName) return alert("Enter Name");
+    document.getElementById('login-box').style.display='none';
+    document.getElementById('subject-box').style.display='block';
+}
 
-        // Fill dynamic values (optional — you can replace these with real values before download)
-        document.addEventListener('DOMContentLoaded', () => {
-            // If values already set in the HTML, we keep them. Otherwise set defaults:
-            const nameEl = document.getElementById('studentName');
-            const courseEl = document.getElementById('courseName');
-            const scoreEl = document.getElementById('scoreValue');
-            const totalEl = document.getElementById('scoreTotal');
-            const gradeEl = document.getElementById('gradeValue');
-            const dateEl = document.getElementById('dateValue');
-            const idEl = document.getElementById('certId');
+function startQuiz(skill) {
+    userSkill = skill;
+    document.getElementById('subject-box').style.display='none';
+    document.getElementById('quiz-box').style.display='block';
+    
+    // Hard Question Pool
+    let pool = getPool(skill);
+    currentTest = pool.sort(() => 0.5 - Math.random()).slice(0, 15); // Random 15
+    answers = new Array(15).fill(null);
+    
+    startTimer();
+    renderQ();
+}
 
-            // Example: if certificate id is not customized, generate one
-            if (!idEl.textContent.trim() || idEl.textContent.indexOf('NITI CERT') === -1) {
-                idEl.textContent = 'NITI CERT - ' + generateNitiId();
-            }
+function startTimer() {
+    timer = setInterval(() => {
+        timeLeft--;
+        let m = Math.floor(timeLeft/60), s = timeLeft%60;
+        document.getElementById('timer').textContent = `Time: ${m}:${s<10?'0'+s:s}`;
+        if(timeLeft<=0) endQuiz();
+    }, 1000);
+}
 
-            // Set today's date if date in template looks like a placeholder
-            if (!dateEl.textContent.trim() || dateEl.textContent.match(/Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec/) === null) {
-                dateEl.textContent = new Date().toDateString();
-            }
+function renderQ() {
+    let q = currentTest[qIndex];
+    let html = `<h3>Question ${qIndex+1} of 15</h3>
+                <p style="font-size:18px; font-weight:bold">${q.q}</p>`;
+    q.opts.forEach((o, i) => {
+        html += `<label class="option"><input type="radio" name="opt" value="${i}" ${answers[qIndex]===i?'checked':''}> ${o}</label>`;
+    });
+    html += `<div style="display:flex; gap:10px; margin-top:20px;">
+                ${qIndex>0 ? '<button onclick="prev()">Previous</button>':''}
+                ${qIndex<14 ? '<button onclick="next()">Next</button>':'<button onclick="endQuiz()">Submit Test</button>'}
+             </div>`;
+    document.getElementById('q-card').innerHTML = html;
+}
 
-            // You can programmatically set name/course/score/grade here if integrating with your app:
-            // nameEl.textContent = 'Candidate Name';
-            // courseEl.textContent = 'Python Test';
-            // scoreEl.textContent = '14'; totalEl.textContent = '15';
-            // gradeEl.textContent = 'Advanced';
-        });
+function next() { save(); qIndex++; renderQ(); }
+function prev() { save(); qIndex--; renderQ(); }
+function save() {
+    let sel = document.querySelector('input[name="opt"]:checked');
+    if(sel) answers[qIndex] = parseInt(sel.value);
+}
 
-        // Download handler: capture the certificate container and export as PDF (Landscape Letter)
-        document.getElementById('btnDownload').addEventListener('click', async () => {
-            const certificateNode = document.getElementById('certificate');
+function endQuiz() {
+    save();
+    clearInterval(timer);
+    let score = 0;
+    currentTest.forEach((q, i) => { if(answers[i] === q.ans) score++; });
+    
+    const grade = score >= 12 ? "Distinction" : (score >= 8 ? "Advanced" : "Professional");
+    const certId = "NITI-" + Math.random().toString(36).substring(2, 8).toUpperCase();
 
-            // Increase scale for better quality in PDF
-            const scale = 2;
-            const opts = {
-                scale: scale,
-                useCORS: true,
-                logging: false,
-                backgroundColor: null
-            };
+    // Fill Certificate
+    document.getElementById('out-name').textContent = userName;
+    document.getElementById('out-skill').textContent = userSkill + " Test";
+    document.getElementById('out-score').textContent = score + "/15";
+    document.getElementById('out-grade').textContent = grade;
+    document.getElementById('out-id').textContent = certId;
+    document.getElementById('out-date').textContent = new Date().toDateString();
 
-            // Show a small temporary overlay or change button state to indicate processing (optional)
-            const origText = document.getElementById('btnDownload').textContent;
-            document.getElementById('btnDownload').textContent = 'Preparing PDF...';
-            document.getElementById('btnDownload').disabled = true;
+    document.getElementById('quiz-box').style.display='none';
+    document.getElementById('result-box').style.display='block';
+}
 
-            try {
-                const canvas = await html2canvas(certificateNode, opts);
+async function downloadPDF() {
+    const el = document.getElementById('cert-pdf');
+    const canvas = await html2canvas(el, { scale: 2 });
+    const imgData = canvas.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('l', 'px', [canvas.width, canvas.height]);
+    pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+    pdf.save(`${userName}_NITI_Cert.pdf`);
+}
 
-                // Get image data from canvas
-                const imgData = canvas.toDataURL('image/png');
+function getPool(skill) {
+    // Return 20+ hard questions so 15 are always random
+    return [
+        {q: "Which SQL clause is used to filter result sets after an aggregate function?", opts: ["WHERE", "GROUP BY", "HAVING", "ORDER BY"], ans: 2},
+        {q: "In Excel, what does the formula =OFFSET(A1,1,1) return?", opts: ["Value of A1", "Value of B2", "Value of B1", "Error"], ans: 1},
+        {q: "What is the time complexity of a Python Dictionary lookup?", opts: ["O(n)", "O(log n)", "O(1)", "O(n^2)"], ans: 2},
+        {q: "Which JOIN in SQL returns all records from the left table even if no match in right?", opts: ["INNER JOIN", "RIGHT JOIN", "LEFT JOIN", "CROSS JOIN"], ans: 2},
+        {q: "In Excel, how do you fix a cell reference for both row and column?", opts: ["$A1", "A$1", "$A$1", "A1"], ans: 2},
+        {q: "Python: Which of these is an immutable data type?", opts: ["List", "Dictionary", "Tuple", "Set"], ans: 2},
+        {q: "SQL: Which function is used to return the number of rows?", opts: ["SUM()", "COUNT()", "TOTAL()", "MAX()"], ans: 1},
+        {q: "Excel: Which function returns the serial number of the current date?", opts: ["TODAY()", "NOW()", "DATE()", "DAY()"], ans: 0},
+        {q: "Python: How do you start a comment?", opts: ["//", "/*", "#", "--"], ans: 2},
+        {q: "What is a 'Primary Key' in SQL?", opts: ["Duplicate values", "Unique identifier", "Foreign reference", "Null value"], ans: 1},
+        {q: "Excel: Shortcut to select entire column?", opts: ["Ctrl+Space", "Shift+Space", "Alt+Enter", "Ctrl+A"], ans: 0},
+        {q: "Python: Result of 2**3?", opts: ["6", "8", "9", "5"], ans: 1},
+        {q: "SQL: Which operator is used for pattern matching?", opts: ["MATCH", "LIKE", "SEARCH", "WHERE"], ans: 1},
+        {q: "Excel: Function to find the largest value?", opts: ["MAX()", "LARGE()", "TOP()", "HIGH()"], ans: 0},
+        {q: "Python: Method to add element at the end of a list?", opts: ["insert()", "push()", "append()", "add()"], ans: 2},
+        {q: "SQL: Command to remove all data from table without deleting structure?", opts: ["DELETE", "DROP", "TRUNCATE", "REMOVE"], ans: 2},
+        {q: "Excel: What does VLOOKUP stand for?", opts: ["Value Lookup", "Variable Lookup", "Vertical Lookup", "View Lookup"], ans: 2},
+        {q: "Python: Which keyword is used to handle exceptions?", opts: ["catch", "try", "throw", "error"], ans: 1},
+        {q: "SQL: Which keyword is used to remove duplicates?", opts: ["UNIQUE", "DISTINCT", "SINGLE", "ONLY"], ans: 1},
+        {q: "Excel: Function to count cells with numbers only?", opts: ["COUNT()", "COUNTA()", "COUNTIF()", "COUNTBLANK()"], ans: 0}
+    ];
+}
+</script>
 
-                // Create a jsPDF instance for letter landscape (units: pt)
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF({
-                    orientation: 'landscape',
-                    unit: 'pt',
-                    format: 'letter'
-                });
-
-                // Page size in points
-                const pageWidth = doc.internal.pageSize.getWidth();
-                const pageHeight = doc.internal.pageSize.getHeight();
-
-                // Calculate image dims to fit the page while preserving aspect ratio
-                const imgWidth = canvas.width;
-                const imgHeight = canvas.height;
-                const ratio = Math.min(pageWidth / imgWidth, pageHeight / imgHeight);
-                const renderWidth = imgWidth * ratio;
-                const renderHeight = imgHeight * ratio;
-                const marginX = (pageWidth - renderWidth) / 2;
-                const marginY = (pageHeight - renderHeight) / 2;
-
-                // Add the image to the PDF
-                doc.addImage(imgData, 'PNG', marginX, marginY, renderWidth, renderHeight, undefined, 'FAST');
-
-                // Save PDF using student's name if available
-                const name = document.getElementById('studentName').textContent.trim() || 'certificate';
-                const safeName = name.replace(/\s+/g, '_').replace(/[^\w\-\.]/g, '');
-                doc.save(`${safeName}_NITI_CERT.pdf`);
-            } catch (err) {
-                console.error('PDF generation failed', err);
-                alert('Failed to generate PDF. See console for details.');
-            } finally {
-                document.getElementById('btnDownload').textContent = origText;
-                document.getElementById('btnDownload').disabled = false;
-            }
-        });
-    </script>
 </body>
 </html>
