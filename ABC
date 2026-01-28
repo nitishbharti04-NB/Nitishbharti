@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Excel / CSV Report Dashboard</title>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- XLSX -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      padding: 20px;
+    }
+    .card {
+      background: #fff;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    h2 {
+      margin-top: 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <h2>📤 Upload Excel / CSV</h2>
+    <input type="file" id="fileInput" />
+  </div>
+
+  <div class="card">
+    <h2>📊 Comparison Chart</h2>
+    <canvas id="chart"></canvas>
+  </div>
+
+  <div class="card">
+    <h2>📄 Auto Report</h2>
+    <div id="report"></div>
+  </div>
+
+<script>
+  const fileInput = document.getElementById("fileInput");
+  const reportDiv = document.getElementById("report");
+  let chart;
+
+  fileInput.addEventListener("change", handleFile);
+
+  function handleFile(e) {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function (evt) {
+      const data = new Uint8Array(evt.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+      drawChart(jsonData);
+      generateReport(jsonData);
+    };
+
+    reader.readAsArrayBuffer(file);
+  }
+
+  function drawChart(data) {
+    const labels = data.map(row => Object.values(row)[0]);
+    const values = data.map(row => Number(Object.values(row)[1]));
+
+    if (chart) chart.destroy();
+
+    chart = new Chart(document.getElementById("chart"), {
+      type: "bar",
+      data: {
+        labels: labels,
+        datasets: [{
+          label: "Comparison",
+          data: values,
+          backgroundColor: "rgba(54, 162, 235, 0.7)"
+        }]
+      }
+    });
+  }
+
+  function generateReport(data) {
+    const total = data.reduce(
+      (sum, row) => sum + Number(Object.values(row)[1]),
+      0
+    );
+    const avg = (total / data.length).toFixed(2);
+
+    reportDiv.innerHTML = `
+      <p><b>Total Rows:</b> ${data.length}</p>
+      <p><b>Total Value:</b> ${total}</p>
+      <p><b>Average:</b> ${avg}</p>
+    `;
+  }
+</script>
+
+</body>
+</html>
