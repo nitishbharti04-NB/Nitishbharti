@@ -1,0 +1,84 @@
+function sendFilteredExcel_Email_HTMLBody_NoFilter() {
+  try {
+
+    const sheetId = "1caS7iPmbNQLMFuB9sZ5rEeYN--suHq4YLh-JOp3X3Ps";
+    const dataSheetName = "Blank_Area";
+    const dashboardSheetName = "Dashboard";
+
+    const emailRecipients = "Nitish.b@margerp.net,saurabh.a@margerp.com,sumit.k@margerp.com,pradeep@margerp.com,suman.s@margerp.biz";
+    const emailSubject = "Blank_Area_Open_New_Branch_Performance";
+
+    const ss = SpreadsheetApp.openById(sheetId);
+
+    // ---------------------- DASHBOARD -------------------------
+    const dashSheet = ss.getSheetByName(dashboardSheetName);
+    const dashRange = dashSheet.getRange("H10:N16").getValues();
+
+    let dashHtml = '<br><b>Dashboard Summary</b><br>';
+    dashHtml += '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;font-family:Arial;">';
+
+    dashRange.forEach((row, rIndex) => {
+      dashHtml += '<tr>';
+      row.forEach(cell => {
+        if (rIndex === 0) {
+          dashHtml += `<th style="background:#444;color:white;">${cell}</th>`;
+        } else {
+          dashHtml += `<td>${cell}</td>`;
+        }
+      });
+      dashHtml += '</tr>';
+    });
+
+    dashHtml += '</table><br><br>';
+
+    // ---------------------- FILTER DATA -------------------------
+    const dataSheet = ss.getSheetByName(dataSheetName);
+    const data = dataSheet.getRange("B1:O1000").getValues();
+
+    const filteredData = data.filter((row, index) =>
+      index === 0 || (index > 0 && row[4] && row[4].toString().toLowerCase() === "done")
+    );
+
+    if (filteredData.length <= 1) {
+      Logger.log("No rows with F='Done' found. Email not sent.");
+      return;
+    }
+
+    let htmlTable = '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;font-family:Arial;">';
+
+    // Header (row 0)
+    htmlTable += '<tr style="background-color:#001f5b;color:white;">';
+    filteredData[0].forEach(header => {
+      htmlTable += `<th>${header}</th>`;
+    });
+    htmlTable += '</tr>';
+
+    // Data rows
+    for (let i = 1; i < filteredData.length; i++) {
+      htmlTable += '<tr>';
+      filteredData[i].forEach(cell => {
+        htmlTable += `<td>${cell}</td>`;
+      });
+      htmlTable += '</tr>';
+    }
+
+    htmlTable += '</table>';
+
+    const emailBody =
+      "Hi Good Morning,<br><br>" +
+      "I wanted to share a quick update on the performance of our new branch in the Blank Area.<br><br> Thanks Automailer <br><br>" +
+      dashHtml +
+      htmlTable;
+
+    MailApp.sendEmail({
+      to: emailRecipients,
+      subject: emailSubject,
+      htmlBody: emailBody
+    });
+
+    Logger.log("Email sent successfully!");
+
+  } catch (error) {
+    Logger.log("Error: " + error);
+  }
+}
