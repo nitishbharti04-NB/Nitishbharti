@@ -1,0 +1,190 @@
+function send_Both_Emails() {
+  sendFilteredEmail_1();
+  sendFilteredEmail_2();
+}
+
+/* ***************************************************************
+    1️⃣ SCRIPT 1 — 2025 less than 4 and 1 yr Data
+**************************************************************** */
+function sendFilteredEmail_1() {
+  try {
+    const config = {
+      sheetId: "1Zjy4K_4KuiPwJQadspMQiQj6XkZwyH1JtBgnwCaGj8g",
+      dataSheet: "Email 2025 less than 4 and 1 yr Data",
+      dashboardSheet: "2025 less than 4 and 1 yr Dashobard",
+      dashboardRange: "I3:N6",
+      recipients: "Nitish.b@margerp.net,saurabh.a@margerp.com,sumit.k@margerp.com,pradeep@margerp.com,suman.s@margerp.biz",
+      subject: "Partners with <4 Average Sales per Month (Tenure > 1 Year)"
+    };
+
+    sendCompleteEmail(config);
+
+  } catch (error) {
+    Logger.log("Error Script-1: " + error);
+  }
+}
+
+/* ***************************************************************
+    2️⃣ SCRIPT 2 — more than 7 avg Data
+**************************************************************** */
+function sendFilteredEmail_2() {
+  try {
+    const config = {
+      sheetId: "1Zjy4K_4KuiPwJQadspMQiQj6XkZwyH1JtBgnwCaGj8g",
+      dataSheet: "Email more than 7 avg Data",
+      dashboardSheet: "more than 7 avg Dashboard",
+      dashboardRange: "G3:L6",
+      recipients: "Nitish.b@margerp.net,saurabh.a@margerp.com,sumit.k@margerp.com,pradeep@margerp.com,suman.s@margerp.biz",
+      subject: "Degrowing Partners with >7 Average in Current Year"
+    };
+
+    sendCompleteEmail(config);
+
+  } catch (error) {
+    Logger.log("Error Script-2: " + error);
+  }
+}
+
+/* ***************************************************************
+    COMMON FUNCTION — Dashboard + Full Data (NO FILTER)
+**************************************************************** */
+function sendCompleteEmail(config) {
+
+  const ss = SpreadsheetApp.openById(config.sheetId);
+
+  /* Dashboard */
+  const dashSheet = ss.getSheetByName(config.dashboardSheet);
+  const dashValues = dashSheet.getRange(config.dashboardRange).getValues();
+  let dashboardTable = buildHtmlTable(dashValues, "#004d40");
+
+  /* Full Data (NO FILTER NOW) */
+  const dataSheet = ss.getSheetByName(config.dataSheet);
+  const data = dataSheet.getRange("A1:AA1000").getValues();
+
+  let filteredTable = buildStyledHtmlTable(data, "#001f5b");
+
+  const emailBody =
+    "Hi Good Morning,<br><br>" +
+    "Please find below the partner data for FY 2024–25.<br><br>" +
+    "<b>📊 Dashboard Summary:</b><br>" +
+    dashboardTable +
+    "<br><br><b>📄 Partner List:</b><br>" +
+    filteredTable +
+    "<br><br>Thanks & Regards,<br>Automailer";
+
+  MailApp.sendEmail({
+    to: config.recipients,
+    subject: config.subject,
+    htmlBody: emailBody
+  });
+
+  Logger.log("Email Sent for sheet: " + config.dataSheet);
+}
+
+/* ***************************************************************
+      SIMPLE TABLE (Dashboard)
+**************************************************************** */
+function buildHtmlTable(dataArray, headerColor) {
+  if (!dataArray || dataArray.length === 0) return "";
+
+  let html = `<table border="1" cellpadding="5" cellspacing="0" 
+              style="border-collapse:collapse;font-family:Arial;">`;
+
+  html += `<tr style="background-color:${headerColor};color:white;">`;
+  dataArray[0].forEach(h => html += `<th>${h}</th>`);
+  html += "</tr>";
+
+  for (let i = 1; i < dataArray.length; i++) {
+    html += "<tr>";
+    dataArray[i].forEach(cell => {
+      html += `<td>${cell}</td>`;
+    });
+    html += "</tr>";
+  }
+
+  html += "</table>";
+  return html;
+}
+
+/* ***************************************************************
+      FULL STYLED TABLE — Growth Colors + Arrows + YES/NO Color
+**************************************************************** */
+function buildStyledHtmlTable(dataArray, headerColor) {
+  if (!dataArray || dataArray.length === 0) return "";
+
+  const headers = dataArray[0].map(h => h ? h.toString() : "");
+
+  let html = `<table border="1" cellpadding="5" cellspacing="0"
+              style="border-collapse:collapse;font-family:Arial;">`;
+
+  /* Header Row */
+  html += `<tr style="background-color:${headerColor};color:white;">`;
+  headers.forEach(h => html += `<th>${h}</th>`);
+  html += "</tr>";
+
+  /* Identify columns */
+  const growthCols = [];
+  const qualificationCols = [];
+
+  headers.forEach((h, idx) => {
+    const low = h.toLowerCase();
+
+    // Growth columns
+    if (low.includes("growth")) growthCols.push(idx);
+    if (low.includes("g%")) growthCols.push(idx);
+
+    // Qualification
+    if (low.includes("qualification") || low.includes("qalification"))
+      qualificationCols.push(idx);
+  });
+
+  /* Data Rows */
+  for (let i = 1; i < dataArray.length; i++) {
+    const row = dataArray[i];
+    if (row.every(c => !c)) continue;
+
+    html += "<tr>";
+
+    row.forEach((cell, colIndex) => {
+      let text = cell ?? "";
+      let style = "";
+
+      /* 🔵🔴 Qualification Criteria YES/NO */
+      if (
+        qualificationCols.includes(colIndex) ||
+        headers[colIndex].toLowerCase().includes("qalification")
+      ) {
+        const x = String(text).trim().toLowerCase();
+        if (x === "yes") {
+          style = "color:blue;font-weight:bold;";
+          text = "YES";
+        } else if (x === "no") {
+          style = "color:red;font-weight:bold;";
+          text = "NO";
+        }
+      }
+
+      /* 🔼🔻 Growth Columns with Percent */
+      if (growthCols.includes(colIndex)) {
+        let num = parseFloat(text);
+        if (!isNaN(num)) {
+          let percent = (num * 100).toFixed(2) + "%";
+          if (num < 0) {
+            style = "color:red;font-weight:bold;";
+            text = `🔻 ${percent}`;
+          } else {
+            style = "color:blue;font-weight:bold;";
+            text = `🔼 ${percent}`;
+          }
+        }
+      }
+
+      html += `<td style="${style}">${text}</td>`;
+    });
+
+    html += "</tr>";
+  }
+
+  html += "</table>";
+  return html;
+}
