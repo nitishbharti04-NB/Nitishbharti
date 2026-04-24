@@ -1,0 +1,32 @@
+Private Sub Worksheet_SelectionChange(ByVal Target As Range)
+
+    'Check if clicked cell is in C5:C20
+    If Not Intersect(Target, Range("C5:C20")) Is Nothing Then
+        
+        Dim zone As String
+        Dim wte As Variant
+        
+        'Get Zone from column B
+        zone = Cells(Target.Row, 2).Value
+        
+        'Get WTE from C2
+        wte = Range("C2").Value
+        
+        'Go to Partnerwise sheet
+        Sheets("Partnerwise").Activate
+        
+        'Apply Filter
+        With Sheets("Partnerwise")
+            
+            'Remove old filter
+            If .AutoFilterMode Then .AutoFilterMode = False
+            
+            'Apply new filter
+            .Range("A1").AutoFilter Field:=5, Criteria1:=zone   'Column E = Zone
+            .Range("A1").AutoFilter Field:=10, Criteria1:=wte   'Column J = WTE
+            
+        End With
+        
+    End If
+
+End Sub
