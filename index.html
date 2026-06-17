@@ -5,26 +5,257 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>NITI Professional Assessment Portal</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Pinyon+Script&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Pinyon+Script&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-/* App Interface Styles */
-body { margin:0; font-family:'Montserrat', sans-serif; background:#1a1a1a; color:white; }
-.container { max-width:1000px; margin:40px auto; padding:20px; }
-.card { background:white; color:#333; padding:30px; border-radius:15px; box-shadow:0 10px 40px rgba(0,0,0,0.5); }
-button { background:linear-gradient(135deg,#003366,#00509d); color:white; border:none; padding:12px 25px; border-radius:5px; cursor:pointer; font-weight:700; font-size:16px; transition:0.3s; }
-button:hover { background:#c5a059; color:#003366; }
-input { width:100%; padding:12px; margin:10px 0; border:1px solid #ccc; border-radius:5px; font-size:16px; box-sizing:border-box; }
-#timer { font-size:24px; color:#ffcc00; text-align:center; margin-bottom:10px; font-weight:700; }
-.option { display:block; background:#f9f9f9; padding:12px; margin:10px 0; border:1px solid #eee; border-radius:8px; cursor:pointer; transition:0.2s; }
-.option:hover { background:#f0f0f0; border-color:#c5a059; }
+:root{
+  --navy:#003366;
+  --navy-light:#00509d;
+  --navy-deep:#06142b;
+  --gold:#c5a059;
+  --gold-light:#e8c98a;
+  --cream:#fdfbf2;
+  --ink:#1a1a1a;
+  --success:#2e7d4f;
+  --danger:#b3261e;
+  --muted:#6b6f76;
+}
 
-/* =========================================
+*{ box-sizing:border-box; }
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; }
+}
+
+body{
+  margin:0;
+  font-family:'Montserrat', sans-serif;
+  color:white;
+  background:
+    radial-gradient(circle at 20% -10%, rgba(197,160,89,0.10), transparent 45%),
+    radial-gradient(circle at 100% 0%, rgba(0,80,157,0.25), transparent 40%),
+    linear-gradient(180deg, var(--navy-deep), #0a0a0a 70%);
+  min-height:100vh;
+}
+
+.app-header{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding:22px 10px 10px;
+  text-align:center;
+}
+.app-header .crest{
+  width:38px;height:38px;border-radius:50%;
+  background:radial-gradient(circle,#f9d976,#f39c12);
+  border:2px solid #7d5a00;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cinzel',serif;font-weight:700;color:#5c3f00;font-size:14px;
+  flex-shrink:0;
+}
+.app-header h1{
+  font-family:'Cinzel', serif;
+  font-size:26px;
+  letter-spacing:3px;
+  margin:0;
+  color:var(--gold-light);
+}
+.app-header p{
+  margin:2px 0 0;
+  font-size:12px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:#9aa7b8;
+}
+
+.container{ max-width:1000px; margin:10px auto 60px; padding:20px; }
+
+.screen{ animation: fadeIn 0.45s ease; }
+@keyframes fadeIn{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+
+.card{
+  background:var(--cream);
+  color:#333;
+  padding:34px;
+  border-radius:16px;
+  box-shadow:0 20px 50px rgba(0,0,0,0.45);
+  border-top:5px solid var(--gold);
+  position:relative;
+}
+
+.eyebrow{
+  font-family:'Cinzel', serif;
+  font-size:12px;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  color:var(--navy-light);
+  margin:0 0 6px;
+}
+.screen-title{
+  font-family:'Cinzel', serif;
+  font-size:30px;
+  color:var(--navy);
+  margin:0 0 6px;
+}
+.screen-sub{
+  margin:0 0 26px;
+  color:var(--muted);
+  font-size:15px;
+}
+
+button{
+  background:linear-gradient(135deg,var(--navy),var(--navy-light));
+  color:white;
+  border:none;
+  padding:13px 26px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:700;
+  font-size:15px;
+  font-family:'Montserrat',sans-serif;
+  transition:transform 0.15s ease, background 0.2s ease, color 0.2s ease;
+}
+button:hover{ background:var(--gold); color:var(--navy); transform:translateY(-2px); }
+button:focus-visible{ outline:3px solid var(--gold-light); outline-offset:2px; }
+button.btn-ghost{
+  background:transparent;
+  border:2px solid var(--navy);
+  color:var(--navy);
+}
+button.btn-ghost:hover{ background:var(--navy); color:white; }
+button.btn-text{
+  background:none; color:var(--muted); font-weight:600; padding:8px 10px;
+}
+button.btn-text:hover{ background:none; color:var(--navy); transform:none; text-decoration:underline; }
+
+input{
+  width:100%;
+  padding:13px 14px;
+  margin:8px 0;
+  border:1.5px solid #ddd;
+  border-radius:8px;
+  font-size:15px;
+  font-family:'Montserrat',sans-serif;
+  box-sizing:border-box;
+}
+input:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 3px rgba(197,160,89,0.25); }
+
+.back-link{ margin-bottom:14px; }
+
+/* ===== Stream / Level selection grids ===== */
+.grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:10px; }
+@media (max-width:620px){ .grid-2{ grid-template-columns:1fr; } }
+
+.pick-card{
+  background:white;
+  border:1.5px solid #eee;
+  border-radius:12px;
+  padding:18px;
+  text-align:left;
+  cursor:pointer;
+  display:flex;
+  gap:14px;
+  align-items:flex-start;
+  transition:all 0.18s ease;
+}
+.pick-card:hover{ border-color:var(--gold); box-shadow:0 8px 22px rgba(197,160,89,0.25); transform:translateY(-3px); }
+.seal-badge{
+  width:46px; height:46px; flex-shrink:0;
+  border-radius:50%;
+  background:radial-gradient(circle,#f9d976,#f39c12);
+  border:2px dashed #7d5a00;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Cinzel',serif; font-weight:700; font-size:13px; color:#5c3f00;
+}
+.pick-card h3{ margin:0 0 4px; color:var(--navy); font-family:'Cinzel',serif; font-size:18px; }
+.pick-card p{ margin:0; font-size:13px; color:var(--muted); line-height:1.4; }
+
+.level-chip{
+  display:inline-block; font-size:11px; font-weight:700; letter-spacing:1px;
+  text-transform:uppercase; padding:3px 10px; border-radius:20px; margin-top:6px;
+  background:#eef3f9; color:var(--navy-light);
+}
+
+/* ===== Quiz screen ===== */
+.quiz-meta{
+  display:flex; justify-content:space-between; align-items:center;
+  color:#cdd6e3; font-size:13px; margin-bottom:8px;
+}
+#timer{ font-weight:700; color:#ffcc66; }
+.progress-track{
+  width:100%; height:8px; border-radius:6px; background:rgba(255,255,255,0.12);
+  overflow:hidden; margin-bottom:18px;
+}
+.progress-fill{
+  height:100%; background:linear-gradient(90deg,var(--gold),var(--gold-light));
+  width:0%; transition:width 0.35s ease;
+}
+.qcat-tag{
+  display:inline-block; font-size:12px; font-weight:700; letter-spacing:1px;
+  text-transform:uppercase; color:white; background:var(--navy);
+  padding:4px 12px; border-radius:20px; margin-bottom:14px;
+}
+.option{
+  display:flex; align-items:center; gap:12px;
+  background:#f9f9f9; padding:13px 16px; margin:10px 0;
+  border:1.5px solid #eee; border-radius:10px; cursor:pointer; transition:0.18s;
+}
+.option:hover{ background:#fbf6ec; border-color:var(--gold); }
+.option.selected{ background:#eef3fb; border-color:var(--navy-light); }
+.opt-letter{
+  width:26px; height:26px; border-radius:50%; flex-shrink:0;
+  background:var(--navy); color:white; font-size:12px; font-weight:700;
+  display:flex; align-items:center; justify-content:center; font-family:'Cinzel',serif;
+}
+.option.selected .opt-letter{ background:var(--gold); color:var(--navy); }
+.option input{ display:none; }
+.quiz-nav{ margin-top:24px; display:flex; justify-content:space-between; gap:10px; }
+
+/* ===== Result screen ===== */
+.result-summary{
+  display:flex; align-items:center; gap:26px; margin-bottom:26px; flex-wrap:wrap;
+}
+.score-ring{ width:120px; height:120px; flex-shrink:0; }
+.score-ring text{ font-family:'Cinzel',serif; }
+.grade-pill{
+  display:inline-block; padding:6px 16px; border-radius:20px;
+  font-weight:700; font-size:13px; letter-spacing:1px; text-transform:uppercase;
+  margin-bottom:6px;
+}
+.grade-pill.excellent{ background:#e3f3e9; color:var(--success); }
+.grade-pill.proficient{ background:#fbf1de; color:#9a6b1a; }
+.grade-pill.improve{ background:#fbeceb; color:var(--danger); }
+.result-headline{ margin:0; font-family:'Cinzel',serif; font-size:22px; color:var(--navy); }
+.result-sub{ margin:4px 0 0; color:var(--muted); font-size:14px; }
+
+.cert-wrap{ width:100%; overflow-x:auto; padding:6px 0 12px; }
+.cert-outer-pattern{
+  width:1040px;
+  margin:0 auto;
+  padding:14px;
+  background:repeating-linear-gradient(45deg, rgba(197,160,89,0.18) 0 2px, transparent 2px 14px);
+  border-radius:18px;
+  transform-origin: top left;
+}
+.cert-ribbon{
+  position:absolute; top:18px; right:-6px;
+  background:var(--gold); color:var(--navy);
+  font-family:'Cinzel',serif; font-weight:700; font-size:11px; letter-spacing:2px;
+  padding:6px 18px 6px 14px; box-shadow:0 4px 10px rgba(0,0,0,0.25);
+  clip-path:polygon(0 0,100% 0,100% 100%,8% 100%,0 60%);
+}
+
+.action-row{ display:flex; justify-content:center; gap:12px; margin-top:22px; flex-wrap:wrap; }
+button.btn-gold{ background:linear-gradient(135deg,var(--gold),var(--gold-light)); color:var(--navy-deep); }
+button.btn-gold:hover{ background:var(--navy); color:white; }
+
+/* ===========================================
    CERTIFICATE CSS (EXACTLY SAME AS PROVIDED)
-   ========================================= */
+   =========================================== */
 .cert-container { width: 1000px; height: 650px; padding: 20px; background-color: #003366; position: relative; box-sizing: border-box; margin: 0 auto; }
 .cert-inner-frame { background: #fff; background-image: radial-gradient(#fff, #fdfbf2); height: 100%; width: 100%; border: 4px solid #c5a059; position: relative; box-sizing: border-box; padding: 40px; text-align: center; box-shadow: inset 0 0 50px rgba(197, 160, 89, 0.1); }
 .cert-inner-frame::before { content: '⚜'; position: absolute; top: 10px; left: 10px; color: #c5a059; font-size: 24px; }
@@ -47,173 +278,588 @@ input { width:100%; padding:12px; margin:10px 0; border:1px solid #ccc; border-r
 </head>
 <body>
 
+<div class="app-header">
+  <div class="crest">N</div>
+  <div>
+    <h1>NITI</h1>
+    <p>Skill Assessment &amp; Certification</p>
+  </div>
+</div>
+
 <div class="container">
-    <div id="login-screen" class="card">
-        <h1 style="text-align:center; color:#003366">NITI Skill Assessment</h1>
-        <p style="text-align:center">Enter your official name for the certificate.</p>
-        <input id="userName" type="text" placeholder="Your Full Name">
-        <input id="userEmail" type="email" placeholder="Email Address">
-        <button style="width:100%" onclick="goToSubject()">Next Step</button>
+
+    <!-- LOGIN -->
+    <div id="login-screen" class="screen card">
+        <p class="eyebrow">Step 1 of 4</p>
+        <h2 class="screen-title">Begin Your Assessment</h2>
+        <p class="screen-sub">Enter your details exactly as you'd like them to appear on your certificate.</p>
+        <input id="userName" type="text" placeholder="Your full name">
+        <input id="userEmail" type="email" placeholder="Email address">
+        <button style="width:100%; margin-top:8px" onclick="goToSubject()">Continue</button>
     </div>
 
-    <div id="subject-screen" class="card" style="display:none">
-        <h2>Select Subject (15 Hard Questions)</h2>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
-            <button onclick="startQuiz('Excel')">Advanced Excel</button>
-            <button onclick="startQuiz('SQL')">Complex SQL</button>
-            <button onclick="startQuiz('Python')">Python Pro</button>
-            <button onclick="startQuiz('Power BI')">Power BI Expert</button>
+    <!-- SUBJECT -->
+    <div id="subject-screen" class="screen card" style="display:none">
+        <div class="back-link"><button class="btn-text" onclick="backTo('login-screen')">&larr; Back</button></div>
+        <p class="eyebrow">Step 2 of 4</p>
+        <h2 class="screen-title">Choose Your Subject</h2>
+        <p class="screen-sub">Each test pulls 15 questions from a large, regularly-shuffled question bank for that subject only.</p>
+        <div class="grid-2" id="stream-grid"></div>
+    </div>
+
+    <!-- LEVEL -->
+    <div id="level-screen" class="screen card" style="display:none">
+        <div class="back-link"><button class="btn-text" onclick="backTo('subject-screen')">&larr; Back</button></div>
+        <p class="eyebrow">Step 3 of 4</p>
+        <h2 class="screen-title">Choose Your Level</h2>
+        <p class="screen-sub" id="level-sub">Pick a difficulty for this subject.</p>
+        <div class="grid-2" id="level-grid"></div>
+    </div>
+
+    <!-- QUIZ -->
+    <div id="quiz-screen" class="screen" style="display:none">
+        <div class="quiz-meta">
+            <span id="quiz-progress-text">Question 1 of 15</span>
+            <span id="timer">Time Left: 20:00</span>
         </div>
-    </div>
-
-    <div id="quiz-screen" style="display:none">
-        <div id="timer">Time Left: 20:00</div>
+        <div class="progress-track"><div id="progress-fill" class="progress-fill"></div></div>
         <div id="quiz-container" class="card"></div>
     </div>
 
-    <div id="result-screen" style="display:none">
-        <div id="cert-capture-area">
-            <div class="cert-container">
-                <div class="cert-inner-frame">
-                    <div class="cert-title">Certificate of Completion</div>
-                    <div class="cert-subtext">This is to certify that</div>
-                    <div id="disp-name" class="cert-name">Student Name</div>
-                    <div class="cert-course-line">has successfully completed the <strong id="disp-skill">Excel Test</strong></div>
-                    <div class="cert-stats">
-                        <strong>Score:</strong> <span id="disp-score">0/15</span> &nbsp; | &nbsp; 
-                        <strong>Grade:</strong> <span id="disp-grade">Beginner</span> <br>
-                        <strong>Date:</strong> <span id="disp-date">Jan 16, 2026</span>
-                    </div>
-                    <div class="cert-footer-link">
-                        Thanks for visiting our page — <u>https://nitishbharti04-nb.github.io/Nitishbharti/</u>
-                    </div>
-                    <div class="niti-branding-block">
-                        <div class="niti-label">NITI</div>
-                        <div id="disp-id" class="cert-id-tag">NITI CERT - A08KCF5Y</div>
-                    </div>
-                    <div class="cert-bottom">
-                        <div class="seal-box">OFFICIAL<br>GRADUATE</div>
-                        <div class="sig-area">
-                            <div class="sig-name">Program Director</div>
-                            <div class="sig-line">Signature</div>
+    <!-- RESULT -->
+    <div id="result-screen" class="screen" style="display:none">
+        <div class="card" style="margin-bottom:20px">
+            <div class="result-summary">
+                <svg class="score-ring" viewBox="0 0 120 120">
+                    <circle cx="60" cy="60" r="52" fill="none" stroke="#eee" stroke-width="12"/>
+                    <circle id="score-ring-fill" cx="60" cy="60" r="52" fill="none" stroke="#c5a059" stroke-width="12"
+                            stroke-linecap="round" stroke-dasharray="327" stroke-dashoffset="327"
+                            transform="rotate(-90 60 60)"/>
+                    <text id="score-ring-text" x="60" y="66" text-anchor="middle" font-size="24" font-weight="700" fill="#003366">0/15</text>
+                </svg>
+                <div>
+                    <span id="grade-pill" class="grade-pill excellent">Grade</span>
+                    <h3 class="result-headline" id="result-headline">Well done!</h3>
+                    <p class="result-sub" id="result-sub">Here's your certificate, ready to download or share.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="cert-wrap">
+            <div id="cert-outer" class="cert-outer-pattern">
+                <div id="cert-capture-area">
+                    <div class="cert-container">
+                        <div class="cert-ribbon">VERIFIED</div>
+                        <div class="cert-inner-frame">
+                            <div class="cert-title">Certificate of Completion</div>
+                            <div class="cert-subtext">This is to certify that</div>
+                            <div id="disp-name" class="cert-name">Student Name</div>
+                            <div class="cert-course-line">has successfully completed the <strong id="disp-skill">Excel Test</strong></div>
+                            <div class="cert-stats">
+                                <strong>Score:</strong> <span id="disp-score">0/15</span> &nbsp; | &nbsp;
+                                <strong>Grade:</strong> <span id="disp-grade">Beginner</span> <br>
+                                <strong>Date:</strong> <span id="disp-date">Jan 16, 2026</span>
+                            </div>
+                            <div class="cert-footer-link">
+                                Thanks for visiting our page — <u>https://nitishbharti04-nb.github.io/Nitishbharti/</u>
+                            </div>
+                            <div class="niti-branding-block">
+                                <div class="niti-label">NITI</div>
+                                <div id="disp-id" class="cert-id-tag">NITI CERT - A08KCF5Y</div>
+                            </div>
+                            <div class="cert-bottom">
+                                <div class="seal-box">OFFICIAL<br>GRADUATE</div>
+                                <div class="sig-area">
+                                    <div class="sig-name">Program Director</div>
+                                    <div class="sig-line">Signature</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div style="text-align:center; margin-top:20px;">
-            <button onclick="downloadPDF()">Download Official PDF Certificate</button>
-            <button style="background:#666" onclick="location.reload()">Take Another Test</button>
+
+        <div class="action-row">
+            <button class="btn-gold" onclick="downloadPDF()">Download Certificate (PDF)</button>
+            <button class="btn-ghost" style="background:white" onclick="shareCertificate()">Share Certificate</button>
+            <button class="btn-text" onclick="location.reload()">Take Another Test</button>
         </div>
     </div>
 </div>
 
 <script>
-let currentUser="", currentEmail="", currentSkill="", currentTest=[], userAnswers=[], currentIndex=0, timerObj=null, timeLeft=1200;
+/* =========================================================
+   CONFIG: subjects, levels, and question banks
+   ========================================================= */
+const STREAMS = [
+    { key:"Excel",   label:"Excel",     badge:"XL",  desc:"Formulas, lookups, PivotTables, Power Query and more." },
+    { key:"SQL",     label:"SQL",       badge:"SQL", desc:"Joins, aggregation, window functions, query design." },
+    { key:"Python",  label:"Python",    badge:"PY",  desc:"Core syntax, data structures, OOP, performance." },
+    { key:"PowerBI", label:"Power BI",  badge:"BI",  desc:"DAX, data modelling, visuals and report building." }
+];
 
-function goToSubject() {
-    currentUser=document.getElementById('userName').value.trim();
-    if(!currentUser) return alert("Enter Name");
-    document.getElementById('login-screen').style.display='none';
-    document.getElementById('subject-screen').style.display='block';
+const LEVELS = [
+    { key:"Beginner", label:"Beginner",  tag:"Level 1", desc:"Foundational concepts and everyday usage.", time:900 },
+    { key:"Advanced",  label:"Advanced", tag:"Level 2", desc:"Deeper concepts, edge cases and best practices.", time:1320 }
+];
+
+// q = question text, c = correct answer, w = 3 wrong answers
+const QUESTION_BANK = {
+Excel: {
+Beginner: [
+{q:"What does VLOOKUP stand for, functionally?",c:"Vertical Lookup",w:["Value Lookup","Variable Lookup","Visual Lookup"]},
+{q:"Which function adds up a range of cells?",c:"SUM",w:["TOTAL","ADD","PLUS"]},
+{q:"Which shortcut copies selected cells?",c:"Ctrl+C",w:["Ctrl+V","Ctrl+X","Ctrl+D"]},
+{q:"Which symbol must a formula begin with?",c:"=",w:["@","#","+"]},
+{q:"Which function counts non-empty cells?",c:"COUNTA",w:["COUNT","SUM","COUNTIF"]},
+{q:"Which function returns the average of a range?",c:"AVERAGE",w:["MEDIAN","MEAN","SUM"]},
+{q:"What is a reference like A1 called?",c:"Relative reference",w:["Absolute reference","Mixed reference","Named reference"]},
+{q:"Which shortcut undoes the last action?",c:"Ctrl+Z",w:["Ctrl+Y","Ctrl+U","Ctrl+R"]},
+{q:"Which chart type best shows a trend over time?",c:"Line chart",w:["Pie chart","Bar chart","Scatter chart"]},
+{q:"What does the IF function do?",c:"Returns one value if true, another if false",w:["Counts cells matching a condition","Looks up a value in a table","Rounds a number"]},
+{q:"Which symbol locks a row/column in a formula?",c:"$",w:["#","%","&"]},
+{q:"Which key autocompletes a recognised formula name?",c:"Tab",w:["Enter","Esc","Space"]},
+{q:"What is the default file extension for a modern Excel workbook?",c:".xlsx",w:[".xls",".csv",".doc"]},
+{q:"Which function finds the largest value in a range?",c:"MAX",w:["MIN","LARGE","TOP"]},
+{q:"What is a worksheet tab used for?",c:"Switching between sheets in a workbook",w:["Saving the file","Printing the file","Formatting cells"]},
+{q:"Which feature keeps the top row visible while scrolling?",c:"Freeze Panes",w:["Split View","Page Layout","Group Rows"]},
+{q:"Which shortcut opens Find and Replace?",c:"Ctrl+H",w:["Ctrl+F","Ctrl+R","Ctrl+E"]},
+{q:"Which function joins text from multiple cells?",c:"CONCAT",w:["MERGE","JOIN","COMBINE"]},
+{q:"What does COUNTIF do?",c:"Counts cells that match a condition",w:["Sums cells that match a condition","Counts all cells in a range","Counts blank cells only"]},
+{q:"Which ribbon tab contains the PivotTable option?",c:"Insert",w:["Data","Formulas","Review"]},
+{q:"What does AutoFill do?",c:"Extends a pattern or series automatically",w:["Auto-saves the file","Auto-corrects spelling","Auto-sorts a column"]},
+{q:"Which function rounds a number to a set number of digits?",c:"ROUND",w:["TRUNC","INT","FLOOR"]},
+{q:"What is the formula bar used for?",c:"Viewing and editing the content of the active cell",w:["Naming the worksheet","Setting the print area","Choosing a font"]},
+{q:"Which shortcut inserts a new row?",c:"Ctrl + Shift + +",w:["Ctrl + N","Ctrl + Shift + -","Ctrl + R"]},
+{q:"Which feature removes duplicate rows from a table?",c:"Remove Duplicates (Data tab)",w:["Data Validation","Conditional Formatting","Text to Columns"]}
+],
+Advanced: [
+{q:"What is XLOOKUP's main advantage over VLOOKUP?",c:"It can search both left and right of the lookup column",w:["It is faster on small datasets","It works only with numbers","It does not need a table range"]},
+{q:"Why use INDEX/MATCH instead of VLOOKUP?",c:"It is more flexible and can look up to the left",w:["It is easier to type","It works only in older Excel versions","It removes the need for column headers"]},
+{q:"What does SUMPRODUCT do?",c:"Multiplies corresponding array elements and sums the results",w:["Sums a product list alphabetically","Counts products in a range","Rounds a sum to the nearest product"]},
+{q:"Which function converts text into a usable cell reference?",c:"INDIRECT",w:["ADDRESS","OFFSET","CELL"]},
+{q:"What does the OFFSET function do?",c:"Returns a reference shifted from a starting cell by rows/columns",w:["Moves a cell's actual position","Offsets two columns permanently","Adjusts print margins"]},
+{q:"What makes a function 'volatile' in Excel?",c:"It recalculates every time the sheet changes, even unrelated cells",w:["It can only be used once per sheet","It only works with volatile data sources","It cannot be saved to disk"]},
+{q:"What is Power Query primarily used for?",c:"Importing and transforming data before it loads into the sheet",w:["Creating PivotCharts","Writing VBA macros","Formatting cell borders"]},
+{q:"What is the main benefit of a named range?",c:"Formulas become more readable and easier to maintain",w:["It compresses the file size","It encrypts the data","It removes the need for headers"]},
+{q:"What does the LAMBDA function let you create?",c:"A custom, reusable function written directly in a formula",w:["A new chart type","A macro recorder shortcut","A password-protected sheet"]},
+{q:"Which feature lets you test many input combinations at once?",c:"Data Table (What-If Analysis)",w:["Goal Seek","Scenario Manager only","Conditional Formatting"]},
+{q:"What is Solver used for?",c:"Solving optimisation problems with constraints",w:["Sorting large datasets","Removing errors automatically","Creating PivotTables"]},
+{q:"How are legacy array formulas entered?",c:"Ctrl+Shift+Enter",w:["Ctrl+Alt+Enter","Shift+Enter","Alt+Enter"]},
+{q:"What's the key difference between SUMIF and SUMIFS?",c:"SUMIFS supports multiple criteria, SUMIF supports only one",w:["SUMIFS is older and slower","SUMIF works on text, SUMIFS on numbers","There is no difference"]},
+{q:"Which function extracts the year from a date value?",c:"YEAR()",w:["DATEVALUE()","TODAY()","YEARFRAC()"]},
+{q:"What kind of reference does conditional formatting typically rely on?",c:"Relative reference",w:["Absolute reference only","Mixed reference only","Named reference only"]},
+{q:"What commonly causes a #REF! error?",c:"A formula points to a cell that has been deleted or is invalid",w:["A formula has too many characters","A cell contains text instead of a number","The workbook is read-only"]},
+{q:"What is Power Pivot mainly used for?",c:"Building data models with relationships for large datasets",w:["Formatting PivotTables","Printing large reports","Password-protecting workbooks"]},
+{q:"Slicers are most commonly used with which feature?",c:"PivotTables and PivotCharts, for interactive filtering",w:["The formula bar","Conditional formatting rules","Page Layout view"]},
+{q:"What does VBA stand for?",c:"Visual Basic for Applications",w:["Variable Based Automation","Visual Business Application","Value-Based Algorithm"]},
+{q:"What does the TEXT function do?",c:"Formats a number as text using a specified display format",w:["Converts text to a number","Removes extra spaces from text","Joins two text strings"]},
+{q:"What is a circular reference?",c:"A formula that refers back to its own cell, directly or indirectly",w:["A reference to a circular chart","A reference that loops between two workbooks","A reference that always returns zero"]},
+{q:"What does the dynamic array function FILTER do?",c:"Returns the rows of a range that match given criteria",w:["Removes filters applied to a PivotTable","Sorts a range alphabetically","Hides blank rows automatically"]},
+{q:"What is Data Validation used for?",c:"Restricting cell input to specific values or criteria",w:["Validating formula syntax only","Checking spelling in a sheet","Auto-correcting numeric entries"]},
+{q:"What does the Watch Window let you do?",c:"Monitor selected cell values while working elsewhere in the workbook",w:["Record a macro automatically","Track who edited the file","Watch a live video tutorial inside Excel"]},
+{q:"What's the main risk of overusing volatile functions like NOW() or RAND()?",c:"They can slow down recalculation across a large workbook",w:["They corrupt the file format","They cannot be saved to .xlsx","They disable AutoSave permanently"]}
+]
+},
+SQL: {
+Beginner: [
+{q:"What does SELECT * return?",c:"All columns from the specified table",w:["Only the first column","All tables in the database","A count of all rows"]},
+{q:"What is the WHERE clause used for?",c:"Filtering rows based on a condition",w:["Sorting the result set","Joining two tables","Naming a column"]},
+{q:"Which clause sorts the result set?",c:"ORDER BY",w:["GROUP BY","SORT BY","ARRANGE BY"]},
+{q:"Which keyword removes duplicate rows from results?",c:"DISTINCT",w:["UNIQUE","FILTER","ONLY"]},
+{q:"Which clause groups rows that share a value?",c:"GROUP BY",w:["ORDER BY","HAVING","PARTITION BY"]},
+{q:"What does an INNER JOIN return?",c:"Only matching rows from both tables",w:["All rows from both tables","Only unmatched rows","Every possible row combination"]},
+{q:"Which command adds new rows to a table?",c:"INSERT",w:["ADD","CREATE","APPEND"]},
+{q:"Which command changes existing rows in a table?",c:"UPDATE",w:["ALTER","MODIFY","CHANGE"]},
+{q:"Which command removes rows from a table?",c:"DELETE",w:["DROP","REMOVE","CLEAR"]},
+{q:"What is the purpose of a primary key?",c:"To uniquely identify each row in a table",w:["To store the largest value in a table","To sort the table automatically","To encrypt sensitive columns"]},
+{q:"What is a foreign key?",c:"A column that references a primary key in another table",w:["A key used to encrypt the database","A backup copy of the primary key","A key that can never be NULL"]},
+{q:"What does COUNT(*) do?",c:"Counts the number of rows returned",w:["Counts the number of columns","Adds up all numeric values","Counts only NULL rows"]},
+{q:"In a LIKE pattern, what does % represent?",c:"Any sequence of characters (including none)",w:["Exactly one character","A numeric digit","The start of the string only"]},
+{q:"What does NULL represent in SQL?",c:"A missing or unknown value",w:["The number zero","An empty string","A deleted row"]},
+{q:"In a WHERE clause, how does AND differ from OR?",c:"AND requires both conditions to be true, OR requires at least one",w:["AND is faster but less accurate","OR can only be used with numbers","There is no functional difference"]},
+{q:"Which clause restricts the number of rows returned?",c:"LIMIT",w:["TOP ONLY","MAX ROWS","STOP"]},
+{q:"What does the AS keyword do?",c:"Creates an alias for a column or table",w:["Casts a value to another data type","Sorts results ascending","Adds a comment to the query"]},
+{q:"What does CREATE TABLE do?",c:"Defines a new table structure",w:["Inserts a new row","Copies an existing table","Renames a database"]},
+{q:"What is a database schema?",c:"The structure or blueprint describing tables and their relationships",w:["A backup file of the database","A single row of data","A type of index"]},
+{q:"What is the BETWEEN operator used for?",c:"Filtering values within a given range",w:["Joining two tables","Checking for NULL values","Sorting a column"]},
+{q:"What is the IN operator used for?",c:"Matching a value against a list of possible values",w:["Inserting new rows","Joining tables on a key","Grouping rows together"]},
+{q:"What does SUM() do?",c:"Adds up the values in a numeric column",w:["Counts the number of rows","Finds the average value","Returns the largest value"]},
+{q:"What's the key difference between CHAR and VARCHAR?",c:"CHAR is fixed length, VARCHAR is variable length",w:["CHAR stores numbers, VARCHAR stores text","VARCHAR is always faster","CHAR allows NULL, VARCHAR does not"]},
+{q:"What is normalization in database design?",c:"Organising data to reduce redundancy and improve integrity",w:["Converting all text to lowercase","Compressing a database file","Encrypting sensitive columns"]},
+{q:"What is an index mainly used for?",c:"Speeding up data retrieval",w:["Storing backup copies of data","Enforcing column data types","Renaming tables safely"]}
+],
+Advanced: [
+{q:"How does DENSE_RANK differ from RANK?",c:"DENSE_RANK leaves no gaps in ranking after ties",w:["DENSE_RANK only works on text columns","RANK cannot handle ties at all","There is no real difference"]},
+{q:"What is a CTE (Common Table Expression)?",c:"A temporary, named result set defined within a query",w:["A permanent view stored in the database","A type of foreign key constraint","A compressed backup table"]},
+{q:"What does PARTITION BY do in a window function?",c:"Divides rows into groups for the window calculation, without collapsing rows",w:["Permanently splits a table into smaller tables","Removes duplicate partitions from disk","Sorts the entire result set"]},
+{q:"What's the key difference between UNION and UNION ALL?",c:"UNION removes duplicate rows, UNION ALL keeps them",w:["UNION ALL is only for numeric columns","UNION is faster than UNION ALL","UNION ALL requires matching table names"]},
+{q:"What is a self join?",c:"A table joined with itself, often using aliases",w:["A join that requires no matching columns","A join between two different databases","A join that always returns zero rows"]},
+{q:"What is a correlated subquery?",c:"A subquery that references columns from the outer query",w:["A subquery that runs only once total","A subquery that cannot use aggregates","A subquery stored as a view"]},
+{q:"What does ACID stand for in database transactions?",c:"Atomicity, Consistency, Isolation, Durability",w:["Access, Control, Integrity, Data","Aggregate, Commit, Index, Delete","Atomic, Cached, Indexed, Durable"]},
+{q:"What is a deadlock?",c:"Two or more transactions waiting indefinitely on each other's locks",w:["A query that never returns results","A table with no primary key","An index that has become corrupted"]},
+{q:"What is EXPLAIN (or EXPLAIN PLAN) used for?",c:"Showing how the database engine will execute a query",w:["Documenting column comments","Listing all users with access","Validating data types in a table"]},
+{q:"What is denormalization?",c:"Intentionally adding redundancy to improve read performance",w:["Removing all indexes from a table","Converting a table to third normal form","Deleting unused columns"]},
+{q:"How does HAVING differ from WHERE?",c:"HAVING filters after aggregation, WHERE filters before it",w:["HAVING can only be used with INSERT","WHERE only works with text columns","There is no functional difference"]},
+{q:"What is a materialized view?",c:"A query result that is physically stored and refreshed periodically",w:["A view that exists only in memory temporarily","A virtual table that is never stored","A backup of a regular view"]},
+{q:"What is the main trade-off of adding more indexes?",c:"Faster reads, but slower writes and more storage",w:["Faster writes, but slower reads","No effect on performance","Indexes only affect table size"]},
+{q:"What does a transaction isolation level control?",c:"How visible uncommitted changes are to other transactions",w:["How long a transaction can run","How many tables a transaction can touch","Whether a transaction can be rolled back"]},
+{q:"What is a composite key?",c:"A primary key made up of two or more columns together",w:["A key that combines two databases","A key generated automatically by the engine","A foreign key with multiple references"]},
+{q:"A LEFT JOIN with a WHERE filter for NULL on the right table finds what?",c:"Rows from the left table with no match in the right table",w:["Rows that exist in both tables","Rows only from the right table","All rows regardless of matches"]},
+{q:"What does query optimization generally involve?",c:"Improving performance via execution plans, indexes and query rewriting",w:["Only adding more RAM to the server","Removing all WHERE clauses","Converting all joins to subqueries"]},
+{q:"What is a trigger in SQL?",c:"Code that runs automatically on table events like insert, update or delete",w:["A scheduled backup job","A type of foreign key","A manual stored procedure call"]},
+{q:"What is a stored procedure?",c:"A precompiled set of SQL statements stored in the database",w:["A temporary table used once","A type of database index","A column-level constraint"]},
+{q:"What does the NTILE() window function do?",c:"Distributes rows into a specified number of roughly equal groups",w:["Returns the Nth row of a table","Removes the bottom N rows","Calculates a running total"]},
+{q:"What is a recursive CTE commonly used for?",c:"Querying hierarchical or recursive data, like organisation charts",w:["Speeding up simple SELECT statements","Encrypting query results","Converting rows into columns"]},
+{q:"What does a CROSS JOIN return?",c:"The Cartesian product of the two tables",w:["Only matching rows","Only unmatched rows","Rows sorted by join key"]},
+{q:"What's a key difference between TRUNCATE and DELETE?",c:"TRUNCATE removes all rows quickly and typically can't be filtered, unlike DELETE",w:["DELETE always removes the whole table","TRUNCATE can target specific rows with WHERE","There is no real difference"]},
+{q:"What is sharding?",c:"Splitting a database across multiple servers or partitions",w:["Backing up a database nightly","Compressing table indexes","Encrypting a database at rest"]},
+{q:"What is a covering index?",c:"An index that contains all the columns a query needs, avoiding extra lookups",w:["An index that covers every table in the database","An index that hides sensitive columns","An index that cannot be dropped"]}
+]
+},
+Python: {
+Beginner: [
+{q:"Which keyword is used to define a function?",c:"def",w:["func","function","define"]},
+{q:"Which data type represents whole numbers?",c:"int",w:["float","str","bool"]},
+{q:"How do you write a single-line comment?",c:"Starting the line with #",w:["Starting the line with //","Wrapping text in <!-- -->","Starting the line with ;"]},
+{q:"What's the key difference between a list and a tuple?",c:"Lists are mutable, tuples are immutable",w:["Tuples can only store numbers","Lists cannot be looped over","Tuples are always sorted"]},
+{q:"Which loop is used to iterate over a sequence?",c:"for",w:["repeat","loop","each"]},
+{q:"What does len() return?",c:"The number of items in an object",w:["The data type of an object","The last item in a list","The memory address of an object"]},
+{q:"What index does Python use for the first item in a list?",c:"0",w:["1","-1","None"]},
+{q:"How are strings typically written in Python?",c:"Enclosed in single or double quotes",w:["Enclosed in square brackets","Enclosed in curly braces","Enclosed in parentheses"]},
+{q:"What does print() do?",c:"Outputs text or values to the console",w:["Saves a variable to disk","Formats a string permanently","Stops program execution"]},
+{q:"What are the boolean values in Python?",c:"True and False",w:["1 and 0 only","Yes and No","On and Off"]},
+{q:"What is a dictionary in Python?",c:"A collection of key-value pairs",w:["A list of only string values","A type of loop","A fixed-size array"]},
+{q:"What values does range(5) generate?",c:"0, 1, 2, 3, 4",w:["1, 2, 3, 4, 5","0, 1, 2, 3, 4, 5","5, 4, 3, 2, 1"]},
+{q:"What does append() do on a list?",c:"Adds an item to the end of the list",w:["Removes the last item","Sorts the list in place","Joins two lists into a string"]},
+{q:"Which operator checks if two values are equal?",c:"==",w:["=","!=","==="]},
+{q:"What does the import statement do?",c:"Brings in code from another module",w:["Saves the current file","Deletes unused variables","Creates a new class"]},
+{q:"What is the result of 5 // 2?",c:"2",w:["2.5","3","0"]},
+{q:"Which keyword is used to define a class?",c:"class",w:["object","define","struct"]},
+{q:"What does self refer to inside a class method?",c:"The current instance of the class",w:["The class itself, never an instance","A global variable","The parent class only"]},
+{q:"What does len(\"hello\") return?",c:"5",w:["4","6","Error"]},
+{q:"Which function converts a string to an integer?",c:"int()",w:["str()","float()","num()"]},
+{q:"What is an exception in Python?",c:"An error raised during program execution",w:["A type of loop","A reserved keyword","A built-in data type"]},
+{q:"What is try/except used for?",c:"Handling errors gracefully without crashing the program",w:["Speeding up a loop","Defining a new function","Importing a module"]},
+{q:"What is a list comprehension?",c:"A concise way to build a list using a single expression",w:["A function that compresses a list's memory size","A method that sorts a list automatically","A loop that can only run once"]},
+{q:"What does None represent in Python?",c:"The absence of a value",w:["The number zero","An empty string","A failed import"]},
+{q:"What's the key difference between is and ==?",c:"is checks identity, == checks equality of value",w:["is checks value, == checks identity","They always behave identically","is only works on numbers"]}
+],
+Advanced: [
+{q:"What is a decorator in Python?",c:"A function that wraps another function to modify its behaviour",w:["A type of class attribute","A built-in data structure","A way to comment out code"]},
+{q:"What is a generator?",c:"A function that lazily yields values one at a time using yield",w:["A function that always returns a list","A class with no methods","A built-in module for randomisation"]},
+{q:"What does the GIL stand for?",c:"Global Interpreter Lock",w:["General Iteration Loop","Global Index List","Garbage Iteration Layer"]},
+{q:"What does a context manager (the with statement) help with?",c:"Automatically managing setup and teardown, like closing files or connections",w:["Speeding up arithmetic operations","Defining global variables","Compiling code ahead of time"]},
+{q:"What's the difference between a deep copy and a shallow copy?",c:"A deep copy duplicates nested objects too, a shallow copy only copies references",w:["A deep copy is always slower and never used","A shallow copy duplicates everything recursively","There is no functional difference"]},
+{q:"What is a metaclass?",c:"A class whose instances are themselves classes",w:["A class that cannot be instantiated","A base class for all exceptions","A class used only for testing"]},
+{q:"What do *args and **kwargs do in a function signature?",c:"Capture variable numbers of positional and keyword arguments",w:["Force exactly one argument to be passed","Disable default arguments","Convert arguments to strings"]},
+{q:"What is the purpose of an __init__.py file?",c:"Marks a directory as a Python package",w:["Stores all class definitions for the project","Runs automatically as the program's entry point","Holds the project's version number only"]},
+{q:"For CPU-bound tasks, what does the GIL limit in CPython?",c:"True parallel execution across threads in a single process",w:["The number of variables a program can use","The size of lists and dictionaries","Network requests only"]},
+{q:"What's the core difference between multiprocessing and threading?",c:"Multiprocessing uses separate processes for true parallelism, threading shares memory but is limited by the GIL",w:["Threading is always faster for CPU-bound work","Multiprocessing cannot be used with shared data","They are functionally identical in CPython"]},
+{q:"What does @staticmethod indicate?",c:"A method that doesn't access the instance or class directly",w:["A method that runs automatically at import time","A method that can only be called once","A method reserved for exceptions"]},
+{q:"What is duck typing?",c:"An object's suitability is determined by its methods/attributes, not its declared type",w:["A typing system that requires explicit type declarations","A way to disable type checking entirely","A naming convention for variables"]},
+{q:"What is a lambda function?",c:"A small, anonymous, inline function",w:["A function that can never take arguments","A function reserved for math operations","A deprecated feature in modern Python"]},
+{q:"What's the difference between __str__ and __repr__?",c:"__str__ gives a readable string, __repr__ gives an unambiguous representation for debugging",w:["They are interchangeable with no difference","__repr__ is only used in print statements","__str__ is only used for numbers"]},
+{q:"What does functools.lru_cache do?",c:"Caches a function's results to speed up repeated calls with the same arguments",w:["Clears all variables from memory","Logs every function call to a file","Limits a function to run only once"]},
+{q:"What is a namedtuple?",c:"A tuple subclass where fields can be accessed by name",w:["A tuple that can be modified in place","A dictionary disguised as a tuple","A tuple that can only hold strings"]},
+{q:"What is monkey patching?",c:"Modifying classes or modules at runtime",w:["A formal design pattern for inheritance","A method of compiling Python to C","A way to disable exceptions"]},
+{q:"What is asyncio mainly used for?",c:"Writing asynchronous, concurrent code using an event loop",w:["Speeding up CPU-bound number crunching","Managing file permissions","Replacing the need for functions"]},
+{q:"What's the difference between @staticmethod and @classmethod?",c:"@classmethod receives the class (cls) as its first argument, @staticmethod receives neither",w:["@staticmethod always runs first","@classmethod can only be used in abstract classes","They behave identically"]},
+{q:"What is 'pickling' in Python?",c:"Serialising Python objects into a byte stream for storage or transfer",w:["Formatting code automatically","Compressing image files","Validating function arguments"]},
+{q:"What is the @property decorator used for?",c:"Defining getter/setter-like behaviour while keeping attribute-style access",w:["Marking a class as immutable","Speeding up attribute lookups","Declaring a constant value"]},
+{q:"Why use virtual environments?",c:"To isolate a project's dependencies from the system and other projects",w:["To make code run faster","To encrypt source code","To enable multithreading"]},
+{q:"What does the walrus operator (:=) do?",c:"Assigns a value to a variable as part of a larger expression",w:["Compares two values for equality","Raises a custom exception","Reverses a string"]},
+{q:"What is PEP 8?",c:"Python's official style guide for writing readable code",w:["A built-in testing framework","A package manager for Python","A performance benchmarking tool"]},
+{q:"What's the classic pitfall with mutable default arguments?",c:"The default value persists across calls, causing unexpected shared state",w:["Mutable defaults cause a syntax error","Mutable defaults are reset on every call automatically","Python disallows mutable defaults entirely"]}
+]
+},
+PowerBI: {
+Beginner: [
+{q:"What is Power Query mainly used for?",c:"Importing and transforming data before it loads into the model",w:["Designing report colour themes","Writing DAX measures","Publishing reports to the web"]},
+{q:"What is a measure in Power BI?",c:"A calculation using DAX, often an aggregation",w:["A static value stored in a column","A type of visual filter","A connection to a data source"]},
+{q:"What is a report page?",c:"A page displaying one or more visuals",w:["A single pinned chart only","A backup copy of the data model","A type of DAX function"]},
+{q:"What does 'Get Data' do?",c:"Connects Power BI to a data source",w:["Refreshes an existing dataset only","Publishes the report online","Creates a new measure"]},
+{q:"What is a slicer?",c:"A visual control used to filter a report interactively",w:["A type of chart for time series","A formula language function","A way to merge two tables"]},
+{q:"Which view shows the data model and relationships?",c:"Model view",w:["Report view","Data view","Filter view"]},
+{q:"What's the difference between a dashboard and a report?",c:"A dashboard is a single page of pinned visuals, a report can have multiple pages",w:["They are exactly the same thing","A report can only contain one visual","A dashboard cannot be shared with others"]},
+{q:"What does Import mode do?",c:"Loads a copy of the data into Power BI's in-memory model",w:["Queries the source live every time","Deletes the original source data","Disables all relationships"]},
+{q:"What's the difference between a column and a measure?",c:"A column stores data on disk, a measure is calculated on the fly",w:["A measure is always a single fixed number","A column can only hold text","There is no real difference"]},
+{q:"Why are relationships between tables important?",c:"They allow filtering and combining data across tables",w:["They merge tables into one permanently","They are only used for formatting","They are required only for text columns"]},
+{q:"What is the Power BI Service?",c:"A cloud platform for sharing and collaborating on published reports",w:["A desktop-only tool for building reports","A database engine","A type of visual"]},
+{q:"What is a bookmark in Power BI?",c:"A saved snapshot of a report page's current view/state",w:["A saved data source connection","A type of relationship","A backup of the whole file"]},
+{q:"What is drill-down used for?",c:"Exploring data through levels of a hierarchy",w:["Deleting unused visuals","Refreshing the dataset","Changing the report theme"]},
+{q:"What does a KPI visual show?",c:"Progress towards a defined goal or target",w:["A list of all dataset columns","A map of geographic data","The report's refresh history"]},
+{q:"What file format does Power BI Desktop save as?",c:".pbix",w:[".pbi",".xlsx",".pbds"]},
+{q:"What does a tooltip show in Power BI?",c:"Extra information when hovering over a data point",w:["A permanent label on the visual","An error message only","A list of all filters applied"]},
+{q:"What is Power BI Desktop primarily used for?",c:"Building data models and designing reports",w:["Only viewing published dashboards","Hosting the company website","Sending automated emails"]},
+{q:"What is a hierarchy in Power BI?",c:"Grouped fields like Year > Quarter > Month for drilling down",w:["A list of report authors","A way to merge two visuals","A type of data refresh schedule"]},
+{q:"What does the Fields pane do?",c:"Lists the tables and columns available to build visuals with",w:["Shows the report's print settings","Displays user login history","Stores saved bookmarks"]},
+{q:"What is the filter pane used for?",c:"Applying filters at the visual, page or report level",w:["Changing the colour theme","Renaming columns","Exporting data to Excel"]},
+{q:"What does 'refresh' do in Power BI?",c:"Updates the report's data from its source",w:["Resets all visuals to default formatting","Deletes unused measures","Changes the report's language"]},
+{q:"What does a card visual typically show?",c:"A single summarised value",w:["A full data table","A geographic map","A list of filters"]},
+{q:"What is the purpose of a gateway?",c:"Connects on-premises data sources to the Power BI Service",w:["Encrypts published reports","Speeds up DAX calculations","Replaces the need for relationships"]},
+{q:"What is conditional formatting used for in a table visual?",c:"Highlighting values based on defined rules",w:["Sorting columns automatically","Hiding the table from viewers","Changing the data type of a column"]},
+{q:"What does 'Publish' do in Power BI Desktop?",c:"Uploads the report to the Power BI Service",w:["Saves the file locally only","Deletes the local copy","Exports the report as a PDF only"]}
+],
+Advanced: [
+{q:"What is the main purpose of the CALCULATE function?",c:"Modifies the filter context for an expression",w:["Sums a column without any filters","Creates a new calculated column only","Refreshes the dataset"]},
+{q:"What does the ALL() function do?",c:"Removes filters from the specified columns or tables",w:["Selects all visuals on a page","Adds filters to every table","Counts all rows in the model"]},
+{q:"What is context transition in DAX?",c:"Row context being converted into filter context when CALCULATE is invoked",w:["Switching between report pages","Changing a visual's chart type","Converting a measure into a column"]},
+{q:"What's the key difference between a calculated column and a measure?",c:"A calculated column is computed row-by-row and stored, a measure is computed dynamically at query time",w:["They behave identically in every case","Measures are always stored on disk","Calculated columns cannot use DAX"]},
+{q:"What does DAX stand for?",c:"Data Analysis Expressions",w:["Direct Access Extension","Data Aggregation Index","Dynamic Analytics XML"]},
+{q:"What is a star schema?",c:"A fact table connected to surrounding dimension tables",w:["A single flat table with all data","A schema with no relationships","A schema used only for text data"]},
+{q:"What is DirectQuery?",c:"Querying data live from the source without importing it",w:["A faster version of Import mode","A way to merge two reports","A type of visual filter"]},
+{q:"What does bidirectional filtering allow?",c:"Filters to propagate in both directions across a relationship",w:["Two reports to share the same filters automatically","Filters to bypass security rules","Data to refresh twice as fast"]},
+{q:"What is VAR used for in DAX?",c:"Defining a variable to reuse within an expression",w:["Validating a relationship","Creating a visual-level filter","Renaming a measure"]},
+{q:"What's the difference between FILTER and ALL?",c:"FILTER returns a filtered table, ALL removes filters entirely",w:["They are functionally identical","ALL only works on numeric columns","FILTER cannot be used inside CALCULATE"]},
+{q:"What is a disconnected table typically used for?",c:"Parameter/what-if tables or slicers that don't need a relationship",w:["Storing duplicate copies of fact tables","Improving refresh speed only","Replacing the need for measures"]},
+{q:"What does Row-Level Security (RLS) do?",c:"Restricts data access based on the signed-in user's role",w:["Encrypts the entire dataset","Hides specific visuals from all users","Limits the number of report pages"]},
+{q:"What does the SUMX function do?",c:"Iterates row by row over a table and sums an expression",w:["Sums only the X column in a table","Counts rows that meet a condition","Returns the maximum value in a table"]},
+{q:"What is a composite model?",c:"A model mixing Import and DirectQuery data sources together",w:["A model with only one table","A model that cannot use relationships","A backup of the original model"]},
+{q:"What does USERELATIONSHIP do?",c:"Activates an otherwise inactive relationship for a specific calculation",w:["Deletes a relationship permanently","Creates a brand new table","Renames a relationship"]},
+{q:"What's the difference between RELATED and RELATEDTABLE?",c:"RELATED returns a related single value (many-to-one), RELATEDTABLE returns a related table",w:["They are interchangeable in all contexts","RELATEDTABLE only works on measures","RELATED only works with text columns"]},
+{q:"What is incremental refresh?",c:"Refreshing only new or changed data partitions instead of reloading everything",w:["Refreshing the entire dataset twice as often","A way to disable scheduled refresh","A visual-level filter setting"]},
+{q:"What is a calculation group?",c:"A reusable set of DAX calculations that can be applied across multiple measures",w:["A folder for organising visuals","A group of slicers linked together","A type of relationship"]},
+{q:"What is the Performance Analyzer used for?",c:"Diagnosing how long report visuals take to load",w:["Checking user login activity","Validating DAX syntax only","Compressing the .pbix file"]},
+{q:"What is a what-if parameter used for?",c:"Letting users simulate different input scenarios in a report",w:["Locking a report from edits","Scheduling automatic refreshes","Encrypting sensitive measures"]},
+{q:"What does the Q&A visual let users do?",c:"Query the data using natural language questions",w:["Send feedback to the report author","Schedule a refresh","Export data to CSV only"]},
+{q:"What are aggregation tables used for?",c:"Improving performance on large datasets by querying pre-summarised data",w:["Replacing relationships entirely","Storing report-level filters","Encrypting the dataset"]},
+{q:"What is the XMLA endpoint used for?",c:"Advanced management and connection to a Power BI dataset via external tools",w:["Publishing reports to social media","Formatting visuals automatically","Creating slicers"]},
+{q:"What is a paginated report?",c:"A pixel-perfect, print-ready report typically used for forms or invoices",w:["A report that can only have one page","A report that refreshes automatically every minute","A report restricted to mobile view"]},
+{q:"What's a key difference between Power BI Pro and Premium?",c:"Premium offers dedicated capacity, larger dataset limits and extra features beyond per-user licensing",w:["Pro supports larger datasets than Premium","Premium removes the need for a workspace","There is no functional difference"]}
+]
+}
+};
+
+let currentUser="", currentEmail="", currentStream=null, currentLevelObj=null;
+let currentTest=[], userAnswers=[], currentIndex=0, timerObj=null, timeLeft=900, lastScore=0;
+let questionBags = {}; // shuffle-bag per "Stream_Level" to keep repeat tests fresh
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+function showScreen(id){
+    ["login-screen","subject-screen","level-screen","quiz-screen","result-screen"].forEach(s=>{
+        document.getElementById(s).style.display = (s===id) ? "block" : "none";
+    });
+}
+function backTo(id){ showScreen(id); }
+
+function goToSubject(){
+    currentUser = document.getElementById('userName').value.trim();
+    currentEmail = document.getElementById('userEmail').value.trim();
+    if(!currentUser) return alert("Please enter your name to continue.");
+    renderStreamGrid();
+    showScreen('subject-screen');
 }
 
-function startQuiz(skill) {
-    currentSkill=skill;
-    document.getElementById('subject-screen').style.display='none';
-    document.getElementById('quiz-screen').style.display='block';
-    let allQs=getHardPool(skill);
-    currentTest=shuffle(allQs).slice(0,15);
-    userAnswers=new Array(15).fill(null);
+function renderStreamGrid(){
+    const grid = document.getElementById('stream-grid');
+    grid.innerHTML = STREAMS.map(s => `
+        <div class="pick-card" onclick="selectStream('${s.key}')">
+            <div class="seal-badge">${s.badge}</div>
+            <div>
+                <h3>${s.label}</h3>
+                <p>${s.desc}</p>
+            </div>
+        </div>`).join('');
+}
+
+function selectStream(key){
+    currentStream = STREAMS.find(s=>s.key===key);
+    document.getElementById('level-sub').textContent =
+        `Pick a difficulty for ${currentStream.label}. Every attempt pulls a fresh, mostly-new set of 15 questions.`;
+    renderLevelGrid();
+    showScreen('level-screen');
+}
+
+function renderLevelGrid(){
+    const grid = document.getElementById('level-grid');
+    grid.innerHTML = LEVELS.map(l => `
+        <div class="pick-card" onclick="selectLevel('${l.key}')">
+            <div class="seal-badge">${l.tag.replace('Level ','L')}</div>
+            <div>
+                <h3>${l.label}</h3>
+                <span class="level-chip">${l.tag}</span>
+                <p style="margin-top:6px">${l.desc}</p>
+            </div>
+        </div>`).join('');
+}
+
+function selectLevel(key){
+    currentLevelObj = LEVELS.find(l=>l.key===key);
+    startQuiz();
+}
+
+/* =========================================================
+   QUESTION SELECTION (shuffle-bag => high variety on retakes)
+   ========================================================= */
+function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+}
+
+function buildQuestionInstance(qDef){
+    const opts = shuffle([qDef.c, ...qDef.w]);
+    return { txt: qDef.q, opts: opts, correctIndex: opts.indexOf(qDef.c) };
+}
+
+function drawQuestions(streamKey, levelKey, count){
+    const key = streamKey + "_" + levelKey;
+    if(!questionBags[key]) questionBags[key] = [];
+    while(questionBags[key].length < count){
+        questionBags[key] = questionBags[key].concat(shuffle(QUESTION_BANK[streamKey][levelKey]));
+    }
+    const picked = questionBags[key].splice(0, count);
+    return picked.map(buildQuestionInstance);
+}
+
+/* =========================================================
+   QUIZ FLOW
+   ========================================================= */
+function startQuiz(){
+    currentTest = drawQuestions(currentStream.key, currentLevelObj.key, 15);
+    userAnswers = new Array(15).fill(null);
+    currentIndex = 0;
+    timeLeft = currentLevelObj.time;
+    showScreen('quiz-screen');
     startTimer();
     renderQuestion();
 }
 
-function startTimer() {
-    timerObj=setInterval(()=>{
+function startTimer(){
+    clearInterval(timerObj);
+    timerObj = setInterval(()=>{
         timeLeft--;
-        let m=Math.floor(timeLeft/60), s=timeLeft%60;
-        document.getElementById('timer').textContent=`Time Left: ${m}:${s<10?'0'+s:s}`;
+        const m = Math.floor(timeLeft/60), s = timeLeft%60;
+        document.getElementById('timer').textContent = `Time Left: ${m}:${s<10?'0'+s:s}`;
         if(timeLeft<=0) finishQuiz();
     },1000);
 }
 
-function renderQuestion() {
-    const q=currentTest[currentIndex];
-    const html=`
-        <h3 style="color:#003366">Question ${currentIndex+1} of 15 (Hard)</h3>
-        <p style="font-size:18px; font-weight:700">${q.txt}</p>
+function renderQuestion(){
+    const q = currentTest[currentIndex];
+    const letters = ['A','B','C','D'];
+    document.getElementById('quiz-progress-text').textContent = `Question ${currentIndex+1} of 15`;
+    document.getElementById('progress-fill').style.width = `${(currentIndex/15)*100}%`;
+
+    const html = `
+        <span class="qcat-tag">${currentStream.label} &middot; ${currentLevelObj.label}</span>
+        <p style="font-size:18px; font-weight:700; color:#1a1a1a; margin-top:0">${q.txt}</p>
         ${q.opts.map((o,i)=>`
-            <label class="option">
-                <input type="radio" name="quiz_opt" value="${i}" ${userAnswers[currentIndex]===i?'checked':''}> ${o}
+            <label class="option ${userAnswers[currentIndex]===i?'selected':''}" onclick="selectOption(${i})">
+                <span class="opt-letter">${letters[i]}</span>
+                <span>${o}</span>
+                <input type="radio" name="quiz_opt" value="${i}" ${userAnswers[currentIndex]===i?'checked':''}>
             </label>`).join('')}
-        <div style="margin-top:20px; text-align:center">
-            ${currentIndex>0?'<button onclick="prevQ()">Previous</button>':''}
-            ${currentIndex<14?'<button onclick="nextQ()">Next</button>':'<button onclick="finishQuiz()">Finish Test</button>'}
+        <div class="quiz-nav">
+            <div>${currentIndex>0?'<button class="btn-ghost" onclick="prevQ()">Previous</button>':''}</div>
+            <div>${currentIndex<14?'<button onclick="nextQ()">Next</button>':'<button class="btn-gold" onclick="finishQuiz()">Finish Test</button>'}</div>
         </div>`;
-    document.getElementById('quiz-container').innerHTML=html;
+    document.getElementById('quiz-container').innerHTML = html;
 }
 
-function saveAns() {
-    const sel=document.querySelector('input[name="quiz_opt"]:checked');
-    if(sel) userAnswers[currentIndex]=parseInt(sel.value);
+function selectOption(i){
+    userAnswers[currentIndex] = i;
+    renderQuestion();
 }
-function nextQ(){saveAns();currentIndex++;renderQuestion();}
-function prevQ(){saveAns();currentIndex--;renderQuestion();}
 
-function finishQuiz() {
-    saveAns();
+function nextQ(){ currentIndex++; renderQuestion(); }
+function prevQ(){ currentIndex--; renderQuestion(); }
+
+function finishQuiz(){
     clearInterval(timerObj);
-    let score=0;
-    currentTest.forEach((q,i)=>{if(userAnswers[i]===q.ans) score++;});
-    const grade=score>=12?"Excellent":(score>=8?"Advanced":"Beginner");
-    const certId="NITI-"+Math.random().toString(36).substring(2,10).toUpperCase();
-    document.getElementById('disp-name').textContent=currentUser;
-    document.getElementById('disp-skill').textContent=currentSkill+" Test";
-    document.getElementById('disp-score').textContent=`${score}/15`;
-    document.getElementById('disp-grade').textContent=grade;
-    document.getElementById('disp-id').textContent="NITI CERT - "+certId;
-    document.getElementById('disp-date').textContent=new Date().toDateString();
-    document.getElementById('quiz-screen').style.display='none';
-    document.getElementById('result-screen').style.display='block';
+    let score = 0;
+    currentTest.forEach((q,i)=>{ if(userAnswers[i]===q.correctIndex) score++; });
+    lastScore = score;
+
+    let grade, gradeClass;
+    if(score>=13){ grade="Distinction"; gradeClass="excellent"; }
+    else if(score>=9){ grade="Proficient"; gradeClass="proficient"; }
+    else { grade="Needs Improvement"; gradeClass="improve"; }
+
+    const certId = "NITI-" + Math.random().toString(36).substring(2,10).toUpperCase();
+    const dateStr = new Date().toDateString();
+
+    // Result summary
+    document.getElementById('grade-pill').textContent = grade;
+    document.getElementById('grade-pill').className = "grade-pill " + gradeClass;
+    document.getElementById('result-headline').textContent =
+        score>=13 ? "Outstanding work!" : (score>=9 ? "Solid performance!" : "Good effort — keep practising!");
+    document.getElementById('result-sub').textContent =
+        `${currentStream.label} (${currentLevelObj.label}) · ${score} of 15 correct · Certificate ready below.`;
+
+    const circumference = 2*Math.PI*52;
+    const pct = score/15;
+    const ring = document.getElementById('score-ring-fill');
+    ring.setAttribute('stroke-dasharray', circumference);
+    ring.setAttribute('stroke-dashoffset', circumference*(1-pct));
+    ring.setAttribute('stroke', score>=13 ? "#2e7d4f" : (score>=9 ? "#c5a059" : "#b3261e"));
+    document.getElementById('score-ring-text').textContent = `${score}/15`;
+
+    // Certificate
+    document.getElementById('disp-name').textContent = currentUser;
+    document.getElementById('disp-skill').textContent = `${currentStream.label} Test (${currentLevelObj.label})`;
+    document.getElementById('disp-score').textContent = `${score}/15`;
+    document.getElementById('disp-grade').textContent = grade;
+    document.getElementById('disp-id').textContent = "NITI CERT - " + certId;
+    document.getElementById('disp-date').textContent = dateStr;
+
+    showScreen('result-screen');
+    requestAnimationFrame(scaleCertForViewport);
 }
 
-async function downloadPDF() {
-    const element=document.getElementById('cert-capture-area');
-    const canvas=await html2canvas(element,{scale:2});
-    const imgData=canvas.toDataURL('image/png');
-    const { jsPDF }=window.jspdf;
-    const pdf=new jsPDF('l','px',[canvas.width,canvas.height]);
+/* =========================================================
+   CERTIFICATE: responsive scaling, download, share
+   ========================================================= */
+function scaleCertForViewport(){
+    const outer = document.getElementById('cert-outer');
+    const available = outer.parentElement.clientWidth;
+    const naturalWidth = 1040;
+    const scale = Math.min(1, available/naturalWidth);
+    outer.style.transform = `scale(${scale})`;
+    outer.parentElement.style.height = (650 + 28) * scale + 20 + "px";
+}
+window.addEventListener('resize', scaleCertForViewport);
+
+async function downloadPDF(){
+    const element = document.getElementById('cert-capture-area');
+    const canvas = await html2canvas(element, { scale:2 });
+    const imgData = canvas.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('l','px',[canvas.width, canvas.height]);
     pdf.addImage(imgData,'PNG',0,0,canvas.width,canvas.height);
-    pdf.save(`${currentUser}_NITI_Certificate.pdf`);
+    pdf.save(`${currentUser.replace(/\s+/g,'_')}_NITI_Certificate.pdf`);
 }
 
-function shuffle(arr){return arr.sort(()=>Math.random()-0.5);}
+async function shareCertificate(){
+    const element = document.getElementById('cert-capture-area');
+    const canvas = await html2canvas(element, { scale:2 });
+    const shareText = `I scored ${lastScore}/15 in the ${currentStream.label} (${currentLevelObj.label}) assessment on NITI! 🎓`;
 
-function getHardPool(cat){
-    // 20 example hard questions per category
-    return [
-        {txt:"Excel: Which array formula would find 2nd most frequent text?",opts:["=MODE(A1:A50)","=INDEX(A1:A50,MATCH(MAX(COUNTIF(...)))","=LARGE(FREQUENCY(...))","Not possible"],ans:1},
-        {txt:"SQL: Which join returns only unmatched rows from both tables?",opts:["FULL OUTER JOIN","INNER JOIN","CROSS JOIN","FULL OUTER JOIN with NULL filter"],ans:3},
-        {txt:"Python: Time complexity of Timsort?",opts:["O(n log n)","O(n^2)","O(log n)","O(n)"],ans:0},
-        {txt:"Power BI: DAX function ignoring filters?",opts:["FILTER()","ALL()","CALCULATE()","RELATED()"],ans:1},
-        {txt:"Excel: Function to return unique values?",opts:["UNIQUE()","DISTINCT()","VALUE()","FILTER()"],ans:0},
-        {txt:"SQL: Change table structure?",opts:["UPDATE","MODIFY","ALTER","CHANGE"],ans:2},
-        {txt:"Python: '__add__' is?",opts:["__init__","__add__","__call__","__str__"],ans:1},
-        {txt:"Excel: #SPILL! error signifies?",opts:["Reference Error","Range Busy","Formula Too Long","Memory Full"],ans:1},
-        {txt:"Power BI: Primary use of 'M' language?",opts:["Data Visualization","Data Modeling","Data Transformation","Report Sharing"],ans:2},
-        {txt:"SQL: Rank without gaps?",opts:["RANK()","DENSE_RANK()","ROW_NUMBER()","PERCENT_RANK()"],ans:1},
-        {txt:"Python: Lambda function is?",opts:["Recursive function","Anonymous function","Built-in function","System function"],ans:1},
-        {txt:"Excel: Shortcut to evaluate formula parts?",opts:["F2","F4","F9","F5"],ans:2},
-        {txt:"Python: 'requests' default protocol?",opts:["FTP","SMTP","HTTP/HTTPS","SSH"],ans:2},
-        {txt:"SQL: Group rows and filter sum?",opts:["WHERE","HAVING","ORDER BY","LIMIT"],ans:1},
-        {txt:"Excel: Max nested IFs modern?",opts:["7","64","255","Unlimited"],ans:1},
-        {txt:"Python: 3 * 'A'?",opts:["AAA","Error","3","A"],ans:0},
-        {txt:"SQL: Constraint for unique values?",opts:["CHECK","UNIQUE","NOT NULL","DEFAULT"],ans:1},
-        {txt:"Power BI: Real-time data storage mode?",opts:["Import","DirectQuery","Dual","Composite"],ans:1},
-        {txt:"Excel: XLOOKUP replaces?",opts:["VLOOKUP","HLOOKUP","INDEX/MATCH","All of these"],ans:3},
-        {txt:"Python: __name__ == '__main__'?",opts:["Error handling","Module execution control","Class definition","Importing"],ans:1}
-    ];
+    canvas.toBlob(async (blob)=>{
+        const file = new File([blob], `${currentUser.replace(/\s+/g,'_')}_NITI_Certificate.png`, { type:'image/png' });
+        try{
+            if(navigator.canShare && navigator.canShare({ files:[file] })){
+                await navigator.share({ title:'My NITI Certificate', text:shareText, files:[file] });
+                return;
+            }
+            if(navigator.share){
+                await navigator.share({ title:'My NITI Certificate', text:shareText });
+                return;
+            }
+            throw new Error('no-share-api');
+        }catch(err){
+            if(err && err.name === 'AbortError') return; // user cancelled, do nothing
+            try{ await navigator.clipboard.writeText(shareText); }catch(e){}
+            alert("Sharing isn't supported in this browser. We copied your result to the clipboard — download the certificate and share it manually!");
+        }
+    });
 }
 </script>
 </body>
