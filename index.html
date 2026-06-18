@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>NITI Professional Assessment Portal</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Pinyon+Script&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@700&family=Pinyon+Script&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -22,6 +22,12 @@
   --success:#2e7d4f;
   --danger:#b3261e;
   --muted:#6b6f76;
+  --teal:#0e8a82;
+  --teal-light:#1fb5aa;
+  --teal-dark:#0a5f59;
+  --maroon:#8a1538;
+  --maroon-light:#b13a5c;
+  --maroon-dark:#5e0e26;
 }
 
 *{ box-sizing:border-box; }
@@ -50,13 +56,12 @@ body{
   text-align:center;
 }
 .app-header .crest{
-  width:38px;height:38px;border-radius:50%;
-  background:radial-gradient(circle,#f9d976,#f39c12);
-  border:2px solid #7d5a00;
+  width:42px;height:42px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  font-family:'Cinzel',serif;font-weight:700;color:#5c3f00;font-size:14px;
   flex-shrink:0;
+  overflow:hidden;
 }
+.app-header .crest svg{ width:100%; height:100%; display:block; }
 .app-header h1{
   font-family:'Cinzel', serif;
   font-size:26px;
@@ -165,12 +170,11 @@ input:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 3px rgba(1
 .pick-card:hover{ border-color:var(--gold); box-shadow:0 8px 22px rgba(197,160,89,0.25); transform:translateY(-3px); }
 .seal-badge{
   width:46px; height:46px; flex-shrink:0;
-  border-radius:50%;
-  background:radial-gradient(circle,#f9d976,#f39c12);
-  border:2px dashed #7d5a00;
-  display:flex; align-items:center; justify-content:center;
-  font-family:'Cinzel',serif; font-weight:700; font-size:13px; color:#5c3f00;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 3px 8px rgba(0,0,0,0.25);
 }
+.seal-badge svg{ width:100%; height:100%; display:block; }
 .pick-card h3{ margin:0 0 4px; color:var(--navy); font-family:'Cinzel',serif; font-size:18px; }
 .pick-card p{ margin:0; font-size:13px; color:var(--muted); line-height:1.4; }
 
@@ -237,16 +241,7 @@ input:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 3px rgba(1
   width:1040px;
   margin:0 auto;
   padding:14px;
-  background:repeating-linear-gradient(45deg, rgba(197,160,89,0.18) 0 2px, transparent 2px 14px);
-  border-radius:18px;
   transform-origin: top left;
-}
-.cert-ribbon{
-  position:absolute; top:18px; right:-6px;
-  background:var(--gold); color:var(--navy);
-  font-family:'Cinzel',serif; font-weight:700; font-size:11px; letter-spacing:2px;
-  padding:6px 18px 6px 14px; box-shadow:0 4px 10px rgba(0,0,0,0.25);
-  clip-path:polygon(0 0,100% 0,100% 100%,8% 100%,0 60%);
 }
 
 .action-row{ display:flex; justify-content:center; gap:12px; margin-top:22px; flex-wrap:wrap; }
@@ -254,32 +249,94 @@ button.btn-gold{ background:linear-gradient(135deg,var(--gold),var(--gold-light)
 button.btn-gold:hover{ background:var(--navy); color:white; }
 
 /* ===========================================
-   CERTIFICATE CSS (EXACTLY SAME AS PROVIDED)
+   CERTIFICATE — ornate navy/maroon frame design
    =========================================== */
-.cert-container { width: 1000px; height: 650px; padding: 20px; background-color: #003366; position: relative; box-sizing: border-box; margin: 0 auto; }
-.cert-inner-frame { background: #fff; background-image: radial-gradient(#fff, #fdfbf2); height: 100%; width: 100%; border: 4px solid #c5a059; position: relative; box-sizing: border-box; padding: 40px; text-align: center; box-shadow: inset 0 0 50px rgba(197, 160, 89, 0.1); }
-.cert-inner-frame::before { content: '⚜'; position: absolute; top: 10px; left: 10px; color: #c5a059; font-size: 24px; }
-.cert-title { font-family: 'Cinzel', serif; font-size: 48px; color: #1a1a1a; font-weight: 700; margin: 0; border-bottom: 3px solid #c5a059; display: inline-block; padding-bottom: 5px; }
-.cert-subtext { font-family: 'Montserrat', sans-serif; text-transform: uppercase; letter-spacing: 2px; margin-top: 25px; font-size: 16px; color: #555; }
-.cert-name { font-family: 'Pinyon Script', cursive; font-size: 70px; color: #003366; margin: 15px 0; }
-.cert-course-line { font-family: 'Montserrat', sans-serif; font-size: 20px; color: #333; }
-.cert-course-line strong { font-family: 'Cinzel', serif; font-size: 32px; color: #000; display: block; margin-top: 10px; }
-.cert-stats { margin-top: 20px; font-size: 18px; line-height: 1.8; color: #444; }
-.cert-footer-link { font-size: 13px; color: #777; margin-top: 25px; }
-.niti-branding-block { margin-top: 20px; }
-.niti-label { font-family: 'Cinzel', serif; font-size: 22px; font-weight: 700; color: #003366; margin-bottom: 2px; }
-.cert-id-tag { font-weight: 700; font-size: 14px; background: #f0f0f0; padding: 5px 15px; border-radius: 4px; display: inline-block; border: 1px solid #ddd; }
-.cert-bottom { display: flex; justify-content: space-between; align-items: flex-end; position: absolute; bottom: 40px; left: 40px; right: 40px; }
-.seal-box { width: 120px; height: 120px; background: radial-gradient(circle, #f9d976, #f39c12); border-radius: 50%; border: 3px dashed #7d5a00; display: flex; align-items: center; justify-content: center; text-align: center; color: #7d5a00; font-weight: 700; font-size: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-.sig-area { text-align: center; width: 220px; }
-.sig-name { font-family: 'Pinyon Script', cursive; font-size: 30px; color: #000; margin-bottom: -10px; }
-.sig-line { border-top: 2px solid #333; padding-top: 5px; font-weight: 700; font-size: 14px; color: #000; }
+.cert-container{
+  width:1000px; height:650px; padding:26px; position:relative; box-sizing:border-box; margin:0 auto;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy) 42%, var(--maroon) 58%, var(--maroon) 100%);
+  border-radius:6px;
+  overflow:hidden;
+  box-shadow:0 20px 50px rgba(0,0,0,0.45);
+}
+.cert-container::before{
+  content:'';
+  position:absolute; inset:0;
+  background: linear-gradient(115deg, transparent 28%, rgba(255,255,255,0.16) 36%, rgba(255,255,255,0.32) 40%, rgba(255,255,255,0.16) 44%, transparent 52%);
+}
+.cert-inner-frame{
+  background:#fdfaf0; background-image: radial-gradient(circle at 50% 0%, #fffdf6, #fdf6e6);
+  height:100%; width:100%; border:3px solid var(--gold);
+  position:relative; box-sizing:border-box; padding:34px 56px; text-align:center;
+  box-shadow: inset 0 0 0 1px rgba(197,160,89,0.35);
+}
+.corner-flourish{ position:absolute; width:74px; height:74px; pointer-events:none; }
+.corner-flourish.tl{ top:8px; left:8px; }
+.corner-flourish.tr{ top:8px; right:8px; transform:scaleX(-1); }
+.corner-flourish.bl{ bottom:8px; left:8px; transform:scaleY(-1); }
+.corner-flourish.br{ bottom:8px; right:8px; transform:scale(-1,-1); }
+
+
+.cert-seal-mini{
+  position:absolute; top:92px; right:40px;
+  width:80px; height:80px; border-radius:50%;
+  background: radial-gradient(circle at 35% 30%, #fdf0c4, #e3b94a 55%, #a9762b 100%);
+  border:3px double #fff8e6;
+  box-shadow:0 6px 14px rgba(0,0,0,0.3);
+  display:flex; align-items:center; justify-content:center;
+}
+.cert-seal-mini svg{ width:54px; height:54px; }
+.cert-subject-badge{
+  position:absolute; top:184px; right:53px;
+  width:56px; height:56px; border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 4px 10px rgba(0,0,0,0.3);
+}
+.cert-subject-badge svg{ width:100%; height:100%; display:block; }
+
+.cert-title{ font-family:'Cinzel',serif; font-size:40px; color:#0a0a0a; font-weight:700; margin:0; letter-spacing:1px; text-transform:uppercase; }
+.cert-subtext{ font-family:'Montserrat',sans-serif; text-transform:uppercase; letter-spacing:2px; margin-top:22px; font-size:15px; color:#0a0a0a; }
+.cert-name{ font-family:'Pinyon Script',cursive; font-size:64px; color:var(--navy); margin:12px 0 0; }
+.cert-course-line{ font-family:'Montserrat',sans-serif; text-transform:uppercase; letter-spacing:1px; font-size:15px; color:#0a0a0a; margin-top:14px; }
+
+.cert-skill-banner{
+  display:flex; align-items:center; justify-content:center; gap:16px;
+  margin:10px auto 0; max-width:420px;
+  padding:8px 0; border-top:1px solid var(--gold); border-bottom:1px solid var(--gold);
+}
+.cert-skill-banner strong{ font-family:'Cinzel',serif; font-size:30px; color:var(--navy); letter-spacing:1px; }
+.mini-flourish{ width:46px; height:22px; flex-shrink:0; }
+.mini-flourish.flip{ transform:scaleX(-1); }
+
+.cert-stats-plain{ margin-top:18px; font-family:'Montserrat',sans-serif; font-size:17px; color:#0a0a0a; line-height:1.95; }
+.cert-stats-plain b{ font-weight:700; color:#0a0a0a; }
+.cert-stats-plain span{ color:var(--navy); font-weight:700; }
+.cert-footer-link{ font-size:12.5px; color:#0a0a0a; margin-top:20px; }
+.cert-footer-block{ max-width:560px; margin:0 auto; }
+.cert-id-tag{ font-weight:700; font-size:14px; color:var(--navy); margin-top:8px; display:block; }
+
+.cert-medal-wrap{ position:absolute; bottom:30px; left:44px; width:150px; height:188px; }
+.cert-medal-ribbon{ position:absolute; bottom:0; width:44px; height:108px; background:linear-gradient(180deg,#e3b94a,#a9762b); clip-path:polygon(0 0,100% 0,100% 82%,50% 100%,0 82%); }
+.cert-medal-ribbon.left{ left:22px; transform:rotate(-10deg); }
+.cert-medal-ribbon.right{ left:64px; transform:rotate(10deg); }
+.cert-medal-disc{
+  position:absolute; top:0; left:50%; transform:translateX(-50%);
+  width:118px; height:118px; border-radius:50%;
+  background: radial-gradient(circle at 35% 30%, #fdf0c4, #e3b94a 55%, #a9762b 100%);
+  border:4px double #fff8e6;
+  box-shadow:0 6px 14px rgba(0,0,0,0.35);
+  display:flex; align-items:center; justify-content:center;
+}
+.cert-medal-disc svg{ width:80px; height:80px; }
+
+.cert-sig-wrap{ position:absolute; bottom:38px; right:50px; text-align:center; width:200px; }
+.sig-name{ font-family:'Pinyon Script', cursive; font-size:28px; color:#0a0a0a; margin-bottom:-8px; }
+.sig-line{ border-top:2px solid #333; padding-top:5px; font-weight:700; font-size:13px; color:#0a0a0a; }
 </style>
 </head>
 <body>
 
 <div class="app-header">
-  <div class="crest">N</div>
+  <div class="crest"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#003366" stroke="#c5a059" stroke-width="5"/><path d="M28 72 L28 28 L40 28 L64 58 L64 28 L74 28 L74 72 L62 72 L38 42 L38 72 Z" fill="#ffffff"/><rect x="68" y="24" width="9" height="9" fill="#c5a059" transform="rotate(45 72.5 28.5)"/></svg></div>
   <div>
     <h1>NITI</h1>
     <p>Skill Assessment &amp; Certification</p>
@@ -349,30 +406,46 @@ button.btn-gold:hover{ background:var(--navy); color:white; }
             <div id="cert-outer" class="cert-outer-pattern">
                 <div id="cert-capture-area">
                     <div class="cert-container">
-                        <div class="cert-ribbon">VERIFIED</div>
+                        <svg class="corner-flourish tl" viewBox="0 0 100 100"><path d="M6 94 C6 58 10 18 50 8 C28 24 18 50 18 80 C40 58 62 36 94 30" stroke="#e8c98a" stroke-width="3.5" fill="none" stroke-linecap="round"/><circle cx="94" cy="30" r="4" fill="#e8c98a"/><circle cx="6" cy="94" r="4" fill="#e8c98a"/></svg>
+                        <svg class="corner-flourish tr" viewBox="0 0 100 100"><path d="M6 94 C6 58 10 18 50 8 C28 24 18 50 18 80 C40 58 62 36 94 30" stroke="#e8c98a" stroke-width="3.5" fill="none" stroke-linecap="round"/><circle cx="94" cy="30" r="4" fill="#e8c98a"/><circle cx="6" cy="94" r="4" fill="#e8c98a"/></svg>
+                        <svg class="corner-flourish bl" viewBox="0 0 100 100"><path d="M6 94 C6 58 10 18 50 8 C28 24 18 50 18 80 C40 58 62 36 94 30" stroke="#e8c98a" stroke-width="3.5" fill="none" stroke-linecap="round"/><circle cx="94" cy="30" r="4" fill="#e8c98a"/><circle cx="6" cy="94" r="4" fill="#e8c98a"/></svg>
+                        <svg class="corner-flourish br" viewBox="0 0 100 100"><path d="M6 94 C6 58 10 18 50 8 C28 24 18 50 18 80 C40 58 62 36 94 30" stroke="#e8c98a" stroke-width="3.5" fill="none" stroke-linecap="round"/><circle cx="94" cy="30" r="4" fill="#e8c98a"/><circle cx="6" cy="94" r="4" fill="#e8c98a"/></svg>
+
                         <div class="cert-inner-frame">
+                            <div class="cert-seal-mini"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#003366" stroke="#c5a059" stroke-width="5"/><path d="M28 72 L28 28 L40 28 L64 58 L64 28 L74 28 L74 72 L62 72 L38 42 L38 72 Z" fill="#ffffff"/><rect x="68" y="24" width="9" height="9" fill="#c5a059" transform="rotate(45 72.5 28.5)"/></svg></div>
+                            <div id="cert-subject-badge" class="cert-subject-badge">XL</div>
+
                             <div class="cert-title">Certificate of Completion</div>
                             <div class="cert-subtext">This is to certify that</div>
                             <div id="disp-name" class="cert-name">Student Name</div>
-                            <div class="cert-course-line">has successfully completed the <strong id="disp-skill">Excel Test</strong></div>
-                            <div class="cert-stats">
-                                <strong>Score:</strong> <span id="disp-score">0/15</span> &nbsp; | &nbsp;
-                                <strong>Grade:</strong> <span id="disp-grade">Beginner</span> <br>
-                                <strong>Date:</strong> <span id="disp-date">Jan 16, 2026</span>
+                            <div class="cert-course-line">has successfully completed the</div>
+                            <div class="cert-skill-banner">
+                                <svg class="mini-flourish" viewBox="0 0 60 30"><path d="M2 15 C18 15 22 4 30 4 C22 4 18 26 2 26" stroke="#c5a059" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+                                <strong id="disp-skill">Excel Test</strong>
+                                <svg class="mini-flourish flip" viewBox="0 0 60 30"><path d="M2 15 C18 15 22 4 30 4 C22 4 18 26 2 26" stroke="#c5a059" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
                             </div>
-                            <div class="cert-footer-link">
-                                Thanks for visiting our page — <u>https://nitishbharti04-nb.github.io/Nitishbharti/</u>
+
+                            <div class="cert-stats-plain">
+                                <div><b>Score:</b> <span id="disp-score">0/15</span></div>
+                                <div><b>Grade:</b> <span id="disp-grade">Beginner</span></div>
+                                <div><b>Date:</b> <span id="disp-date">Jan 16, 2026</span></div>
                             </div>
-                            <div class="niti-branding-block">
-                                <div class="niti-label">NITI</div>
+
+                            <div class="cert-footer-block">
+                                <div class="cert-footer-link">
+                                    Thanks for visiting our page — <u>https://nitishbharti04-nb.github.io/Nitishbharti/</u>
+                                </div>
                                 <div id="disp-id" class="cert-id-tag">NITI CERT - A08KCF5Y</div>
                             </div>
-                            <div class="cert-bottom">
-                                <div class="seal-box">OFFICIAL<br>GRADUATE</div>
-                                <div class="sig-area">
-                                    <div class="sig-name">Program Director</div>
-                                    <div class="sig-line">Signature</div>
-                                </div>
+
+                            <div class="cert-medal-wrap">
+                                <div class="cert-medal-ribbon left"></div>
+                                <div class="cert-medal-ribbon right"></div>
+                                <div class="cert-medal-disc"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#003366" stroke="#c5a059" stroke-width="5"/><path d="M28 72 L28 28 L40 28 L64 58 L64 28 L74 28 L74 72 L62 72 L38 42 L38 72 Z" fill="#ffffff"/><rect x="68" y="24" width="9" height="9" fill="#c5a059" transform="rotate(45 72.5 28.5)"/></svg></div>
+                            </div>
+                            <div class="cert-sig-wrap">
+                                <div class="sig-name">Signature</div>
+                                <div class="sig-line">Program Director</div>
                             </div>
                         </div>
                     </div>
@@ -393,11 +466,19 @@ button.btn-gold:hover{ background:var(--navy); color:white; }
    CONFIG: subjects, levels, and question banks
    ========================================================= */
 const STREAMS = [
-    { key:"Excel",   label:"Excel",     badge:"XL",  desc:"Formulas, lookups, PivotTables, Power Query and more." },
-    { key:"SQL",     label:"SQL",       badge:"SQL", desc:"Joins, aggregation, window functions, query design." },
-    { key:"Python",  label:"Python",    badge:"PY",  desc:"Core syntax, data structures, OOP, performance." },
-    { key:"PowerBI", label:"Power BI",  badge:"BI",  desc:"DAX, data modelling, visuals and report building." }
+    { key:"Excel",   label:"Excel",     badge:"XL",  desc:"Formulas, lookups, PivotTables, Power Query and more.", color:"#1d6f42" },
+    { key:"SQL",     label:"SQL",       badge:"SQL", desc:"Joins, aggregation, window functions, query design.", color:"#1f6feb" },
+    { key:"Python",  label:"Python",    badge:"PY",  desc:"Core syntax, data structures, OOP, performance.", color:"#306998" },
+    { key:"PowerBI", label:"Power BI",  badge:"BI",  desc:"DAX, data modelling, visuals and report building.", color:"#f2c811", textColor:"#1a1a1a" }
 ];
+
+// Mandatory subject/stream logo — simplified brand-colour icon for each test
+function streamIconSVG(key){
+    if(key==="Excel") return `<svg width="100%" height="100%" viewBox="0 0 100 100"><rect x="6" y="6" width="88" height="88" rx="14" fill="#1d6f42"/><path d="M28 26 L46 50 L28 74 M72 26 L54 50 L72 74" stroke="#fff" stroke-width="9" fill="none" stroke-linecap="round"/></svg>`;
+    if(key==="SQL") return `<svg width="100%" height="100%" viewBox="0 0 100 100"><rect x="6" y="6" width="88" height="88" rx="14" fill="#1f6feb"/><ellipse cx="50" cy="32" rx="26" ry="11" fill="#fff"/><path d="M24 32 L24 68 C24 75 76 75 76 68 L76 32" fill="none" stroke="#fff" stroke-width="7"/><path d="M24 50 C24 57 76 57 76 50" fill="none" stroke="#fff" stroke-width="6"/></svg>`;
+    if(key==="Python") return `<svg width="100%" height="100%" viewBox="0 0 100 100"><rect x="6" y="6" width="88" height="88" rx="14" fill="#283655"/><path d="M50 14 C36 14 36 24 36 24 L36 34 L56 34 L56 38 L28 38 C28 38 18 38 18 52 C18 66 28 66 28 66 L34 66 L34 56 C34 56 34 48 42 48 L58 48 C58 48 66 48 66 40 L66 26 C66 26 66 14 50 14 Z" fill="#ffd43b"/><circle cx="44" cy="22" r="3.4" fill="#283655"/><path d="M50 86 C64 86 64 76 64 76 L64 66 L44 66 L44 62 L72 62 C72 62 82 62 82 48 C82 34 72 34 72 34 L66 34 L66 44 C66 44 66 52 58 52 L42 52 C42 52 34 52 34 60 L34 74 C34 74 34 86 50 86 Z" fill="#4b8bbe"/><circle cx="56" cy="78" r="3.4" fill="#fff"/></svg>`;
+    return `<svg width="100%" height="100%" viewBox="0 0 100 100"><rect x="6" y="6" width="88" height="88" rx="14" fill="#1a1a1a"/><rect x="22" y="56" width="12" height="22" fill="#f2c811"/><rect x="42" y="42" width="12" height="36" fill="#f2c811"/><rect x="62" y="24" width="12" height="54" fill="#f2c811"/></svg>`;
+}
 
 const LEVELS = [
     { key:"Beginner", label:"Beginner",  tag:"Level 1", desc:"Foundational concepts and everyday usage.", time:900 },
@@ -658,7 +739,7 @@ function renderStreamGrid(){
     const grid = document.getElementById('stream-grid');
     grid.innerHTML = STREAMS.map(s => `
         <div class="pick-card" onclick="selectStream('${s.key}')">
-            <div class="seal-badge">${s.badge}</div>
+            <div class="seal-badge">${streamIconSVG(s.key)}</div>
             <div>
                 <h3>${s.label}</h3>
                 <p>${s.desc}</p>
@@ -809,6 +890,10 @@ function finishQuiz(){
     document.getElementById('disp-grade').textContent = grade;
     document.getElementById('disp-id').textContent = "NITI CERT - " + certId;
     document.getElementById('disp-date').textContent = dateStr;
+    const badge = document.getElementById('cert-subject-badge');
+    badge.textContent = currentStream.badge;
+    badge.style.background = currentStream.color;
+    badge.style.color = currentStream.textColor || "#fff";
 
     showScreen('result-screen');
     requestAnimationFrame(scaleCertForViewport);
